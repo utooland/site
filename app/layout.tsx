@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 import "./styles.css";
+import { Providers } from "./providers";
+import { Header } from "./components/Header";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -37,8 +39,10 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}
       >
-        {children}
-        <Toaster
+        <Providers>
+          <Header />
+          {children}
+          <Toaster
           position="bottom-right"
           theme="dark"
           toastOptions={{
@@ -49,6 +53,7 @@ export default function RootLayout({
             },
           }}
         />
+        </Providers>
       </body>
     </html>
   );

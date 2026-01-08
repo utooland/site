@@ -79,7 +79,7 @@ export const FileTreeItem: React.FC<FileTreeItemProps> = ({
 }) => {
   const [isExpanded, setIsExpanded] = useState(item.fullName === ".");
 
-  const isSelected = selectedFile && selectedFile === item.fullName;
+  const isSelected = selectedFile === item.fullName;
   const depth = item.fullName.split("/").length;
   const shouldShowInput =
     creatingItem?.parentPath === item.fullName && item.type === "directory";

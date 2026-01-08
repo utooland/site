@@ -1,7 +1,25 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Zap, Package, Cpu, Code2, Layers, Rocket } from "lucide-react";
+import {
+  Terminal,
+  Globe,
+  Cpu,
+  Download,
+  Search,
+  Play,
+  FileText,
+  Box,
+  RefreshCw,
+  Gauge,
+  Split,
+  Palette,
+  Cloud,
+  HardDrive,
+  Workflow,
+  Copy,
+  Check,
+} from "lucide-react";
 import {
   Card,
   CardContent,
@@ -9,86 +27,375 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useState } from "react";
+import { useI18n } from "../i18n/context";
+import type { Translations } from "../i18n/translations";
 
-const features = [
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <button
+      onClick={handleCopy}
+      className="p-1.5 rounded hover:bg-white/10 transition-colors"
+      title="Copy"
+    >
+      {copied ? (
+        <Check className="w-4 h-4 text-green-400" />
+      ) : (
+        <Copy className="w-4 h-4 text-slate-400" />
+      )}
+    </button>
+  );
+}
+
+function getPackages(t: Translations) {
+  return [
   {
-    icon: Zap,
-    title: "Blazing Fast",
-    description:
-      "Built with Rust and compiled to WebAssembly for native-like performance in the browser.",
+    name: "utoo",
+    tagline: t.packages.utoo.tagline,
+    description: t.packages.utoo.description,
+    color: "purple",
+    gradient: "from-purple-500 to-violet-500",
+    install: "npm i -g utoo",
+    highlight: {
+      icon: FileText,
+      title: t.packages.utoo.highlight.title,
+      description: t.packages.utoo.highlight.description,
+    },
+    features: [
+      {
+        icon: Download,
+        title: t.packages.utoo.features.smartInstall.title,
+        description: t.packages.utoo.features.smartInstall.description,
+      },
+      {
+        icon: Search,
+        title: t.packages.utoo.features.packageExplorer.title,
+        description: t.packages.utoo.features.packageExplorer.description,
+      },
+      {
+        icon: Play,
+        title: t.packages.utoo.features.scriptRunner.title,
+        description: t.packages.utoo.features.scriptRunner.description,
+      },
+      {
+        icon: FileText,
+        title: t.packages.utoo.features.lockGeneration.title,
+        description: t.packages.utoo.features.lockGeneration.description,
+      },
+    ],
+    commands: [
+      { cmd: "ut install", desc: t.packages.utoo.commands.install },
+      { cmd: "ut deps", desc: t.packages.utoo.commands.deps },
+      { cmd: "ut list <pkg>", desc: t.packages.utoo.commands.list },
+      { cmd: "ut view <pkg>", desc: t.packages.utoo.commands.view },
+      { cmd: "utx <pkg>", desc: t.packages.utoo.commands.utx },
+    ],
+    config: null,
   },
   {
-    icon: Package,
-    title: "Smart Bundling",
-    description:
-      "Intelligent code splitting and tree shaking to optimize your bundle size automatically.",
+    name: "@utoo/pack",
+    tagline: t.packages.pack.tagline,
+    description: t.packages.pack.description,
+    color: "pink",
+    gradient: "from-pink-500 to-rose-500",
+    install: "ut i @utoo/pack",
+    highlight: {
+      icon: Workflow,
+      title: t.packages.pack.highlight.title,
+      description: t.packages.pack.highlight.description,
+    },
+    features: [
+      {
+        icon: Gauge,
+        title: t.packages.pack.features.faster.title,
+        description: t.packages.pack.features.faster.description,
+      },
+      {
+        icon: RefreshCw,
+        title: t.packages.pack.features.hmr.title,
+        description: t.packages.pack.features.hmr.description,
+      },
+      {
+        icon: Split,
+        title: t.packages.pack.features.codeSplitting.title,
+        description: t.packages.pack.features.codeSplitting.description,
+      },
+      {
+        icon: Palette,
+        title: t.packages.pack.features.css.title,
+        description: t.packages.pack.features.css.description,
+      },
+    ],
+    commands: [
+      { cmd: "utoo-pack dev", desc: t.packages.pack.commands.dev },
+      { cmd: "utoo-pack build", desc: t.packages.pack.commands.build },
+      { cmd: "utoo-pack preview", desc: t.packages.pack.commands.preview },
+    ],
+    config: {
+      file: ".umirc.ts",
+      code: `export default defineConfig({
+  utoopack: {}
+});`,
+      builtInto: t.packages.pack.config.builtInto,
+      addConfig: t.packages.pack.config.addConfig,
+    },
   },
   {
-    icon: Cpu,
-    title: "Multi-threaded",
-    description:
-      "Leverage Web Workers for parallel processing and faster build times.",
-  },
-  {
-    icon: Code2,
-    title: "TypeScript First",
-    description:
-      "First-class TypeScript support with instant type checking and auto-completion.",
-  },
-  {
-    icon: Layers,
-    title: "Plugin System",
-    description:
-      "Extensible plugin architecture supporting Less, Tailwind CSS, and more.",
-  },
-  {
-    icon: Rocket,
-    title: "Zero Config",
-    description:
-      "Sensible defaults out of the box. Start building immediately without complex configuration.",
+    name: "@utoo/web",
+    tagline: t.packages.web.tagline,
+    description: t.packages.web.description,
+    color: "orange",
+    gradient: "from-orange-500 to-amber-500",
+    install: "ut i @utoo/web",
+    highlight: {
+      icon: Globe,
+      title: t.packages.web.highlight.title,
+      description: t.packages.web.highlight.description,
+    },
+    features: [
+      {
+        icon: Cloud,
+        title: t.packages.web.features.browserInstall.title,
+        description: t.packages.web.features.browserInstall.description,
+      },
+      {
+        icon: HardDrive,
+        title: t.packages.web.features.opfs.title,
+        description: t.packages.web.features.opfs.description,
+      },
+      {
+        icon: Cpu,
+        title: t.packages.web.features.wasmCompiler.title,
+        description: t.packages.web.features.wasmCompiler.description,
+      },
+      {
+        icon: Workflow,
+        title: t.packages.web.features.serviceWorker.title,
+        description: t.packages.web.features.serviceWorker.description,
+      },
+    ],
+    commands: [
+      { cmd: "new Project({ cwd })", desc: t.packages.web.commands.newProject },
+      { cmd: "project.install(lock)", desc: t.packages.web.commands.install },
+      { cmd: "project.build()", desc: t.packages.web.commands.build },
+      { cmd: "project.readFile(path)", desc: t.packages.web.commands.readFile },
+    ],
+    config: null,
   },
 ];
+}
+
+function QuickReference({
+  pkg,
+  t,
+}: {
+  pkg: ReturnType<typeof getPackages>[0];
+  t: Translations;
+}) {
+  const [activeTab, setActiveTab] = useState<"commands" | "config">("commands");
+  const hasConfig = pkg.config !== null;
+
+  return (
+    <div className="rounded-xl overflow-hidden border border-slate-700 bg-slate-900 backdrop-blur">
+      <div className="px-4 py-3 bg-slate-800 border-b border-slate-700 flex items-center justify-between">
+        {hasConfig ? (
+          <div className="flex gap-1">
+            <button
+              onClick={() => setActiveTab("commands")}
+              className={`text-sm px-3 py-1 rounded transition-colors ${
+                activeTab === "commands"
+                  ? "bg-white/10 text-white"
+                  : "text-muted-foreground hover:text-white"
+              }`}
+            >
+              {t.common.cli}
+            </button>
+            <button
+              onClick={() => setActiveTab("config")}
+              className={`text-sm px-3 py-1 rounded transition-colors ${
+                activeTab === "config"
+                  ? "bg-white/10 text-white"
+                  : "text-muted-foreground hover:text-white"
+              }`}
+            >
+              umi
+            </button>
+          </div>
+        ) : (
+          <span className="text-sm text-muted-foreground">{t.common.quickReference}</span>
+        )}
+        <span
+          className={`text-xs px-2 py-0.5 rounded-full bg-${pkg.color}-500/20 text-${pkg.color}-300 font-mono`}
+        >
+          {pkg.name}
+        </span>
+      </div>
+      <div className="p-4 font-mono text-sm">
+        {activeTab === "commands" ? (
+          <div className="space-y-3">
+            {pkg.commands.map((item, index) => (
+              <motion.div
+                key={item.cmd}
+                initial={{ opacity: 0, x: -10 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.1 }}
+                viewport={{ once: true }}
+                className="flex items-center justify-between gap-4"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-green-400">$</span>
+                  <span className="text-slate-200">{item.cmd}</span>
+                </div>
+                <span className="text-slate-500 text-xs">{item.desc}</span>
+              </motion.div>
+            ))}
+          </div>
+        ) : (
+          pkg.config && (
+            <div>
+              <div className="text-slate-500 text-xs mb-3">
+                {pkg.config.builtInto}{" "}
+                <a
+                  href="https://umijs.org"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-pink-400 hover:text-pink-300 underline"
+                >
+                  umi
+                </a>
+                {" "}{pkg.config.addConfig}
+              </div>
+              <div className="text-slate-500 text-xs mb-1">{pkg.config.file}</div>
+              <pre className="text-slate-200 whitespace-pre">{pkg.config.code}</pre>
+            </div>
+          )
+        )}
+      </div>
+    </div>
+  );
+}
 
 export function Features() {
-  return (
-    <section className="py-20 px-4">
-      <div className="max-w-6xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          viewport={{ once: true }}
-          className="text-center mb-12"
-        >
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Why Choose <span className="gradient-text">Utoo</span>?
-          </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Experience the next generation of web bundling with cutting-edge
-            technology designed for modern development workflows.
-          </p>
-        </motion.div>
+  const { t } = useI18n();
+  const packages = getPackages(t);
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {features.map((feature, index) => (
+  return (
+    <section id="packages" className="py-20 px-4">
+      <div className="max-w-7xl mx-auto">
+        <div className="space-y-24">
+          {packages.map((pkg, pkgIndex) => (
             <motion.div
-              key={feature.title}
-              initial={{ opacity: 0, y: 20 }}
+              key={pkg.name}
+              initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
+              transition={{ duration: 0.6, delay: pkgIndex * 0.1 }}
               viewport={{ once: true }}
             >
-              <Card className="feature-card glass border-white/10 h-full">
-                <CardHeader>
-                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center mb-4">
-                    <feature.icon className="w-6 h-6 text-purple-400" />
+              {/* Package header */}
+              <div className="mb-8">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-4">
+                  <div className="flex items-center gap-4">
+                    <div
+                      className={`w-12 h-12 rounded-xl bg-gradient-to-br ${pkg.gradient} flex items-center justify-center`}
+                    >
+                      {pkgIndex === 0 && (
+                        <Terminal className="w-6 h-6 text-white" />
+                      )}
+                      {pkgIndex === 1 && <Box className="w-6 h-6 text-white" />}
+                      {pkgIndex === 2 && (
+                        <Globe className="w-6 h-6 text-white" />
+                      )}
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-bold font-mono">
+                        {pkg.name}
+                      </h3>
+                      <p className={`text-${pkg.color}-400`}>{pkg.tagline}</p>
+                    </div>
                   </div>
-                  <CardTitle className="text-lg">{feature.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription>{feature.description}</CardDescription>
-                </CardContent>
-              </Card>
+
+                  {/* Install command */}
+                  <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 font-mono text-sm text-slate-200">
+                    <span className="text-slate-400">$</span>
+                    <span className="text-slate-200">{pkg.install}</span>
+                    <CopyButton text={pkg.install} />
+                  </div>
+                </div>
+                <p className="text-muted-foreground max-w-2xl">
+                  {pkg.description}
+                </p>
+              </div>
+
+              {/* Highlight box for key differentiators */}
+              {pkg.highlight && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.4 }}
+                  viewport={{ once: true }}
+                  className="highlight-box"
+                >
+                  <div className="flex items-start gap-4">
+                    <div
+                      className={`w-12 h-12 rounded-lg bg-gradient-to-br ${pkg.gradient} flex items-center justify-center flex-shrink-0`}
+                    >
+                      <pkg.highlight.icon className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h4 className={`text-lg font-semibold highlight-title-${pkg.color} mb-1`}>
+                        {pkg.highlight.title}
+                      </h4>
+                      <p className="text-muted-foreground">
+                        {pkg.highlight.description}
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Features grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {pkg.features.map((feature, index) => (
+                    <motion.div
+                      key={feature.title}
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.4, delay: index * 0.1 }}
+                      viewport={{ once: true }}
+                    >
+                      <Card className="feature-card glass h-full">
+                        <CardHeader className="pb-2">
+                          <div
+                            className={`w-10 h-10 rounded-lg bg-gradient-to-br ${pkg.gradient} flex items-center justify-center mb-2`}
+                          >
+                            <feature.icon className="w-5 h-5 text-white" />
+                          </div>
+                          <CardTitle className="text-base">
+                            {feature.title}
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <CardDescription className="text-sm">
+                            {feature.description}
+                          </CardDescription>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  ))}
+                </div>
+
+                {/* Commands showcase */}
+                <QuickReference pkg={pkg} t={t} />
+              </div>
             </motion.div>
           ))}
         </div>

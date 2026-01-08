@@ -4,6 +4,11 @@
 
 @layer base {
   :root {
+    --radius: 0.75rem;
+  }
+
+  /* Dark theme (default) */
+  .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
 
@@ -24,8 +29,30 @@
 
     --border: 217.2 32.6% 17.5%;
     --ring: 262.1 83.3% 57.8%;
+  }
 
-    --radius: 0.75rem;
+  /* Light theme */
+  .light {
+    --background: 210 20% 98%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --primary: 262.1 83.3% 50%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 30% 94%;
+    --secondary-foreground: 222.2 84% 4.9%;
+
+    --muted: 210 30% 94%;
+    --muted-foreground: 215.4 16.3% 40%;
+
+    --accent: 262.1 83.3% 50%;
+    --accent-foreground: 222.2 84% 4.9%;
+
+    --border: 214.3 31.8% 85%;
+    --ring: 262.1 83.3% 50%;
   }
 }
 
@@ -67,26 +94,132 @@
 }
 
 /* Glass effect */
-.glass {
+.dark .glass {
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+.light .glass {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Theme-aware colored badges */
+.dark .badge-purple {
+  background: rgba(168, 85, 247, 0.2);
+  color: #c4b5fd;
+}
+.light .badge-purple {
+  background: rgba(124, 58, 237, 0.1);
+  color: #7c3aed;
+}
+
+.dark .badge-pink {
+  background: rgba(236, 72, 153, 0.2);
+  color: #f9a8d4;
+}
+.light .badge-pink {
+  background: rgba(219, 39, 119, 0.1);
+  color: #db2777;
+}
+
+.dark .badge-orange {
+  background: rgba(249, 115, 22, 0.2);
+  color: #fdba74;
+}
+.light .badge-orange {
+  background: rgba(234, 88, 12, 0.1);
+  color: #ea580c;
+}
+
+/* Theme-aware highlight boxes */
+.highlight-box {
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+.dark .highlight-box {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.light .highlight-box {
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+/* Theme-aware icon colors */
+.dark .icon-purple { color: #c4b5fd; }
+.light .icon-purple { color: #7c3aed; }
+.dark .icon-pink { color: #f9a8d4; }
+.light .icon-pink { color: #db2777; }
+.dark .icon-orange { color: #fdba74; }
+.light .icon-orange { color: #ea580c; }
+
+/* Theme-aware highlight title */
+.dark .highlight-title-purple { color: #d8b4fe; }
+.light .highlight-title-purple { color: #6b21a8; }
+.dark .highlight-title-pink { color: #fbcfe8; }
+.light .highlight-title-pink { color: #9d174d; }
+.dark .highlight-title-orange { color: #fed7aa; }
+.light .highlight-title-orange { color: #c2410c; }
+
+/* Playground always dark */
+.playground-dark {
+  background: #0f172a !important;
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.playground-dark .panel {
+  background: #0f172a;
+}
+
+.playground-dark .panel-header {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+}
+
+/* Terminal/code block backgrounds */
+.dark .terminal-bg {
+  background: rgba(15, 23, 42, 0.9);
+}
+
+.light .terminal-bg {
+  background: rgba(30, 41, 59, 0.95);
+}
+
 /* Gradient text */
-.gradient-text {
+.dark .gradient-text {
   background: linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #f97316 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
+.light .gradient-text {
+  background: linear-gradient(135deg, #7c3aed 0%, #db2777 50%, #ea580c 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
 /* Gradient background */
-.gradient-bg {
+.dark .gradient-bg {
   background: linear-gradient(135deg,
     rgba(168, 85, 247, 0.15) 0%,
     rgba(236, 72, 153, 0.15) 50%,
     rgba(249, 115, 22, 0.1) 100%
+  );
+}
+
+.light .gradient-bg {
+  background: linear-gradient(135deg,
+    rgba(124, 58, 237, 0.06) 0%,
+    rgba(219, 39, 119, 0.04) 50%,
+    rgba(234, 88, 12, 0.03) 100%
   );
 }
 
@@ -117,9 +250,14 @@
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.feature-card:hover {
+.dark .feature-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 20px 40px rgba(168, 85, 247, 0.2);
+}
+
+.light .feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(168, 85, 247, 0.15);
 }
 
 /* Code block styling */
