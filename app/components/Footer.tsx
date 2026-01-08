@@ -62,6 +62,15 @@ export function Footer() {
           >
             utoo
           </a>
+          {" & "}
+          <a
+            href="https://turbo.build/pack"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-pink-500 dark:text-pink-400 hover:text-pink-600 dark:hover:text-pink-300 transition-colors"
+          >
+            turbopack
+          </a>
         </div>
       </div>
     </footer>

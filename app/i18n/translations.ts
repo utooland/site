@@ -50,7 +50,7 @@ export const translations = {
       pack: {
         tagline: "Next-Gen Bundler",
         description:
-          "A modern bundler powered by Rust and WebAssembly. Zero config, instant HMR, and optimized production builds.",
+          "A modern bundler powered by Turbopack. Zero config, instant HMR, and optimized production builds.",
         highlight: {
           title: "umi Ecosystem Compatible",
           description:
@@ -129,6 +129,7 @@ export const translations = {
         wasmCompiler: "WASM Compiler",
         opfsFileSystem: "OPFS File System",
       },
+      tryButton: "Try Playground",
       buildButton: "Build Project",
       building: "Building...",
       panels: {
@@ -216,7 +217,7 @@ export const translations = {
       pack: {
         tagline: "新一代打包器",
         description:
-          "基于 Rust 和 WebAssembly 的现代打包器。零配置、即时 HMR、优化的生产构建。",
+          "基于 Turbopack 的现代打包器。零配置、即时 HMR、优化的生产构建。",
         highlight: {
           title: "兼容 umi 生态",
           description:
@@ -287,7 +288,7 @@ export const translations = {
     },
     // Playground
     playground: {
-      title: "playground",
+      title: "Playground",
       description:
         "体验浏览器原生构建。此演练场完全在浏览器中运行，无需服务器。依赖从 npm 安装，TypeScript 被编译，资源使用 WebAssembly 打包。",
       features: {
@@ -295,6 +296,7 @@ export const translations = {
         wasmCompiler: "WASM 编译器",
         opfsFileSystem: "OPFS 文件系统",
       },
+      tryButton: "体验 Playground",
       buildButton: "构建项目",
       building: "构建中...",
       panels: {

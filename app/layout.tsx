@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
-import { Toaster } from "sonner";
 import "./styles.css";
 import { Providers } from "./providers";
 import { Header } from "./components/Header";
@@ -8,23 +7,25 @@ import { Header } from "./components/Header";
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
+  display: "swap",
 });
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-jetbrains-mono",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Utoo - Lightning Fast Web Bundler",
+  title: "Utoo - Unified Frontend Toolchain",
   description:
-    "Build modern web applications with blazing fast compilation. Powered by Rust and WebAssembly for instant feedback.",
-  keywords: ["bundler", "webpack", "vite", "rust", "webassembly", "typescript"],
+    "A complete suite of tools for modern frontend development. Lightning fast package management, bundling, and browser-native builds.",
+  keywords: ["bundler", "package manager", "turbopack", "rust", "webassembly", "typescript"],
   authors: [{ name: "Utoo Team" }],
   openGraph: {
-    title: "Utoo - Lightning Fast Web Bundler",
+    title: "Utoo - Unified Frontend Toolchain",
     description:
-      "Build modern web applications with blazing fast compilation.",
+      "A complete suite of tools for modern frontend development.",
     type: "website",
   },
 };
@@ -42,17 +43,6 @@ export default function RootLayout({
         <Providers>
           <Header />
           {children}
-          <Toaster
-          position="bottom-right"
-          theme="dark"
-          toastOptions={{
-            style: {
-              background: "hsl(var(--card))",
-              border: "1px solid hsl(var(--border))",
-              color: "hsl(var(--foreground))",
-            },
-          }}
-        />
         </Providers>
       </body>
     </html>
