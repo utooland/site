@@ -77,7 +77,7 @@ export const translations = {
         commands: {
           dev: "Start dev server",
           build: "Production build",
-          preview: "Preview build",
+          webpack: "Webpack compat mode",
         },
         config: {
           builtInto: "Built into",
@@ -243,7 +243,7 @@ export const translations = {
         commands: {
           dev: "启动开发服务器",
           build: "生产构建",
-          preview: "预览构建",
+          webpack: "Webpack 兼容模式",
         },
         config: {
           builtInto: "已内置于",

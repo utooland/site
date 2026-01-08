@@ -51,19 +51,6 @@ const demos: { title: string; package: string; lines: TerminalLine[] }[] = [
     ],
   },
   {
-    title: "List Dependencies",
-    package: "utoo",
-    lines: [
-      { type: "command", text: "$ ut list react" },
-      { type: "output", text: "└── my-app@1.0.0" },
-      { type: "output", text: "    ├─── react@19.2.3" },
-      { type: "output", text: "    ├───┬ react-dom@19.2.3" },
-      { type: "output", text: "    │   └── react@19.2.3" },
-      { type: "output", text: "    └───┬ next@15.4.8" },
-      { type: "output", text: "        └── react@19.2.3" },
-    ],
-  },
-  {
     title: "Workspace Build",
     package: "utoo",
     lines: [
@@ -92,9 +79,9 @@ const demos: { title: string; package: string; lines: TerminalLine[] }[] = [
   },
   {
     title: "Dev Server",
-    package: "@utoo/pack",
+    package: "@utoo/pack-cli",
     lines: [
-      { type: "command", text: "$ utoo-pack dev" },
+      { type: "command", text: "$ up dev" },
       { type: "info", text: "Starting dev server..." },
       { type: "output", text: "Compiling..." },
       { type: "success", text: "✓ Ready in 120ms" },
@@ -106,9 +93,9 @@ const demos: { title: string; package: string; lines: TerminalLine[] }[] = [
   },
   {
     title: "Build Project",
-    package: "@utoo/pack",
+    package: "@utoo/pack-cli",
     lines: [
-      { type: "command", text: "$ utoo-pack build" },
+      { type: "command", text: "$ up build" },
       { type: "info", text: "Reading utoopack.json..." },
       { type: "output", text: "Compiling TypeScript..." },
       { type: "output", text: "Bundling with tree-shaking..." },
@@ -116,6 +103,19 @@ const demos: { title: string; package: string; lines: TerminalLine[] }[] = [
       { type: "output", text: "  dist/index.js     45.2 kB" },
       { type: "output", text: "  dist/index.css    12.1 kB" },
       { type: "success", text: "✓ Build complete in 0.8s" },
+    ],
+  },
+  {
+    title: "Webpack Compat",
+    package: "@utoo/pack-cli",
+    lines: [
+      { type: "command", text: "$ up build --webpack" },
+      { type: "info", text: "Reading webpack.config.js..." },
+      { type: "output", text: "Using Webpack compatibility mode" },
+      { type: "output", text: "Compiling with existing config..." },
+      { type: "output", text: "" },
+      { type: "output", text: "  dist/bundle.js    62.4 kB" },
+      { type: "success", text: "✓ Build complete in 1.2s" },
     ],
   },
 ];

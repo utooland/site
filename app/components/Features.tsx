@@ -106,7 +106,7 @@ function getPackages(t: Translations) {
     description: t.packages.pack.description,
     color: "pink",
     gradient: "from-pink-500 to-rose-500",
-    install: "ut i @utoo/pack",
+    install: "ut i @utoo/pack-cli",
     highlight: {
       icon: Workflow,
       title: t.packages.pack.highlight.title,
@@ -135,9 +135,9 @@ function getPackages(t: Translations) {
       },
     ],
     commands: [
-      { cmd: "utoo-pack dev", desc: t.packages.pack.commands.dev },
-      { cmd: "utoo-pack build", desc: t.packages.pack.commands.build },
-      { cmd: "utoo-pack preview", desc: t.packages.pack.commands.preview },
+      { cmd: "up dev", desc: t.packages.pack.commands.dev },
+      { cmd: "up build", desc: t.packages.pack.commands.build },
+      { cmd: "up build --webpack", desc: t.packages.pack.commands.webpack },
     ],
     config: {
       file: ".umirc.ts",
