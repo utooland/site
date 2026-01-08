@@ -1,0 +1,12 @@
+{
+  "entry": [
+    {
+      "import": "./src/index.tsx",
+      "name": "index"
+    }
+  ],
+  "output": {
+    "publicPath": "/preview/dist"
+  },
+  "stats": true
+}
