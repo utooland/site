@@ -30,28 +30,26 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  webpack: (config, { isServer }) => {
+  webpack: (config, { isServer, dev }) => {
     config.module.rules.push({
       test: /demo_raw\/.+$/,
       use: "raw-loader",
     });
 
-    if (!isServer) {
-      config.optimization = {
-        ...config.optimization,
-        splitChunks: false,
-      };
-
-      config.output.filename = (pathData: { chunk?: { name?: string } }) => {
-        const chunkName = pathData.chunk?.name || "";
-        if (
-          chunkName === "worker" ||
-          chunkName === "threadWorker" ||
-          chunkName === "serviceWorker"
-        ) {
-          return "static/chunks/[name].js";
-        }
-        return "static/chunks/[name]-[contenthash].js";
+    if (!isServer && !dev) {
+      config.optimization.splitChunks = false;
+      config.output.chunkFilename = (pathData: {
+        chunk?: { name?: string };
+      }) => {
+        return isServer
+          ? "[name].js"
+          : `static/chunks/${
+              ["worker", "threadWorker", "serviceWorker"].includes(
+                pathData.chunk?.name || "",
+              )
+                ? "[name]"
+                : "[name].[contenthash]"
+            }.js`;
       };
     }
 
