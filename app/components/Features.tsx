@@ -31,6 +31,54 @@ import { useState } from "react";
 import { useI18n } from "../i18n/context";
 import type { Translations } from "../i18n/translations";
 
+function highlightJS(code: string) {
+  const tokens: { start: number; end: number; type: string }[] = [];
+
+  const patterns: [RegExp, string][] = [
+    [/(\/\/.*$|\/\*[\s\S]*?\*\/)/gm, "comment"],
+    [/('(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*")/g, "string"],
+    [/\b(const|let|var|await|async|function|return|require|export|default|import|from)\b/g, "keyword"],
+    [/\b(\d+)\b/g, "number"],
+  ];
+
+  for (const [regex, type] of patterns) {
+    let match;
+    while ((match = regex.exec(code)) !== null) {
+      const start = match.index;
+      const end = start + match[0].length;
+      const overlaps = tokens.some(t => (start < t.end && end > t.start));
+      if (!overlaps) {
+        tokens.push({ start, end, type });
+      }
+    }
+  }
+
+  tokens.sort((a, b) => a.start - b.start);
+
+  const colors: Record<string, string> = {
+    comment: "text-slate-500",
+    string: "text-amber-400",
+    keyword: "text-pink-400",
+    number: "text-purple-400",
+  };
+
+  let result = "";
+  let lastEnd = 0;
+
+  for (const token of tokens) {
+    result += escapeHtml(code.slice(lastEnd, token.start));
+    result += `<span class="${colors[token.type]}">${escapeHtml(code.slice(token.start, token.end))}</span>`;
+    lastEnd = token.end;
+  }
+  result += escapeHtml(code.slice(lastEnd));
+
+  return result;
+}
+
+function escapeHtml(str: string) {
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
 
@@ -99,6 +147,7 @@ function getPackages(t: Translations) {
       { cmd: "utx <pkg>", desc: t.packages.utoo.commands.utx },
     ],
     config: null,
+    api: null,
   },
   {
     name: "@utoo/pack",
@@ -106,7 +155,7 @@ function getPackages(t: Translations) {
     description: t.packages.pack.description,
     color: "pink",
     gradient: "from-pink-500 to-rose-500",
-    install: "ut i @utoo/pack-cli",
+    install: "ut i @utoo/pack-cli -D",
     highlight: {
       icon: Workflow,
       title: t.packages.pack.highlight.title,
@@ -135,9 +184,9 @@ function getPackages(t: Translations) {
       },
     ],
     commands: [
-      { cmd: "up dev", desc: t.packages.pack.commands.dev },
-      { cmd: "up build", desc: t.packages.pack.commands.build },
-      { cmd: "up build --webpack", desc: t.packages.pack.commands.webpack },
+      { cmd: "utx up dev", desc: t.packages.pack.commands.dev },
+      { cmd: "utx up build", desc: t.packages.pack.commands.build },
+      { cmd: "utx up build --webpack", desc: t.packages.pack.commands.webpack },
     ],
     config: {
       file: ".umirc.ts",
@@ -146,6 +195,20 @@ function getPackages(t: Translations) {
 });`,
       builtInto: t.packages.pack.config.builtInto,
       addConfig: t.packages.pack.config.addConfig,
+    },
+    api: {
+      description: t.packages.pack.api.description,
+      code: `const { build, dev } = require('@utoo/pack');
+
+await build({
+  root: process.cwd(),
+  config: { mode: 'production' }
+});
+
+await dev({
+  root: process.cwd(),
+  config: { mode: 'development' }
+});`,
     },
   },
   {
@@ -189,6 +252,7 @@ function getPackages(t: Translations) {
       { cmd: "project.readFile(path)", desc: t.packages.web.commands.readFile },
     ],
     config: null,
+    api: null,
   },
 ];
 }
@@ -200,13 +264,15 @@ function QuickReference({
   pkg: ReturnType<typeof getPackages>[0];
   t: Translations;
 }) {
-  const [activeTab, setActiveTab] = useState<"commands" | "config">("commands");
+  const [activeTab, setActiveTab] = useState<"commands" | "config" | "api">("commands");
   const hasConfig = pkg.config !== null;
+  const hasApi = pkg.api !== null;
+  const hasTabs = hasConfig || hasApi;
 
   return (
     <div className="rounded-xl overflow-hidden border border-slate-700 bg-slate-900 backdrop-blur">
       <div className="px-4 py-3 bg-slate-800 border-b border-slate-700 flex items-center justify-between">
-        {hasConfig ? (
+        {hasTabs ? (
           <div className="flex gap-1">
             <button
               onClick={() => setActiveTab("commands")}
@@ -218,16 +284,30 @@ function QuickReference({
             >
               {t.common.cli}
             </button>
-            <button
-              onClick={() => setActiveTab("config")}
-              className={`text-sm px-3 py-1 rounded transition-colors ${
-                activeTab === "config"
-                  ? "bg-white/10 text-white"
-                  : "text-muted-foreground hover:text-white"
-              }`}
-            >
-              umi
-            </button>
+            {hasConfig && (
+              <button
+                onClick={() => setActiveTab("config")}
+                className={`text-sm px-3 py-1 rounded transition-colors ${
+                  activeTab === "config"
+                    ? "bg-white/10 text-white"
+                    : "text-muted-foreground hover:text-white"
+                }`}
+              >
+                umi
+              </button>
+            )}
+            {hasApi && (
+              <button
+                onClick={() => setActiveTab("api")}
+                className={`text-sm px-3 py-1 rounded transition-colors ${
+                  activeTab === "api"
+                    ? "bg-white/10 text-white"
+                    : "text-muted-foreground hover:text-white"
+                }`}
+              >
+                API
+              </button>
+            )}
           </div>
         ) : (
           <span className="text-sm text-muted-foreground">{t.common.quickReference}</span>
@@ -239,7 +319,7 @@ function QuickReference({
         </span>
       </div>
       <div className="p-4 font-mono text-sm">
-        {activeTab === "commands" ? (
+        {activeTab === "commands" && (
           <div className="space-y-3">
             {pkg.commands.map((item, index) => (
               <motion.div
@@ -258,25 +338,38 @@ function QuickReference({
               </motion.div>
             ))}
           </div>
-        ) : (
-          pkg.config && (
-            <div>
-              <div className="text-slate-500 text-xs mb-3">
-                {pkg.config.builtInto}{" "}
-                <a
-                  href="https://umijs.org"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-pink-400 hover:text-pink-300 underline"
-                >
-                  umi
-                </a>
-                {" "}{pkg.config.addConfig}
-              </div>
-              <div className="text-slate-500 text-xs mb-1">{pkg.config.file}</div>
-              <pre className="text-slate-200 whitespace-pre">{pkg.config.code}</pre>
+        )}
+        {activeTab === "config" && pkg.config && (
+          <div>
+            <div className="text-slate-500 text-xs mb-3">
+              {pkg.config.builtInto}{" "}
+              <a
+                href="https://umijs.org"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-pink-400 hover:text-pink-300 underline"
+              >
+                umi
+              </a>
+              {" "}{pkg.config.addConfig}
             </div>
-          )
+            <div className="text-slate-500 text-xs mb-1">{pkg.config.file}</div>
+            <pre
+              className="text-slate-200 whitespace-pre"
+              dangerouslySetInnerHTML={{ __html: highlightJS(pkg.config.code) }}
+            />
+          </div>
+        )}
+        {activeTab === "api" && pkg.api && (
+          <div>
+            <div className="text-slate-500 text-xs mb-3">
+              {pkg.api.description}
+            </div>
+            <pre
+              className="text-slate-200 whitespace-pre"
+              dangerouslySetInnerHTML={{ __html: highlightJS(pkg.api.code) }}
+            />
+          </div>
         )}
       </div>
     </div>

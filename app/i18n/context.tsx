@@ -18,11 +18,6 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     const saved = localStorage.getItem("locale") as Locale | null;
     if (saved && (saved === "en" || saved === "zh")) {
       setLocale(saved);
-    } else {
-      const browserLang = navigator.language.toLowerCase();
-      if (browserLang.startsWith("zh")) {
-        setLocale("zh");
-      }
     }
   }, []);
 
