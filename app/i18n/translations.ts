@@ -83,6 +83,9 @@ export const translations = {
           builtInto: "Built into",
           addConfig: "— just add config to enable",
         },
+        api: {
+          description: "Integrate programmatically with Node.js API",
+        },
       },
       web: {
         tagline: "Browser-Native Builds",
@@ -249,6 +252,9 @@ export const translations = {
         config: {
           builtInto: "已内置于",
           addConfig: "— 添加配置即可启用",
+        },
+        api: {
+          description: "通过 Node.js API 集成调用",
         },
       },
       web: {
