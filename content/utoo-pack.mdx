@@ -1,0 +1,47 @@
+# @utoo/pack
+
+`@utoo/pack` is a high-performance bundler for modern web applications.
+
+## Installation
+
+```bash
+ut install @utoo/pack
+```
+
+## Configuration
+
+Create `utoopack.json` in your project root:
+
+```json
+{
+  "entry": "./src/index.tsx",
+  "outDir": "./dist",
+  "format": "esm"
+}
+```
+
+## Commands
+
+### Development
+
+```bash
+up dev
+```
+
+Starts a development server with hot module replacement.
+
+### Production Build
+
+```bash
+up build
+```
+
+Creates an optimized production build.
+
+## Features
+
+- Fast builds powered by Rust
+- Tree shaking
+- Code splitting
+- CSS/Less/Sass support
+- TypeScript out of the box

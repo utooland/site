@@ -1,0 +1,44 @@
+# @utoo/web
+
+`@utoo/web` enables browser-native module loading without a build step.
+
+## How It Works
+
+1. **Install Dependencies** - Resolve and fetch npm packages
+2. **Compile & Bundle** - Transform to browser-compatible ESM
+3. **Service Worker** - Serve modules via a Service Worker proxy
+
+## Installation
+
+```bash
+ut install @utoo/web
+```
+
+## Usage
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <script type="module">
+    import { setup } from '@utoo/web'
+    await setup()
+  </script>
+</head>
+<body>
+  <script type="module">
+    import React from 'react'
+    import ReactDOM from 'react-dom/client'
+
+    // Your app code here
+  </script>
+</body>
+</html>
+```
+
+## Benefits
+
+- No build step required
+- Native ES modules in the browser
+- Perfect for prototyping and learning
+- Works with any npm package
