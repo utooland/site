@@ -1,0 +1,135 @@
+# API Reference
+
+## `new UtooProject(options)`
+
+Creates a new project instance.
+
+### Options
+
+#### `cwd` (string, required)
+The absolute path that will serve as the root of the project in the real file system (e.g., `/my-app`).
+
+#### `workerUrl` (string)
+URL of the Worker thread where the `Project` instance's core logic runs. The main thread `Project` object is a proxy that delegates tasks to this Worker.
+
+#### `threadWorkerUrl` (string, required)
+URL of a separate Worker thread for CPU-intensive tasks like bundling and compiling.
+
+#### `loaderWorkerUrl` (string, required)
+URL of a separate Worker thread for handling webpack loaders.
+
+#### `serviceWorker` (object)
+Service worker configuration for preview functionality.
+- `url` (string, required): The URL to the service worker script.
+- `scope` (string, required): The URL scope that the service worker will intercept requests for.
+
+#### `loadersImportMap` (object)
+A map for configuring Webpack loader imports. Keys are loader names, values are UMD/CommonJS module URLs or content strings.
+
+---
+
+## File System Methods
+
+These methods are asynchronous and mimic the Node.js `fs` API.
+
+### `project.writeFile(path, content)`
+
+Writes content to a file in the real file system. If the file doesn't exist, it will be created.
+
+**Parameters:**
+- `path` (string): The absolute path to the file (e.g., `/src/index.js`).
+- `content` (string | Buffer): The content to write.
+
+### `project.readFile(path, encoding)`
+
+Reads the content of a file.
+
+**Parameters:**
+- `path` (string): The path to the file.
+- `encoding` (string, optional): The encoding of the file (e.g., `'utf8'`). If not provided, it returns a Buffer.
+
+### `project.readDir(path)`
+
+Reads the contents of a directory.
+
+**Parameters:**
+- `path` (string): The path to the directory.
+
+**Returns:** `Promise<string[]>` - An array of file and directory names.
+
+### `project.mkdir(path)`
+
+Creates a new directory.
+
+**Parameters:**
+- `path` (string): The path to the directory to be created.
+
+### `project.rm(path, options)`
+
+Removes a file or directory.
+
+**Parameters:**
+- `path` (string): The path to the file or directory to be removed.
+- `options` (object, optional):
+  - `recursive` (boolean): If `true`, performs a recursive directory removal. Defaults to `false`.
+
+### `project.rmdir(path)`
+
+Removes a directory.
+
+**Parameters:**
+- `path` (string): The path to the directory to be removed.
+
+---
+
+## Dependency Management
+
+### `project.deps(options?)`
+
+Resolves dependencies from the project's `package.json` and generates a lock file string. This enables dependency resolution directly in the browser without requiring a pre-existing `package-lock.json`.
+
+**Options:**
+- `registry` (string): The npm registry URL. Default: `https://registry.npmmirror.com`
+- `concurrency` (number): Maximum concurrent network requests. Default: `20`
+
+**Returns:** `Promise<string>` - A JSON string representing the resolved dependency lock file, compatible with `package-lock.json` format.
+
+**Examples:**
+
+```typescript filename="app.ts"
+// Using default registry (npmmirror)
+const lockFile = await project.deps();
+
+// Using official npm registry
+const lockFile = await project.deps({
+    registry: "https://registry.npmjs.org"
+});
+
+// Using a private registry with custom concurrency
+const lockFile = await project.deps({
+    registry: "https://npm.mycompany.com",
+    concurrency: 10
+});
+```
+
+### `project.install(packageLockJsonString, maxConcurrentDownloads?)`
+
+Populates the `node_modules` directory based on a lock file string.
+
+**Parameters:**
+- `packageLockJsonString` (string): A JSON string of the dependency lock file (from `deps()` or a `package-lock.json` file).
+- `maxConcurrentDownloads` (number, optional): Maximum concurrent package downloads.
+
+---
+
+## Preview Functionality
+
+### `project.installServiceWorker()`
+
+Registers and activates the service worker defined in the constructor. This is essential for the preview functionality.
+
+### `project.build()`
+
+Triggers the build process in the thread worker. It reads the build configuration from `utoopack.json` in the project's root and runs the bundler based on that configuration.
+
+**Returns:** `Promise<void>` - The promise resolves when the build is complete. It will reject if the build fails.

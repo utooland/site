@@ -1,6 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 @layer base {
   :root {
@@ -54,14 +52,14 @@
     --border: 214.3 31.8% 85%;
     --ring: 262.1 83.3% 50%;
   }
-}
 
-@layer base {
   * {
-    @apply border-border;
+    border-color: hsl(var(--border));
   }
+
   body {
-    @apply bg-background text-foreground;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
   }
 }
 
@@ -260,6 +258,22 @@
 
 .btn-glow:hover::after {
   transform: translateX(100%);
+}
+
+/* Nextra docs layout - narrower content width */
+:root {
+  --nextra-content-width: 70rem;
+}
+
+.nextra-content pre {
+  background: #0d1117 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 0.5rem !important;
+}
+
+.nextra-content pre code {
+  font-family: "JetBrains Mono", "Fira Code", Menlo, Monaco, Consolas, monospace;
+  font-size: 0.875rem;
 }
 
 /* Responsive typography */

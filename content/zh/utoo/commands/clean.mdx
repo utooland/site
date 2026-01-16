@@ -1,0 +1,41 @@
+# clean
+
+清理全局存储中的包缓存。
+
+**别名:** `c`
+
+## 用法
+
+```bash filename="Terminal"
+ut clean [OPTIONS] [PATTERN]
+```
+
+## 示例
+
+```bash filename="Terminal" copy
+# 清理所有缓存
+ut clean
+ut c
+
+# 清理指定包的缓存
+ut clean lodash
+ut clean react*
+```
+
+## 选项
+
+| 选项 | 描述 |
+|------|------|
+| `--cache-dir <path>` | 指定缓存目录 |
+
+## 缓存位置
+
+默认缓存目录: `~/.cache/nm`
+
+详见 [存储路径](/zh/docs/utoo/stores)。
+
+## 使用场景
+
+- 释放磁盘空间
+- 强制重新下载损坏的包
+- 清除过时的包版本

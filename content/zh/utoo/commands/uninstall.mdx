@@ -1,0 +1,31 @@
+# uninstall
+
+从依赖中移除包。
+
+**别名:** `un`, `rm`, `remove`
+
+## 用法
+
+```bash filename="Terminal"
+ut uninstall [OPTIONS] <PACKAGES...>
+```
+
+## 示例
+
+```bash filename="Terminal" copy
+# 移除包
+ut uninstall lodash
+ut un lodash
+
+# 移除多个包
+ut uninstall lodash moment
+
+# 从指定工作区移除
+ut uninstall lodash -w my-app
+```
+
+## 选项
+
+| 选项 | 描述 |
+|------|------|
+| `-w, --workspace <name>` | 从指定工作区移除 |

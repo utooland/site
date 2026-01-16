@@ -1,0 +1,44 @@
+# execute
+
+运行本地或远程 npm 包的命令。
+
+**别名:** `x`
+
+另见: [utx 别名](/zh/docs/utoo/utx)
+
+## 用法
+
+```bash filename="Terminal"
+ut execute [OPTIONS] <COMMAND> [ARGS...]
+utx <COMMAND> [ARGS...]
+```
+
+## 示例
+
+```bash filename="Terminal" copy
+# 执行包命令
+ut execute create-react-app my-app
+ut x vite create my-app
+
+# 使用 utx 别名（推荐）
+utx create-react-app my-app
+utx cowsay "Hello World"
+utx tsc --init
+
+# 带参数
+utx prettier --write .
+utx eslint --fix src/
+```
+
+## 选项
+
+| 选项 | 描述 |
+|------|------|
+| `--registry <url>` | 覆盖 npm 镜像源 |
+| `--cache-dir <path>` | 指定缓存目录 |
+
+## 工作原理
+
+1. 检查命令是否存在于本地 `node_modules/.bin`
+2. 如果未找到，从镜像源下载包
+3. 使用提供的参数执行包的二进制文件

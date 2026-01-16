@@ -1,0 +1,134 @@
+# 配置
+
+import { Callout, Steps, Tabs } from 'nextra/components'
+
+utoo 支持多种配置方式，按优先级层级生效。
+
+## 优先级顺序
+
+<Steps>
+
+### CLI 参数（最高）
+
+```bash filename="Terminal"
+ut install --registry https://registry.npmmirror.com
+```
+
+### 环境变量
+
+```bash filename="Terminal"
+export UTOO_REGISTRY=https://registry.npmmirror.com
+```
+
+### 项目配置
+
+项目根目录的 `.utoo.toml`
+
+### 全局配置（最低）
+
+`~/.utoo/config.toml`
+
+</Steps>
+
+## CLI 配置
+
+通过 `ut config` 管理配置：
+
+<Tabs items={['设置', '获取', '列出']}>
+  <Tabs.Tab>
+```bash filename="Terminal" copy
+# 本地设置
+ut config set registry https://registry.npmmirror.com
+
+# 全局设置
+ut config set registry https://registry.npmmirror.com --global
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" copy
+ut config get registry
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" copy
+ut config list
+```
+  </Tabs.Tab>
+</Tabs>
+
+## 环境变量
+
+| 变量 | 描述 |
+|------|------|
+| `UTOO_REGISTRY` | 覆盖 npm 镜像源 |
+| `UTOO_CACHE_DIR` | 覆盖缓存目录 |
+
+```bash filename="Terminal" copy
+UTOO_REGISTRY=https://registry.npmmirror.com ut install
+```
+
+## TOML 配置
+
+<Tabs items={['全局', '项目']}>
+  <Tabs.Tab>
+位置: `~/.utoo/config.toml`
+
+```toml filename="~/.utoo/config.toml"
+[values]
+registry = "https://registry.npmmirror.com"
+cache-dir = "~/.cache/nm"
+legacy-peer-deps = true
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+位置: `.utoo.toml`（项目根目录）
+
+```toml filename=".utoo.toml"
+[values]
+registry = "https://registry.npmjs.org"
+```
+  </Tabs.Tab>
+</Tabs>
+
+## 常用设置
+
+| 键 | 默认值 | 描述 |
+|----|--------|------|
+| `registry` | `https://registry.npmmirror.com` | npm 镜像源 URL |
+| `cache-dir` | `~/.cache/nm` | 包缓存目录 |
+| `legacy-peer-deps` | `false` | 传统 peer 依赖处理 |
+
+## 自定义命令
+
+<Callout type="info">
+  为常用命令定义快捷方式。
+</Callout>
+
+```bash filename="Terminal" copy
+# 设置自定义命令
+ut config set hi.cmd "utx cowsay hi"
+ut config set lint.cmd "ut run lint"
+
+# 运行自定义命令
+ut hi
+ut lint
+```
+
+## 镜像源推荐
+
+<Tabs items={['国内', '海外']}>
+  <Tabs.Tab>
+```bash filename="Terminal" copy
+ut config set registry https://registry.npmmirror.com --global
+```
+
+国内用户推荐，速度更快。
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" copy
+ut config set registry https://registry.npmjs.org --global
+```
+
+npm 官方源，始终最新。
+  </Tabs.Tab>
+</Tabs>

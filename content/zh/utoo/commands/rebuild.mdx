@@ -1,0 +1,38 @@
+# rebuild
+
+重建所有包的脚本钩子。
+
+**别名:** `rb`
+
+## 用法
+
+```bash filename="Terminal"
+ut rebuild [OPTIONS]
+```
+
+## 示例
+
+```bash filename="Terminal" copy
+# 重建所有包
+ut rebuild
+ut rb
+```
+
+## 选项
+
+| 选项 | 描述 |
+|------|------|
+| `--verbose` | 启用调试日志 |
+
+## 执行操作
+
+重新运行 node_modules 中所有包的安装脚本，包括：
+- `preinstall`
+- `install`
+- `postinstall`
+
+## 使用场景
+
+- 原生模块编译失败后
+- 切换 Node.js 版本时
+- 修复损坏的二进制依赖（如 `esbuild`、`swc`）

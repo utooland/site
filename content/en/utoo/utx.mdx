@@ -1,0 +1,67 @@
+# utx Alias
+
+`utx` is a convenient alias for `ut execute`, similar to how `npx` relates to `npm`.
+
+## Usage
+
+```bash filename="Terminal"
+utx <COMMAND> [ARGS...]
+```
+
+## Why utx?
+
+- Shorter than `ut execute` or `ut x`
+- Familiar pattern for npx users
+- Quick one-off package execution
+
+## Examples
+
+```bash filename="Terminal" copy
+# Create a new React app
+utx create-react-app my-app
+
+# Initialize TypeScript
+utx tsc --init
+
+# Format code with Prettier
+utx prettier --write .
+
+# Run ESLint
+utx eslint --fix src/
+
+# Fun with cowsay
+utx cowsay "Hello from utx!"
+
+# Create Vite project
+utx create-vite my-app --template react-ts
+```
+
+## Comparison
+
+| npx | utx |
+|-----|-----|
+| `npx create-react-app my-app` | `utx create-react-app my-app` |
+| `npx tsc --init` | `utx tsc --init` |
+| `npx prettier --write .` | `utx prettier --write .` |
+
+## How It Works
+
+1. Checks local `node_modules/.bin` first
+2. If not found, downloads from npm registry
+3. Caches for future use
+4. Executes with provided arguments
+
+## Custom Commands
+
+You can configure custom utx commands in your config:
+
+```bash filename="Terminal" copy
+ut config set hi.cmd "utx cowsay hi"
+```
+
+Then run:
+
+```bash filename="Terminal" copy
+ut hi
+# Executes: utx cowsay hi
+```

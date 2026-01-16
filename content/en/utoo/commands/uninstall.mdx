@@ -1,0 +1,31 @@
+# uninstall
+
+Remove packages from dependencies.
+
+**Aliases:** `un`, `rm`, `remove`
+
+## Usage
+
+```bash filename="Terminal"
+ut uninstall [OPTIONS] <PACKAGES...>
+```
+
+## Examples
+
+```bash filename="Terminal" copy
+# Remove a package
+ut uninstall lodash
+ut un lodash
+
+# Remove multiple packages
+ut uninstall lodash moment
+
+# Remove from specific workspace
+ut uninstall lodash -w my-app
+```
+
+## Options
+
+| Option | Description |
+|--------|-------------|
+| `-w, --workspace <name>` | Remove from specific workspace |

@@ -16,7 +16,7 @@ Landing page for [Utoo](https://github.com/utooland/utoo) - Unified Frontend Too
 - [Tailwind CSS](https://tailwindcss.com/)
 - [Framer Motion](https://www.framer.com/motion/)
 - [Monaco Editor](https://microsoft.github.io/monaco-editor/)
-- [@utoo/web](https://github.com/utooland/utoo/tree/main/packages/utoo-web) for browser builds
+- [@utoo/web](https://github.com/utooland/utoo/tree/next/packages/utoo-web) for browser builds
 
 ## Development
 

@@ -1,0 +1,41 @@
+# clean
+
+Clean package cache in global storage.
+
+**Alias:** `c`
+
+## Usage
+
+```bash filename="Terminal"
+ut clean [OPTIONS] [PATTERN]
+```
+
+## Examples
+
+```bash filename="Terminal" copy
+# Clean all cache
+ut clean
+ut c
+
+# Clean specific package cache
+ut clean lodash
+ut clean react*
+```
+
+## Options
+
+| Option | Description |
+|--------|-------------|
+| `--cache-dir <path>` | Specify cache directory |
+
+## Cache Location
+
+Default cache directory: `~/.cache/nm`
+
+See [Storage Paths](/en/docs/utoo/stores) for more details.
+
+## Use Cases
+
+- Free up disk space
+- Force re-download of corrupted packages
+- Clear outdated package versions

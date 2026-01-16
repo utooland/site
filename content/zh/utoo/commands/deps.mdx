@@ -1,0 +1,35 @@
+# deps
+
+仅生成 package-lock.json，不安装包。
+
+**别名:** `d`
+
+## 用法
+
+```bash filename="Terminal"
+ut deps [OPTIONS]
+```
+
+## 示例
+
+```bash filename="Terminal" copy
+# 生成锁定文件
+ut deps
+ut d
+
+# 指定镜像源
+ut deps --registry https://registry.npmmirror.com
+```
+
+## 选项
+
+| 选项 | 描述 |
+|------|------|
+| `--registry <url>` | 覆盖 npm 镜像源 |
+| `--legacy-peer-deps` | 传统 peer 依赖处理 |
+
+## 使用场景
+
+- CI/CD 中生成锁定文件而不完整安装
+- 更新依赖解析而不修改 node_modules
+- 安装前预计算依赖树

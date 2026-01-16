@@ -1,0 +1,134 @@
+# Configuration
+
+import { Callout, Steps, Tabs } from 'nextra/components'
+
+utoo supports multiple configuration methods with hierarchical priority.
+
+## Priority Order
+
+<Steps>
+
+### CLI flags (highest)
+
+```bash filename="Terminal"
+ut install --registry https://registry.npmmirror.com
+```
+
+### Environment variables
+
+```bash filename="Terminal"
+export UTOO_REGISTRY=https://registry.npmmirror.com
+```
+
+### Project config
+
+`.utoo.toml` in project root
+
+### Global config (lowest)
+
+`~/.utoo/config.toml`
+
+</Steps>
+
+## CLI Configuration
+
+Manage configuration via `ut config`:
+
+<Tabs items={['Set', 'Get', 'List']}>
+  <Tabs.Tab>
+```bash filename="Terminal" copy
+# Set locally
+ut config set registry https://registry.npmmirror.com
+
+# Set globally
+ut config set registry https://registry.npmmirror.com --global
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" copy
+ut config get registry
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" copy
+ut config list
+```
+  </Tabs.Tab>
+</Tabs>
+
+## Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `UTOO_REGISTRY` | Override npm registry |
+| `UTOO_CACHE_DIR` | Override cache directory |
+
+```bash filename="Terminal" copy
+UTOO_REGISTRY=https://registry.npmmirror.com ut install
+```
+
+## TOML Configuration
+
+<Tabs items={['Global', 'Project']}>
+  <Tabs.Tab>
+Location: `~/.utoo/config.toml`
+
+```toml filename="~/.utoo/config.toml"
+[values]
+registry = "https://registry.npmmirror.com"
+cache-dir = "~/.cache/nm"
+legacy-peer-deps = true
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+Location: `.utoo.toml` (project root)
+
+```toml filename=".utoo.toml"
+[values]
+registry = "https://registry.npmjs.org"
+```
+  </Tabs.Tab>
+</Tabs>
+
+## Common Settings
+
+| Key | Default | Description |
+|-----|---------|-------------|
+| `registry` | `https://registry.npmmirror.com` | npm registry URL |
+| `cache-dir` | `~/.cache/nm` | Package cache directory |
+| `legacy-peer-deps` | `false` | Legacy peer dependency handling |
+
+## Custom Commands
+
+<Callout type="info">
+  Define custom shortcuts for frequently used commands.
+</Callout>
+
+```bash filename="Terminal" copy
+# Set custom command
+ut config set hi.cmd "utx cowsay hi"
+ut config set lint.cmd "ut run lint"
+
+# Run custom command
+ut hi
+ut lint
+```
+
+## Registry Recommendations
+
+<Tabs items={['China', 'Global']}>
+  <Tabs.Tab>
+```bash filename="Terminal" copy
+ut config set registry https://registry.npmmirror.com --global
+```
+
+Faster for users in China.
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" copy
+ut config set registry https://registry.npmjs.org --global
+```
+
+Official npm registry, always up-to-date.
+  </Tabs.Tab>
+</Tabs>

@@ -1,0 +1,44 @@
+# execute
+
+Run a command from a local or remote npm package.
+
+**Alias:** `x`
+
+See also: [utx Alias](/en/docs/utoo/utx)
+
+## Usage
+
+```bash filename="Terminal"
+ut execute [OPTIONS] <COMMAND> [ARGS...]
+utx <COMMAND> [ARGS...]
+```
+
+## Examples
+
+```bash filename="Terminal" copy
+# Execute a package command
+ut execute create-react-app my-app
+ut x vite create my-app
+
+# Using utx alias (recommended)
+utx create-react-app my-app
+utx cowsay "Hello World"
+utx tsc --init
+
+# With arguments
+utx prettier --write .
+utx eslint --fix src/
+```
+
+## Options
+
+| Option | Description |
+|--------|-------------|
+| `--registry <url>` | Override npm registry |
+| `--cache-dir <path>` | Specify cache directory |
+
+## How It Works
+
+1. Checks if the command exists in local `node_modules/.bin`
+2. If not found, downloads the package from registry
+3. Executes the package binary with provided arguments

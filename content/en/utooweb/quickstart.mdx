@@ -1,0 +1,227 @@
+# Quick Start
+
+import { Callout, Steps, Tabs } from 'nextra/components'
+
+Getting a project up and running involves five main steps. See `examples/utooweb-demo` or try [`utoo-repl`](https://utoo-repl.vercel.app).
+
+<Steps>
+
+### Instantiate the Project
+
+Create a `Project` instance with configuration for workers and the service worker.
+
+```typescript filename="app.ts"
+import { Project as UtooProject } from "@utoo/web";
+
+const project = new UtooProject({
+    // Project root directory in the file system.
+    cwd: "/utooweb-demo",
+
+    // Worker script URL for file system and core functionality.
+    workerUrl: `${location.origin}/worker.js`,
+
+    // Worker script URL for heavy tasks.
+    threadWorkerUrl: `${location.origin}/threadWorker.js`,
+
+    // Worker script URL for webpack loaders.
+    loaderWorkerUrl: `${location.origin}/loaderWorker.js`,
+
+    // Preview service worker configuration.
+    serviceWorker: {
+        url: `${location.origin}/serviceWorker.js`,
+        scope: "/preview", // Path controlled by the service worker.
+    },
+    // ImportMap for running webpack loaders
+    loadersImportMap: {
+      // accept an umd script url or a script content string
+      "xyzLoader": "https://x.y.z.js"
+    }
+});
+```
+
+### Install the Service Worker
+
+To enable the preview functionality, you must register and install the service worker.
+
+```typescript filename="app.ts"
+await project.installServiceWorker();
+```
+
+### Resolve and Install Dependencies
+
+`@utoo/web` provides two approaches for dependency management:
+
+<Tabs items={['Generate from package.json', 'Use existing lock file']}>
+<Tabs.Tab>
+Use the `deps()` method to resolve dependencies directly from your `package.json`. This generates a `package-lock.json` compatible lock file without needing one beforehand.
+
+```typescript filename="app.ts"
+// Resolve dependencies from package.json
+const packageLock = await project.deps({
+    registry: "https://registry.npmmirror.com", // Optional: custom registry
+    concurrency: 20, // Optional: concurrent requests (default: 20)
+});
+
+// Install the resolved dependencies
+await project.install(packageLock);
+```
+</Tabs.Tab>
+<Tabs.Tab>
+If you already have a `package-lock.json`, you can use it directly:
+
+```typescript filename="app.ts"
+// Import your package-lock.json as a JSON object.
+import { packageLock } from "../packageLock";
+
+await project.install(JSON.stringify(packageLock));
+```
+</Tabs.Tab>
+</Tabs>
+
+<Callout type="info">
+  The dependency packages in the project's `node_modules` are actually logical links pointing to a global shared storage. This means that different projects under the same browser domain can share dependencies with the same name and version without repeated downloads. This mechanism is similar to `pnpm`'s storage strategy.
+</Callout>
+
+**Benefits of shared dependencies:**
+- **Save Storage Space**: Identical versions of dependency packages are stored only once in OPFS
+- **Accelerate Project Initialization**: Dependencies can be reused directly, achieving second-level installation
+- **Reduce Network Traffic**: Frequently used packages only need to be downloaded once
+- **Cross-Tab Reuse**: Dependencies can be directly reused across browser tabs under the same domain
+
+### Write Project Files
+
+With the environment set up, you can now write your source files to the real file system.
+
+```typescript filename="app.ts"
+// An object containing file paths and their content.
+import { demoFiles } from "../demoFiles";
+
+await project.mkdir("src");
+
+for (const filePath in demoFiles) {
+    const content = demoFiles[filePath];
+    await project.writeFile(filePath, content);
+}
+```
+
+### Create Build Configuration
+
+Before you can build the project, you need to provide a build configuration file named `utoopack.json` in the project's root directory.
+
+```json filename="utoopack.json"
+{
+  "entry": [
+    {
+      "import": "./src/index.tsx",
+      "name": "main"
+    }
+  ],
+  "output": {
+    "path": "dist"
+  },
+  "module": {
+    "rules": {
+      "*.tsx": [ "xyzLoader" ]
+    }
+  },
+  "stats": true
+}
+```
+
+<Callout>
+  To use loaders, you must add them to the `devDependencies` in your `package.json` and install them. Additionally, you must install `loader-runner`, as `@utoo/web` relies on the `loader-runner` mechanism and context to execute loaders.
+</Callout>
+
+Write this file to the real file system:
+
+```typescript filename="app.ts"
+await project.writeFile('utoopack.json', JSON.stringify(utoopackConfig, null, 2));
+```
+
+</Steps>
+
+After these steps, your project is fully initialized and ready for interaction.
+
+## Example Workflow: Building and Previewing
+
+The `utooweb-demo` shows a complete workflow for editing, building, and previewing.
+
+### 1. Editing
+
+A file is read using `project.readFile()` and displayed in an editor. When the content changes, `project.writeFile()` is called (often with a debounce) to save the changes back to the OPFS.
+
+```typescript filename="useFileContent.ts"
+const content = await project.readFile(filePath, "utf8");
+// ...
+await project.writeFile(selectedFilePath, newContent);
+```
+
+### 2. Building
+
+The user clicks a "Build" button, which calls `project.build()`.
+
+```typescript filename="useBuild.ts"
+setIsBuilding(true);
+try {
+    await project.build();
+    // Build succeeded
+} catch (e) {
+    // Build failed
+} finally {
+    setIsBuilding(false);
+}
+```
+
+### 3. Processing Build Output
+
+After a successful build, the application reads the build output (e.g., `dist/stats.json`) to find the generated asset files (`.js`, `.css`). It then generates an `index.html` that includes these assets.
+
+```typescript filename="useBuild.ts"
+const statsContent = await project.readFile("dist/stats.json", "utf8");
+const stats = JSON.parse(statsContent);
+// ... logic to generate HTML with correct script/link tags ...
+await project.writeFile("dist/index.html", generatedHtml);
+```
+
+### 4. Previewing
+
+The `Preview` component contains an `iframe` whose `src` points to the entry point within the service worker's scope (e.g., `/preview/dist/index.html`). When the build completes, the `iframe` reloads from the Service Worker with the newly generated artifact files from OPFS.
+
+This cycle provides a fast and interactive development loop, all running locally in the user's browser.
+
+## Setting Up Worker Scripts
+
+A key part of setting up a `@utoo/web` project is creating the worker scripts that you pass to the `UtooProject` constructor.
+
+<Tabs items={['worker.ts', 'threadWorker.ts', 'serviceWorker.ts', 'loaderWorker.ts']}>
+<Tabs.Tab>
+Project Main Worker - handles file system operations and core tasks.
+
+```typescript filename="src/worker.ts"
+import "@utoo/web/esm/worker";
+```
+</Tabs.Tab>
+<Tabs.Tab>
+Thread Worker - handles CPU-intensive tasks like bundling.
+
+```typescript filename="src/threadWorker.ts"
+import "@utoo/web/esm/threadWorker";
+```
+</Tabs.Tab>
+<Tabs.Tab>
+Service Worker - serves the preview from the real file system.
+
+```typescript filename="src/serviceWorker.ts"
+import "@utoo/web/esm/serviceWorker";
+```
+</Tabs.Tab>
+<Tabs.Tab>
+Loader Worker - handles webpack loaders.
+
+```typescript filename="src/loaderWorker.ts"
+import "@utoo/web/esm/loaderWorker";
+```
+</Tabs.Tab>
+</Tabs>
+
+Your build setup should be configured to output these files to a location that your main application can access, so you can provide their URLs to the `UtooProject` constructor.

@@ -1,0 +1,127 @@
+# @utoo/pack
+
+import { Callout, Cards, Steps, Tabs } from 'nextra/components'
+
+Utoo 工具链的高性能打包核心，基于 [Turbopack](https://turbo.build/pack) 构建。
+
+<Callout type="info">
+  `@utoo/pack` 是 Utoo 构建系统的引擎。它利用 Turbopack 的增量计算能力和 Rust 的性能，提供极速的开发和构建体验。
+</Callout>
+
+## 核心特性
+
+- **极致性能** - 核心打包逻辑通过 NAPI-RS 用 Rust 实现
+- **Turbopack 驱动** - 基于驱动 Next.js Turbopack 的同款引擎
+- **Webpack 兼容** - 支持复用 `webpack.config.js`，简化迁移
+- **现代 Web 支持** - 原生支持 TypeScript、JSX、CSS Modules、Less、Sass 等
+- **可扩展架构** - 支持自定义 loader、插件和灵活配置
+- **快速 HMR** - 优化的热模块替换，开发时即时更新
+
+## 安装
+
+```bash filename="Terminal" copy
+ut install @utoo/pack --save-dev
+```
+
+## 快速开始
+
+<Tabs items={['生产构建', '开发服务器']}>
+  <Tabs.Tab>
+```javascript filename="build.js"
+const { build } = require('@utoo/pack');
+
+async function runBuild() {
+  await build({
+    mode: "production",
+    entry: [
+      {
+        import: "./src/index.ts",
+        html: { template: "./index.html" }
+      }
+    ],
+    output: {
+      path: "./dist",
+      filename: "[name].[contenthash:8].js",
+      chunkFilename: "[name].[contenthash:8].js",
+      clean: true
+    },
+    sourceMaps: true
+  });
+}
+
+runBuild();
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```javascript filename="dev.js"
+const { dev } = require('@utoo/pack');
+
+async function startDev() {
+  const server = await dev({
+    mode: "development",
+    entry: [
+      {
+        import: "./src/index.ts",
+        html: { template: "./index.html" }
+      }
+    ],
+    output: {
+      path: "./dist",
+      filename: "[name].[contenthash:8].js",
+      chunkFilename: "[name].[contenthash:8].js",
+      clean: true
+    },
+    sourceMaps: true
+  });
+}
+
+startDev();
+```
+  </Tabs.Tab>
+</Tabs>
+
+## Webpack 兼容
+
+`@utoo/pack` 提供 Webpack 部分兼容层，允许复用现有配置。
+
+```javascript filename="build.js"
+const { build } = require('@utoo/pack');
+const webpackConfig = require('./webpack.config.js');
+
+async function run() {
+  await build({ ...webpackConfig, webpackMode: true });
+}
+
+run();
+```
+
+<Callout type="warning">
+  并非所有 Webpack 功能和插件都受支持。查看 [功能特性](/zh/docs/utoopack/features) 页面了解支持的配置选项。
+</Callout>
+
+## 支持的功能
+
+`@utoo/pack` 旨在高度兼容 Webpack 生态，同时提供更优的性能。
+
+| 类别 | 支持情况 |
+|------|----------|
+| **Entry** | `name`、`import` 和 `filename` 模板 |
+| **Module Rules** | 通过 `loader-runner` 支持主流 Webpack loader |
+| **Resolve** | 完整支持 `alias` 和 `extensions` |
+| **样式** | Less、Sass、PostCSS、CSS Modules、LightningCSS |
+| **优化** | 压缩、Tree Shaking、模块合并 |
+| **框架** | React (`styled-jsx`、`emotion`、`styled-components`) |
+| **工具** | Bundle Analyzer、Tracing Logs |
+
+## 配置
+
+打包器可通过 `utoopack.json` 或编程 API 配置。
+
+| 选项 | 描述 |
+|------|------|
+| `entry` | 定义应用入口 |
+| `define` | 构建时变量替换 |
+| `externals` | 从打包中排除特定依赖 |
+| `mode` | `development` 或 `production` |
+
+详见 [配置](/zh/docs/utoopack/config)。

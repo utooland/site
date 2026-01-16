@@ -1,0 +1,165 @@
+# Configuration
+
+import { Callout, Tabs } from 'nextra/components'
+
+`@utoo/pack` can be configured via `utoopack.json` file or through the programmatic API.
+
+## Configuration File
+
+Create a `utoopack.json` in your project root:
+
+```json filename="utoopack.json"
+{
+  "mode": "production",
+  "entry": [
+    {
+      "import": "./src/index.ts",
+      "html": {
+        "template": "./index.html"
+      }
+    }
+  ],
+  "output": {
+    "path": "./dist",
+    "filename": "[name].[contenthash:8].js",
+    "chunkFilename": "[name].[contenthash:8].js",
+    "clean": true
+  },
+  "sourceMaps": true
+}
+```
+
+## Core Options
+
+### mode
+
+Build mode, affects optimizations and defaults.
+
+```json
+{
+  "mode": "production" // or "development"
+}
+```
+
+| Value | Description |
+|-------|-------------|
+| `development` | Faster builds, better debugging, HMR enabled |
+| `production` | Optimized output, minification, tree shaking |
+
+### entry
+
+Define application entry points.
+
+```json
+{
+  "entry": [
+    {
+      "name": "main",
+      "import": "./src/index.ts",
+      "html": {
+        "template": "./index.html",
+        "filename": "index.html"
+      }
+    }
+  ]
+}
+```
+
+### output
+
+Configure output settings.
+
+```json
+{
+  "output": {
+    "path": "./dist",
+    "filename": "[name].[contenthash:8].js",
+    "chunkFilename": "[name].[contenthash:8].js",
+    "publicPath": "/",
+    "clean": true
+  }
+}
+```
+
+| Option | Description |
+|--------|-------------|
+| `path` | Output directory |
+| `filename` | Entry chunk filename template |
+| `chunkFilename` | Non-entry chunk filename template |
+| `publicPath` | Public URL path for assets |
+| `clean` | Clean output directory before build |
+
+### define
+
+Build-time variable replacement.
+
+```json
+{
+  "define": {
+    "process.env.NODE_ENV": "\"production\"",
+    "__VERSION__": "\"1.0.0\""
+  }
+}
+```
+
+### externals
+
+Exclude dependencies from the bundle.
+
+```json
+{
+  "externals": {
+    "react": "React",
+    "react-dom": "ReactDOM"
+  }
+}
+```
+
+### resolve
+
+Module resolution configuration.
+
+```json
+{
+  "resolve": {
+    "alias": {
+      "@": "./src",
+      "@components": "./src/components"
+    },
+    "extensions": [".ts", ".tsx", ".js", ".jsx"]
+  }
+}
+```
+
+## Programmatic API
+
+<Tabs items={['build()', 'dev()']}>
+  <Tabs.Tab>
+```javascript
+const { build } = require('@utoo/pack');
+
+await build({
+  mode: "production",
+  entry: [{ import: "./src/index.ts" }],
+  output: { path: "./dist" }
+});
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```javascript
+const { dev } = require('@utoo/pack');
+
+const server = await dev({
+  mode: "development",
+  entry: [{ import: "./src/index.ts" }],
+  output: { path: "./dist" }
+});
+
+// server.close() to stop
+```
+  </Tabs.Tab>
+</Tabs>
+
+<Callout type="info">
+  For the full configuration schema, see [config_schema.json](https://github.com/utooland/utoo/blob/next/packages/pack/config_schema.json).
+</Callout>

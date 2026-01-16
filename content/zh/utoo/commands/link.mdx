@@ -1,0 +1,34 @@
+# link
+
+链接本地包用于开发。
+
+**别名:** `ln`
+
+## 用法
+
+```bash filename="Terminal"
+ut link [OPTIONS] [PACKAGE]
+```
+
+## 示例
+
+```bash filename="Terminal" copy
+# 在要链接的包目录中（如 my-lib/）
+cd my-lib
+ut link
+
+# 在使用该包的项目中
+cd my-app
+ut link my-lib
+```
+
+## 工作原理
+
+1. `ut link`（无参数）创建当前包的全局符号链接
+2. `ut link <package>` 从本地 `node_modules/<package>` 创建到全局链接的符号链接
+
+## 使用场景
+
+- 开发库并在另一个项目中测试
+- 在 monorepo 中开发包而无需发布
+- 本地调试 npm 包

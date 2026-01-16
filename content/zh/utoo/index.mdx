@@ -1,0 +1,96 @@
+# utoo
+
+import { Callout, Cards, Steps } from 'nextra/components'
+
+utoo (`ut`) 是一个快速、现代的 JavaScript 包管理器，提供与 npm 兼容的包管理功能，并具有性能优化。
+
+<Callout type="info">
+  utoo 是 npm 的直接替代品，性能更优。
+</Callout>
+
+## 安装
+
+```bash filename="Terminal" copy
+npm install -g utoo
+```
+
+## 快速开始
+
+<Steps>
+
+### 安装依赖
+
+```bash filename="Terminal" copy
+ut install
+```
+
+### 添加包
+
+```bash filename="Terminal" copy
+ut install lodash
+ut install -D typescript
+```
+
+### 运行脚本
+
+```bash filename="Terminal" copy
+ut build
+ut dev
+```
+
+### 执行远程包
+
+```bash filename="Terminal" copy
+utx create-react-app my-app
+```
+
+</Steps>
+
+## 命令
+
+<Cards>
+  <Cards.Card title="install" href="/zh/docs/utoo/commands/install" />
+  <Cards.Card title="run" href="/zh/docs/utoo/commands/run" />
+  <Cards.Card title="execute" href="/zh/docs/utoo/commands/execute" />
+  <Cards.Card title="view" href="/zh/docs/utoo/commands/view" />
+</Cards>
+
+### 所有命令
+
+| 命令 | 别名 | 描述 |
+|------|------|------|
+| [`install`](/zh/docs/utoo/commands/install) | `i`, `add` | 安装依赖 |
+| [`uninstall`](/zh/docs/utoo/commands/uninstall) | `un`, `rm` | 卸载依赖 |
+| [`run`](/zh/docs/utoo/commands/run) | `r` | 运行 package.json 脚本 |
+| [`execute`](/zh/docs/utoo/commands/execute) | `x` | 执行 npm 包命令 |
+| [`view`](/zh/docs/utoo/commands/view) | `v`, `info` | 查看包信息 |
+| [`list`](/zh/docs/utoo/commands/list) | `ls` | 列出依赖树 |
+| [`link`](/zh/docs/utoo/commands/link) | `ln` | 链接本地包 |
+| [`deps`](/zh/docs/utoo/commands/deps) | `d` | 生成 package-lock.json |
+| [`update`](/zh/docs/utoo/commands/update) | `u` | 更新依赖 |
+| [`rebuild`](/zh/docs/utoo/commands/rebuild) | `rb` | 重建脚本钩子 |
+| [`clean`](/zh/docs/utoo/commands/clean) | `c` | 清理包缓存 |
+| [`config`](/zh/docs/utoo/config) | `cfg` | 管理配置 |
+
+## 全局选项
+
+| 选项 | 描述 |
+|------|------|
+| `--verbose` | 启用调试日志 |
+| `--registry <url>` | 覆盖 npm 镜像源 |
+| `--cache-dir <path>` | 指定缓存目录 |
+| `--legacy-peer-deps` | 传统 peer 依赖处理 |
+| `-h, --help` | 显示帮助 |
+| `-v, --version` | 显示版本 |
+
+## 快捷执行
+
+<Callout>
+  你可以直接运行 package.json 脚本，无需 `run`：
+</Callout>
+
+```bash filename="Terminal" copy
+ut build      # 等同于: ut run build
+ut dev        # 等同于: ut run dev
+ut test       # 等同于: ut run test
+```

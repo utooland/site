@@ -1,0 +1,96 @@
+# utoo
+
+import { Callout, Cards, Steps } from 'nextra/components'
+
+utoo (`ut`) is a fast, modern package manager for JavaScript projects, providing npm-compatible package management with performance optimizations.
+
+<Callout type="info">
+  utoo is a drop-in replacement for npm with better performance.
+</Callout>
+
+## Installation
+
+```bash filename="Terminal" copy
+npm install -g utoo
+```
+
+## Quick Start
+
+<Steps>
+
+### Install dependencies
+
+```bash filename="Terminal" copy
+ut install
+```
+
+### Add a package
+
+```bash filename="Terminal" copy
+ut install lodash
+ut install -D typescript
+```
+
+### Run scripts
+
+```bash filename="Terminal" copy
+ut build
+ut dev
+```
+
+### Execute remote packages
+
+```bash filename="Terminal" copy
+utx create-react-app my-app
+```
+
+</Steps>
+
+## Commands
+
+<Cards>
+  <Cards.Card title="install" href="/en/docs/utoo/commands/install" />
+  <Cards.Card title="run" href="/en/docs/utoo/commands/run" />
+  <Cards.Card title="execute" href="/en/docs/utoo/commands/execute" />
+  <Cards.Card title="view" href="/en/docs/utoo/commands/view" />
+</Cards>
+
+### All Commands
+
+| Command | Alias | Description |
+|---------|-------|-------------|
+| [`install`](/en/docs/utoo/commands/install) | `i`, `add` | Install dependencies |
+| [`uninstall`](/en/docs/utoo/commands/uninstall) | `un`, `rm` | Remove dependencies |
+| [`run`](/en/docs/utoo/commands/run) | `r` | Run package.json scripts |
+| [`execute`](/en/docs/utoo/commands/execute) | `x` | Execute npm package binaries |
+| [`view`](/en/docs/utoo/commands/view) | `v`, `info` | View package information |
+| [`list`](/en/docs/utoo/commands/list) | `ls` | List dependency tree |
+| [`link`](/en/docs/utoo/commands/link) | `ln` | Link local packages |
+| [`deps`](/en/docs/utoo/commands/deps) | `d` | Generate package-lock.json |
+| [`update`](/en/docs/utoo/commands/update) | `u` | Update dependencies |
+| [`rebuild`](/en/docs/utoo/commands/rebuild) | `rb` | Rebuild script hooks |
+| [`clean`](/en/docs/utoo/commands/clean) | `c` | Clean package cache |
+| [`config`](/en/docs/utoo/config) | `cfg` | Manage configuration |
+
+## Global Options
+
+| Option | Description |
+|--------|-------------|
+| `--verbose` | Enable debug logging |
+| `--registry <url>` | Override npm registry |
+| `--cache-dir <path>` | Specify cache directory |
+| `--legacy-peer-deps` | Legacy peer dependency handling |
+| `-h, --help` | Show help |
+| `-v, --version` | Show version |
+
+## Shortcut Execution
+
+<Callout>
+  You can run package.json scripts directly without `run`:
+</Callout>
+
+```bash filename="Terminal" copy
+ut build      # same as: ut run build
+ut dev        # same as: ut run dev
+ut test       # same as: ut run test
+```

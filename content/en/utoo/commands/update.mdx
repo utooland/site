@@ -1,0 +1,41 @@
+# update
+
+Remove node_modules and reinstall all dependencies.
+
+**Alias:** `u`
+
+## Usage
+
+```bash filename="Terminal"
+ut update [OPTIONS]
+```
+
+## Examples
+
+```bash filename="Terminal" copy
+# Clean reinstall
+ut update
+ut u
+
+# Update in specific workspace
+ut update -w my-app
+```
+
+## Options
+
+| Option | Description |
+|--------|-------------|
+| `-w, --workspace <name>` | Update specific workspace |
+| `--workspaces` | Update all workspaces |
+
+## What It Does
+
+1. Removes `node_modules` directory
+2. Reinstalls all dependencies from package.json
+3. Regenerates package-lock.json
+
+## Use Cases
+
+- Fix corrupted node_modules
+- Clean slate after major dependency changes
+- Resolve phantom dependency issues

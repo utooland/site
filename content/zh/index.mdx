@@ -1,0 +1,55 @@
+# 概述
+
+欢迎来到 **Utoo** 文档！
+
+Utoo 是一个统一的前端工具链，包含三个集成组件：
+
+| 包 | 描述 |
+|---|------|
+| [utoo](/zh/docs/utoo) | 快速、兼容 npm 的包管理器 |
+| [@utoo/pack](/zh/docs/utoopack) | 高性能打包工具，支持 HMR |
+| [@utoo/web](/zh/docs/utooweb) | 基于 WebAssembly 的浏览器原生打包 |
+
+## 快速开始
+
+```bash filename="Terminal" copy
+# 全局安装 utoo
+npm install -g utoo
+
+# 安装项目依赖
+ut install
+
+# 运行脚本
+ut dev
+ut build
+
+# 执行远程包
+utx create-react-app my-app
+```
+
+## 为什么选择 Utoo？
+
+- **快速** - Rust 驱动的高性能
+- **兼容** - npm 的直接替代品
+- **统一** - 一套工具链满足所有需求
+- **现代** - 原生 ESM、TypeScript 等
+
+## 安装
+
+### 包管理器
+
+```bash filename="Terminal" copy
+npm install -g utoo
+```
+
+### 打包工具
+
+```bash filename="Terminal" copy
+ut install @utoo/pack --save-dev
+```
+
+### 浏览器打包工具
+
+```bash filename="Terminal" copy
+ut install @utoo/web
+```

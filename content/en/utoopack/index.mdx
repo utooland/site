@@ -1,0 +1,127 @@
+# @utoo/pack
+
+import { Callout, Cards, Steps, Tabs } from 'nextra/components'
+
+High-performance bundler core for the Utoo toolchain, powered by [Turbopack](https://turbo.build/pack).
+
+<Callout type="info">
+  `@utoo/pack` is the engine behind the Utoo build system. It leverages the incremental computation power of Turbopack and the performance of Rust to provide a lightning-fast development and build experience.
+</Callout>
+
+## Key Features
+
+- **Extreme Performance** - Core bundling logic implemented in Rust via NAPI-RS
+- **Turbopack Powered** - Built on top of the same engine that powers Next.js Turbopack
+- **Webpack Compatibility** - Support for consuming `webpack.config.js` to simplify migration
+- **Modern Web Support** - Native support for TypeScript, JSX, CSS Modules, Less, Sass, and more
+- **Extensible Architecture** - Support for custom loaders, plugins, and flexible configuration
+- **Fast HMR** - Instant updates during development with optimized Hot Module Replacement
+
+## Installation
+
+```bash filename="Terminal" copy
+ut install @utoo/pack --save-dev
+```
+
+## Quick Start
+
+<Tabs items={['Production Build', 'Development Server']}>
+  <Tabs.Tab>
+```javascript filename="build.js"
+const { build } = require('@utoo/pack');
+
+async function runBuild() {
+  await build({
+    mode: "production",
+    entry: [
+      {
+        import: "./src/index.ts",
+        html: { template: "./index.html" }
+      }
+    ],
+    output: {
+      path: "./dist",
+      filename: "[name].[contenthash:8].js",
+      chunkFilename: "[name].[contenthash:8].js",
+      clean: true
+    },
+    sourceMaps: true
+  });
+}
+
+runBuild();
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```javascript filename="dev.js"
+const { dev } = require('@utoo/pack');
+
+async function startDev() {
+  const server = await dev({
+    mode: "development",
+    entry: [
+      {
+        import: "./src/index.ts",
+        html: { template: "./index.html" }
+      }
+    ],
+    output: {
+      path: "./dist",
+      filename: "[name].[contenthash:8].js",
+      chunkFilename: "[name].[contenthash:8].js",
+      clean: true
+    },
+    sourceMaps: true
+  });
+}
+
+startDev();
+```
+  </Tabs.Tab>
+</Tabs>
+
+## Webpack Compatibility
+
+`@utoo/pack` provides a partial compatibility layer for Webpack, allowing you to reuse existing configurations.
+
+```javascript filename="build.js"
+const { build } = require('@utoo/pack');
+const webpackConfig = require('./webpack.config.js');
+
+async function run() {
+  await build({ ...webpackConfig, webpackMode: true });
+}
+
+run();
+```
+
+<Callout type="warning">
+  Not all Webpack features and plugins are supported. Check the [Features](/en/docs/utoopack/features) page for details on supported configuration options.
+</Callout>
+
+## Supported Features
+
+`@utoo/pack` aims for high compatibility with the Webpack ecosystem while providing superior performance.
+
+| Category | Support |
+|----------|---------|
+| **Entry** | `name`, `import`, and `filename` templates |
+| **Module Rules** | Most mainstream Webpack loaders via `loader-runner` |
+| **Resolve** | Full support for `alias` and `extensions` |
+| **Styles** | Less, Sass, PostCSS, CSS Modules, LightningCSS |
+| **Optimization** | Minification, Tree Shaking, Module Concatenation |
+| **Frameworks** | React (`styled-jsx`, `emotion`, `styled-components`) |
+| **Tools** | Bundle Analyzer, Tracing Logs |
+
+## Configuration
+
+The bundler can be configured via `utoopack.json` or through the programmatic API.
+
+| Option | Description |
+|--------|-------------|
+| `entry` | Define your application entry points |
+| `define` | Build-time variable replacement |
+| `externals` | Exclude specific dependencies from the bundle |
+| `mode` | `development` or `production` |
+
+See [Configuration](/en/docs/utoopack/config) for full details.

@@ -1,0 +1,39 @@
+# view
+
+View package information from the registry.
+
+**Aliases:** `v`, `info`, `show`
+
+## Usage
+
+```bash filename="Terminal"
+ut view [OPTIONS] <PACKAGE>
+```
+
+## Examples
+
+```bash filename="Terminal" copy
+# View package info
+ut view react
+ut v lodash
+ut info typescript
+
+# View specific version
+ut view react@18.0.0
+```
+
+## Options
+
+| Option | Description |
+|--------|-------------|
+| `--registry <url>` | Override npm registry |
+
+## Output
+
+Displays package metadata including:
+- Package name and description
+- Latest version
+- License
+- Dependencies
+- Repository URL
+- Maintainers

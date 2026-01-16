@@ -1,0 +1,67 @@
+# utx 别名
+
+`utx` 是 `ut execute` 的便捷别名，类似于 `npx` 与 `npm` 的关系。
+
+## 用法
+
+```bash filename="Terminal"
+utx <COMMAND> [ARGS...]
+```
+
+## 为什么用 utx？
+
+- 比 `ut execute` 或 `ut x` 更短
+- npx 用户熟悉的模式
+- 快速执行一次性包命令
+
+## 示例
+
+```bash filename="Terminal" copy
+# 创建新的 React 应用
+utx create-react-app my-app
+
+# 初始化 TypeScript
+utx tsc --init
+
+# 用 Prettier 格式化代码
+utx prettier --write .
+
+# 运行 ESLint
+utx eslint --fix src/
+
+# 用 cowsay 玩一下
+utx cowsay "Hello from utx!"
+
+# 创建 Vite 项目
+utx create-vite my-app --template react-ts
+```
+
+## 对比
+
+| npx | utx |
+|-----|-----|
+| `npx create-react-app my-app` | `utx create-react-app my-app` |
+| `npx tsc --init` | `utx tsc --init` |
+| `npx prettier --write .` | `utx prettier --write .` |
+
+## 工作原理
+
+1. 首先检查本地 `node_modules/.bin`
+2. 如果未找到，从 npm 镜像源下载
+3. 缓存以备后续使用
+4. 使用提供的参数执行
+
+## 自定义命令
+
+可以在配置中定义自定义 utx 命令：
+
+```bash filename="Terminal" copy
+ut config set hi.cmd "utx cowsay hi"
+```
+
+然后运行：
+
+```bash filename="Terminal" copy
+ut hi
+# 执行: utx cowsay hi
+```

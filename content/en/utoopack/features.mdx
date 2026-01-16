@@ -1,0 +1,114 @@
+# Features
+
+import { Callout } from 'nextra/components'
+
+`@utoo/pack` aims for high compatibility with the Webpack ecosystem while providing superior performance.
+
+## Feature Status Legend
+
+- ✅ Completed
+- 🟠 Work in Progress
+- ❓ To be determined
+
+## Entry & Output
+
+| Feature | Status | Description |
+|---------|--------|-------------|
+| `name` & `import` | ✅ | [Webpack entry context](https://webpack.js.org/configuration/entry-context/#entry) |
+| `filename` template | ✅ | e.g., `[name].[contenthash:8].js` |
+| `library` | ✅ | Supports UMD (root, export) and `dynamicImportToRequire` |
+| `path` | ✅ | Output directory |
+| `publicPath` | ✅ | Public URL path for assets |
+| `chunkFilename` | ✅ | Non-entry chunk filename |
+| `clean` | ✅ | Clean output directory before build |
+| `copy` | ✅ | Copy static files |
+
+## Module & Resolve
+
+| Feature | Status | Description |
+|---------|--------|-------------|
+| `rules` | ✅ | `loader-runner` supports most mainstream webpack loaders |
+| `alias` | ✅ | Module path aliases |
+| `extensions` | ✅ | Auto-resolve file extensions |
+| `externals` | ✅ | Exclude dependencies from bundle |
+
+## Optimization
+
+| Feature | Status | Description |
+|---------|--------|-------------|
+| `concatenateModules` | ✅ | Module concatenation (scope hoisting) |
+| `moduleIds` | ✅ | Supports "named" or "deterministic" |
+| `minify` | ✅ | Code minification |
+| `treeShaking` | ✅ | Remove unused code |
+| `splitChunks` | 🟠 | Chunk splitting configuration |
+| `modularizeImports` | ✅ | Similar to `babel-plugin-import` |
+| `packageImports` | ✅ | Similar to Next.js `optimizePackageImports` |
+| `transpilePackages` | ✅ | Transpile specific packages |
+| `removeConsole` | ✅ | Remove console statements |
+
+## Styles
+
+| Feature | Status | Description |
+|---------|--------|-------------|
+| Less | ✅ | Less preprocessor support |
+| Sass | ✅ | Sass/SCSS support |
+| PostCSS | ✅ | PostCSS processing |
+| CSS Modules | ✅ | Scoped CSS classes |
+| Inline CSS | ✅ | Inject CSS via style tags |
+| LightningCSS | ✅ | Fast CSS parsing, transform & minify |
+| styled-jsx | ✅ | Vercel's CSS-in-JS solution |
+| styled-components | ✅ | Popular CSS-in-JS library |
+| Emotion | ✅ | CSS-in-JS library |
+
+## Images & Assets
+
+| Feature | Status | Description |
+|---------|--------|-------------|
+| Inline | ✅ | Inline small images as base64 |
+| Blur placeholder | ✅ | Generate blur placeholders for images |
+
+## Development
+
+| Feature | Status | Description |
+|---------|--------|-------------|
+| Source Maps | ✅ | Full devtool support |
+| HMR | ✅ | Hot Module Replacement |
+| Dev Server | ✅ | Built-in development server |
+| Lazy Compiling | 🟠 | Compile on demand |
+
+## Tools & Analysis
+
+| Feature | Status | Description |
+|---------|--------|-------------|
+| Stats | ✅ | Build statistics output |
+| Bundle Analysis | ✅ | Visualize bundle composition |
+| Tracing Log (file) | ✅ | Build performance tracing |
+| Tracing Log (viewer) | 🟠 | Visual trace viewer |
+
+## Advanced Features
+
+| Feature | Status | Description |
+|---------|--------|-------------|
+| Mode | ✅ | development/production modes |
+| Define | ✅ | Build-time variable replacement |
+| Providers | ✅ | Auto-provide modules |
+| Node Polyfill | ✅ | Polyfill Node.js built-ins for browser |
+| SWC Transform Plugin | ✅ | Support SWC plugins |
+| Webpack compat mode | ✅ | Partial webpack.config.js support |
+| Magic Comments | 🟠 | `webpackChunkName`, `webpackIgnore` |
+
+## Planned Features
+
+| Feature | Status | Description |
+|---------|--------|-------------|
+| MDX | ❓ | MDX support |
+| SSR | ❓ | Server-side rendering |
+| RSC | ❓ | React Server Components |
+| Server Actions | ❓ | Next.js-style server actions |
+| Edge Runtime | ❓ | Edge runtime support |
+| Persistent Caching | 🟠 | Cache builds across runs |
+| Module Federation | ❓ | Micro-frontend support |
+
+<Callout type="info">
+  Features are continuously being added. Check the [GitHub repository](https://github.com/utooland/utoo) for the latest updates.
+</Callout>
