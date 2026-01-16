@@ -26,7 +26,7 @@ export default async function DocsLayout({ children, params }: LayoutProps) {
           <SharedFooter />
         </Footer>
       }
-      docsRepositoryBase="https://github.com/utooland/utoo/tree/main/content"
+      docsRepositoryBase="https://github.com/utooland/site/tree/main"
       sidebar={{ defaultMenuCollapseLevel: 1 }}
       pageMap={pageMap}
       i18n={[
