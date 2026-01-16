@@ -1,0 +1,35 @@
+# deps
+
+Generate package-lock.json without installing packages.
+
+**Alias:** `d`
+
+## Usage
+
+```bash filename="Terminal"
+ut deps [OPTIONS]
+```
+
+## Examples
+
+```bash filename="Terminal" copy
+# Generate lock file
+ut deps
+ut d
+
+# With specific registry
+ut deps --registry https://registry.npmmirror.com
+```
+
+## Options
+
+| Option | Description |
+|--------|-------------|
+| `--registry <url>` | Override npm registry |
+| `--legacy-peer-deps` | Legacy peer dependency handling |
+
+## Use Cases
+
+- Generate lock file for CI/CD without full installation
+- Update dependency resolution without modifying node_modules
+- Pre-compute dependency tree before installation

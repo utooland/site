@@ -8,6 +8,7 @@ export const translations = {
       description:
         "A complete suite of tools for modern frontend development. Lightning fast package management, bundling, and browser-native builds.",
       explorePackages: "Explore Packages",
+      docs: "Doc",
       github: "GitHub",
     },
     // Packages
@@ -178,6 +179,7 @@ export const translations = {
       description:
         "现代前端开发的完整工具套件。极速包管理、打包构建，以及浏览器原生构建能力。",
       explorePackages: "探索功能",
+      docs: "Doc",
       github: "GitHub",
     },
     // Packages

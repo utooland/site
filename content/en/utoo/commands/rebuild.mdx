@@ -1,0 +1,38 @@
+# rebuild
+
+Rebuild script hooks in all packages.
+
+**Alias:** `rb`
+
+## Usage
+
+```bash filename="Terminal"
+ut rebuild [OPTIONS]
+```
+
+## Examples
+
+```bash filename="Terminal" copy
+# Rebuild all packages
+ut rebuild
+ut rb
+```
+
+## Options
+
+| Option | Description |
+|--------|-------------|
+| `--verbose` | Enable debug logging |
+
+## What It Does
+
+Re-runs install scripts for all packages in node_modules, including:
+- `preinstall`
+- `install`
+- `postinstall`
+
+## Use Cases
+
+- After native module compilation fails
+- When switching Node.js versions
+- Fixing broken binary dependencies (e.g., `esbuild`, `swc`)

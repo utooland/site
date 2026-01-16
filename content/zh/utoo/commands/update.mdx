@@ -1,0 +1,41 @@
+# update
+
+删除 node_modules 并重新安装所有依赖。
+
+**别名:** `u`
+
+## 用法
+
+```bash filename="Terminal"
+ut update [OPTIONS]
+```
+
+## 示例
+
+```bash filename="Terminal" copy
+# 清洁重装
+ut update
+ut u
+
+# 在指定工作区更新
+ut update -w my-app
+```
+
+## 选项
+
+| 选项 | 描述 |
+|------|------|
+| `-w, --workspace <name>` | 更新指定工作区 |
+| `--workspaces` | 更新所有工作区 |
+
+## 执行操作
+
+1. 删除 `node_modules` 目录
+2. 从 package.json 重新安装所有依赖
+3. 重新生成 package-lock.json
+
+## 使用场景
+
+- 修复损坏的 node_modules
+- 重大依赖变更后从头开始
+- 解决幽灵依赖问题

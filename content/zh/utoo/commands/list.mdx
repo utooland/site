@@ -1,0 +1,32 @@
+# list
+
+列出已安装的依赖。
+
+**别名:** `ls`
+
+## 用法
+
+```bash filename="Terminal"
+ut list [OPTIONS] [PACKAGE]
+```
+
+## 示例
+
+```bash filename="Terminal" copy
+# 列出所有依赖
+ut list
+ut ls
+
+# 列出指定包及其依赖
+ut list react
+
+# 限制深度
+ut list --depth=1
+ut list --depth=0
+```
+
+## 选项
+
+| 选项 | 描述 |
+|------|------|
+| `--depth <n>` | 限制依赖树的深度 |

@@ -1,0 +1,119 @@
+# Storage Paths
+
+import { FileTree, Callout, Tabs } from 'nextra/components'
+
+utoo uses several directories for configuration, cache, and global packages.
+
+## Directory Structure
+
+<FileTree>
+  <FileTree.Folder name="~/.utoo" defaultOpen>
+    <FileTree.File name="config.toml" />
+    <FileTree.Folder name="cache" defaultOpen>
+      <FileTree.Folder name="lodash">
+        <FileTree.File name="4.17.21.tgz" />
+      </FileTree.Folder>
+      <FileTree.Folder name="react">
+        <FileTree.File name="18.2.0.tgz" />
+        <FileTree.File name="18.3.0.tgz" />
+      </FileTree.Folder>
+    </FileTree.Folder>
+    <FileTree.Folder name="global">
+      <FileTree.Folder name="node_modules">
+        <FileTree.Folder name=".bin">
+          <FileTree.File name="tsc" />
+        </FileTree.Folder>
+        <FileTree.Folder name="typescript" />
+      </FileTree.Folder>
+    </FileTree.Folder>
+  </FileTree.Folder>
+</FileTree>
+
+## Paths Overview
+
+| Path | Purpose |
+|------|---------|
+| `~/.utoo/config.toml` | Global configuration file |
+| `~/.utoo/cache/` | Downloaded package tarballs |
+| `~/.utoo/global/` | Global package installations |
+
+## Package Cache
+
+When you install a package, utoo caches the tarball in `~/.utoo/cache/`:
+
+<Callout>
+  Cached packages are reused across projects, speeding up subsequent installations.
+</Callout>
+
+### Clearing Cache
+
+<Tabs items={['Clear All', 'Clear Specific', 'Check Location']}>
+  <Tabs.Tab>
+```bash filename="Terminal" copy
+ut clean
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" copy
+ut clean lodash
+ut clean react*
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" copy
+ut config get cache-dir
+```
+  </Tabs.Tab>
+</Tabs>
+
+## Global Packages
+
+Globally installed packages are stored in `~/.utoo/global/`:
+
+```bash filename="Terminal" copy
+# Install globally
+ut install -g typescript
+
+# Location
+# ~/.utoo/global/node_modules/typescript/
+# ~/.utoo/global/node_modules/.bin/tsc
+```
+
+## Custom Paths
+
+<Tabs items={['Config', 'Environment']}>
+  <Tabs.Tab>
+```bash filename="Terminal" copy
+ut config set cache-dir /path/to/cache --global
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" copy
+export UTOO_CACHE_DIR=/path/to/cache
+```
+  </Tabs.Tab>
+</Tabs>
+
+## Project Files
+
+In each project, utoo uses:
+
+<FileTree>
+  <FileTree.Folder name="my-project" defaultOpen>
+    <FileTree.File name="package.json" />
+    <FileTree.File name="package-lock.json" />
+    <FileTree.File name=".utoo.toml" />
+    <FileTree.Folder name="node_modules">
+      <FileTree.Folder name=".bin" />
+      <FileTree.Folder name="lodash" />
+      <FileTree.Folder name="react" />
+    </FileTree.Folder>
+  </FileTree.Folder>
+</FileTree>
+
+| File | Purpose |
+|------|---------|
+| `package.json` | Dependencies manifest |
+| `package-lock.json` | Dependency lock file |
+| `node_modules/` | Installed packages |
+| `.utoo.toml` | Project-specific config (optional) |

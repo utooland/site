@@ -1,0 +1,55 @@
+# run
+
+Run scripts defined in package.json.
+
+**Alias:** `r`
+
+## Usage
+
+```bash filename="Terminal"
+ut run [OPTIONS] [SCRIPT] [ARGS...]
+```
+
+## Examples
+
+```bash filename="Terminal" copy
+# Run a script
+ut run build
+ut run dev
+ut r test
+
+# Pass arguments to script
+ut run test -- --watch
+ut run build -- --mode production
+
+# Run in specific workspace
+ut run build -w my-app
+
+# Run in all workspaces (topological order)
+ut run build --workspaces
+
+# Interactive mode (no script specified)
+ut run
+# → Prompts to select workspace and script
+```
+
+## Shortcut
+
+You can run scripts directly without `run`:
+
+```bash filename="Terminal" copy
+ut build      # same as: ut run build
+ut dev        # same as: ut run dev
+ut test       # same as: ut run test
+```
+
+## Options
+
+| Option | Description |
+|--------|-------------|
+| `-w, --workspace <name>` | Run in specific workspace |
+| `--workspaces` | Run in all workspaces with topological ordering |
+
+## Workspace Execution Order
+
+When using `--workspaces`, scripts are executed in topological order based on dependency relationships, ensuring dependencies are built before dependents.

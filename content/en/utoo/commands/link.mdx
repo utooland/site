@@ -1,0 +1,34 @@
+# link
+
+Link a local package for development.
+
+**Alias:** `ln`
+
+## Usage
+
+```bash filename="Terminal"
+ut link [OPTIONS] [PACKAGE]
+```
+
+## Examples
+
+```bash filename="Terminal" copy
+# In the package you want to link (e.g., my-lib/)
+cd my-lib
+ut link
+
+# In the project that uses the package
+cd my-app
+ut link my-lib
+```
+
+## How It Works
+
+1. `ut link` (without arguments) creates a global symlink to the current package
+2. `ut link <package>` creates a symlink from local `node_modules/<package>` to the global link
+
+## Use Cases
+
+- Developing a library and testing it in another project
+- Working on monorepo packages without publishing
+- Debugging npm packages locally

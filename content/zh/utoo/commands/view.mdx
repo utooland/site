@@ -1,0 +1,39 @@
+# view
+
+查看镜像源中的包信息。
+
+**别名:** `v`, `info`, `show`
+
+## 用法
+
+```bash filename="Terminal"
+ut view [OPTIONS] <PACKAGE>
+```
+
+## 示例
+
+```bash filename="Terminal" copy
+# 查看包信息
+ut view react
+ut v lodash
+ut info typescript
+
+# 查看指定版本
+ut view react@18.0.0
+```
+
+## 选项
+
+| 选项 | 描述 |
+|------|------|
+| `--registry <url>` | 覆盖 npm 镜像源 |
+
+## 输出内容
+
+显示包的元数据，包括：
+- 包名和描述
+- 最新版本
+- 许可证
+- 依赖项
+- 仓库 URL
+- 维护者

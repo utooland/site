@@ -1,0 +1,135 @@
+# API 参考
+
+## `new UtooProject(options)`
+
+创建一个新的项目实例。
+
+### 选项
+
+#### `cwd` (string, 必需)
+在真实文件系统中作为项目根目录的绝对路径（例如 `/my-app`）。
+
+#### `workerUrl` (string)
+指定 `Project` 实例核心逻辑实际运行的 Worker 线程的 URL。主线程中的 `Project` 对象是一个代理，它将所有核心任务委托给此 Worker。
+
+#### `threadWorkerUrl` (string, 必需)
+指定一个专用于处理 CPU 密集型任务（如打包和编译）的独立 Worker 线程的 URL。
+
+#### `loaderWorkerUrl` (string, 必需)
+指定一个专用于处理 webpack 加载器的独立 Worker 线程的 URL。
+
+#### `serviceWorker` (object)
+用于预览功能的 Service Worker 配置。
+- `url` (string, 必需): Service Worker 脚本的 URL。
+- `scope` (string, 必需): Service Worker 将拦截请求的 URL 范围。
+
+#### `loadersImportMap` (object)
+用于配置 Webpack loader 的导入映射。键是 loader 的名称，值是 UMD/CommonJS 模块的 URL 或内容字符串。
+
+---
+
+## 文件系统方法
+
+这些方法是异步的，并模仿了 Node.js `fs` API。
+
+### `project.writeFile(path, content)`
+
+将内容写入真实文件系统中的文件。如果文件不存在，将会被创建。
+
+**参数：**
+- `path` (string): 文件的绝对路径（例如 `/src/index.js`）。
+- `content` (string | Buffer): 要写入的内容。
+
+### `project.readFile(path, encoding)`
+
+读取文件的内容。
+
+**参数：**
+- `path` (string): 文件的路径。
+- `encoding` (string, 可选): 文件的编码（例如 `'utf8'`）。如果未提供，则返回一个 Buffer。
+
+### `project.readDir(path)`
+
+读取目录的内容。
+
+**参数：**
+- `path` (string): 目录的路径。
+
+**返回：** `Promise<string[]>` - 文件和目录名称的数组。
+
+### `project.mkdir(path)`
+
+创建一个新目录。
+
+**参数：**
+- `path` (string): 要创建的目录的路径。
+
+### `project.rm(path, options)`
+
+删除一个文件或目录。
+
+**参数：**
+- `path` (string): 要删除的文件或目录的路径。
+- `options` (object, 可选):
+  - `recursive` (boolean): 如果为 `true`，则执行递归目录删除。默认为 `false`。
+
+### `project.rmdir(path)`
+
+删除一个目录。
+
+**参数：**
+- `path` (string): 要删除的目录的路径。
+
+---
+
+## 依赖管理
+
+### `project.deps(options?)`
+
+从项目的 `package.json` 解析依赖并生成 lock 文件字符串。这使得在浏览器中直接进行依赖解析成为可能，无需预先准备 `package-lock.json`。
+
+**选项：**
+- `registry` (string): npm registry URL。默认: `https://registry.npmmirror.com`
+- `concurrency` (number): 最大并发网络请求数。默认: `20`
+
+**返回值：** `Promise<string>` - 表示解析后的依赖 lock 文件的 JSON 字符串，与 `package-lock.json` 格式兼容。
+
+**示例：**
+
+```typescript filename="app.ts"
+// 使用默认 registry（npmmirror）
+const lockFile = await project.deps();
+
+// 使用官方 npm registry
+const lockFile = await project.deps({
+    registry: "https://registry.npmjs.org"
+});
+
+// 使用私有 registry 并自定义并发数
+const lockFile = await project.deps({
+    registry: "https://npm.mycompany.com",
+    concurrency: 10
+});
+```
+
+### `project.install(packageLockJsonString, maxConcurrentDownloads?)`
+
+根据 lock 文件字符串填充 `node_modules` 目录。
+
+**参数：**
+- `packageLockJsonString` (string): 依赖 lock 文件的 JSON 字符串（来自 `deps()` 或 `package-lock.json` 文件）。
+- `maxConcurrentDownloads` (number, 可选): 最大并发包下载数。
+
+---
+
+## 预览功能
+
+### `project.installServiceWorker()`
+
+注册并激活构造函数中定义的 Service Worker。这对于预览功能至关重要。
+
+### `project.build()`
+
+在线程 Worker 中触发构建过程。它会从项目根目录读取 `utoopack.json` 的构建配置，并根据该配置运行打包器。
+
+**返回：** `Promise<void>` - 当构建完成时，Promise 会解决。如果构建失败，则会拒绝。

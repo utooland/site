@@ -1,0 +1,100 @@
+# 工作区
+
+utoo 支持 npm 工作区，用于 monorepo 管理。
+
+## 配置
+
+在根目录的 `package.json` 中定义工作区：
+
+```json
+{
+  "name": "my-monorepo",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ]
+}
+```
+
+## 目录结构
+
+```
+my-monorepo/
+├── package.json          # 根目录，包含工作区配置
+├── packages/
+│   ├── ui/
+│   │   └── package.json
+│   └── utils/
+│       └── package.json
+└── apps/
+    └── web/
+        └── package.json
+```
+
+## 命令
+
+### 指定工作区
+
+使用 `-w` 或 `--workspace` 指定工作区：
+
+```bash
+# 在指定工作区安装
+ut install lodash -w packages/ui
+
+# 在指定工作区运行脚本
+ut run build -w apps/web
+
+# 在指定工作区添加开发依赖
+ut install -D typescript -w packages/utils
+```
+
+### 所有工作区
+
+使用 `--workspaces` 针对所有工作区：
+
+```bash
+# 在所有工作区运行构建
+ut run build --workspaces
+
+# 在所有工作区安装
+ut install --workspaces
+```
+
+## 执行顺序
+
+使用 `--workspaces` 时，命令按**拓扑顺序**执行，基于依赖关系：
+
+1. 没有内部依赖的包先运行
+2. 被依赖的包完成后，依赖它的包再运行
+
+示例：
+
+```
+packages/utils    →  （先运行，无依赖）
+packages/ui       →  （其次，依赖 utils）
+apps/web          →  （最后，依赖 ui）
+```
+
+## 工作区间依赖
+
+使用 `workspace:` 协议引用工作区包：
+
+```json
+{
+  "name": "apps/web",
+  "dependencies": {
+    "@my-monorepo/ui": "workspace:*",
+    "@my-monorepo/utils": "workspace:^1.0.0"
+  }
+}
+```
+
+## 交互模式
+
+不带参数运行 `ut run` 进入交互式选择工作区和脚本：
+
+```bash
+ut run
+# → 选择工作区: packages/ui
+# → 选择脚本: build
+```

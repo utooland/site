@@ -1,0 +1,32 @@
+# list
+
+List installed dependencies.
+
+**Alias:** `ls`
+
+## Usage
+
+```bash filename="Terminal"
+ut list [OPTIONS] [PACKAGE]
+```
+
+## Examples
+
+```bash filename="Terminal" copy
+# List all dependencies
+ut list
+ut ls
+
+# List specific package and its dependencies
+ut list react
+
+# Limit depth
+ut list --depth=1
+ut list --depth=0
+```
+
+## Options
+
+| Option | Description |
+|--------|-------------|
+| `--depth <n>` | Limit the depth of the dependency tree |

@@ -1,0 +1,227 @@
+# 快速上手
+
+import { Callout, Steps, Tabs } from 'nextra/components'
+
+启动项目主要涉及五个步骤。参考 `examples/utooweb-demo` 或在线体验 [`utoo-repl`](https://utoo-repl.vercel.app)。
+
+<Steps>
+
+### 实例化项目
+
+创建 `Project` 实例，配置 Worker 和 Service Worker。
+
+```typescript filename="app.ts"
+import { Project as UtooProject } from "@utoo/web";
+
+const project = new UtooProject({
+    // 文件系统中的项目根目录。
+    cwd: "/utooweb-demo",
+
+    // 核心功能 Worker 脚本 URL。
+    workerUrl: `${location.origin}/worker.js`,
+
+    // 重度任务 Worker 脚本 URL。
+    threadWorkerUrl: `${location.origin}/threadWorker.js`,
+
+    // webpack loaders Worker 脚本 URL。
+    loaderWorkerUrl: `${location.origin}/loaderWorker.js`,
+
+    // 预览 Service Worker 配置。
+    serviceWorker: {
+        url: `${location.origin}/serviceWorker.js`,
+        scope: "/preview", // Service Worker 控制的路径。
+    },
+    // 运行 webpack loaders 的 ImportMap
+    loadersImportMap: {
+      // 接受 umd 脚本 url 或脚本内容字符串
+      "xyzLoader": "https://x.y.z.js"
+    }
+});
+```
+
+### 安装 Service Worker
+
+要启用预览功能，您必须注册并安装 Service Worker。
+
+```typescript filename="app.ts"
+await project.installServiceWorker();
+```
+
+### 解析和安装依赖
+
+`@utoo/web` 提供两种依赖管理方式：
+
+<Tabs items={['从 package.json 生成', '使用已有 lock 文件']}>
+<Tabs.Tab>
+使用 `deps()` 方法直接从 `package.json` 解析依赖。这会生成一个与 `package-lock.json` 兼容的 lock 文件，无需预先准备 lock 文件。
+
+```typescript filename="app.ts"
+// 从 package.json 解析依赖
+const packageLock = await project.deps({
+    registry: "https://registry.npmmirror.com", // 可选：自定义 registry
+    concurrency: 20, // 可选：并发请求数（默认：20）
+});
+
+// 安装解析后的依赖
+await project.install(packageLock);
+```
+</Tabs.Tab>
+<Tabs.Tab>
+如果你已经有 `package-lock.json`，可以直接使用：
+
+```typescript filename="app.ts"
+// 将您的 package-lock.json 作为 JSON 对象导入。
+import { packageLock } from "../packageLock";
+
+await project.install(JSON.stringify(packageLock));
+```
+</Tabs.Tab>
+</Tabs>
+
+<Callout type="info">
+  项目 `node_modules` 中的依赖包实际上是指向全局共享存储的逻辑链接。这意味着在同一浏览器域名下的不同 project 之间，可以共享同名且同版本的依赖，无需重复下载。这种机制类似于 `pnpm` 的存储策略。
+</Callout>
+
+**共享依赖的优势：**
+- **节省存储空间**：相同版本的依赖包在 OPFS 中仅存储一份，避免了冗余占用
+- **加速项目初始化**：创建新项目或切换项目时，若依赖包已存在于全局存储中，可直接复用，实现秒级安装
+- **减少网络流量**：常用依赖包只需下载一次，后续项目即可直接使用，大幅降低网络开销
+- **跨标签页复用**：即使开启新的浏览器标签页，只要处于同一域名下，依赖均可以直接复用
+
+### 写入项目文件
+
+环境设置好后，您现在可以将源文件写入真实文件系统。
+
+```typescript filename="app.ts"
+// 一个包含文件路径及其内容的对象。
+import { demoFiles } from "../demoFiles";
+
+await project.mkdir("src");
+
+for (const filePath in demoFiles) {
+    const content = demoFiles[filePath];
+    await project.writeFile(filePath, content);
+}
+```
+
+### 创建构建配置
+
+在构建项目之前，您需要在项目的根目录中提供一个名为 `utoopack.json` 的构建配置文件。
+
+```json filename="utoopack.json"
+{
+  "entry": [
+    {
+      "import": "./src/index.tsx",
+      "name": "main"
+    }
+  ],
+  "output": {
+    "path": "dist"
+  },
+  "module": {
+    "rules": {
+      "*.tsx": [ "xyzLoader" ]
+    }
+  },
+  "stats": true
+}
+```
+
+<Callout>
+  若要使用 loader，请将其添加至 `package.json` 的 `devDependencies` 中并安装，这与标准 webpack 项目的依赖管理方式一致。此外，由于 `@utoo/web` 遵循 `loader-runner` 的机制与上下文来执行 loader，您还需要同时安装 `loader-runner`。
+</Callout>
+
+将此文件写入真实文件系统：
+
+```typescript filename="app.ts"
+await project.writeFile('utoopack.json', JSON.stringify(utoopackConfig, null, 2));
+```
+
+</Steps>
+
+完成这些步骤后，您的项目就完全初始化并准备好进行交互了。
+
+## 示例工作流：构建和预览
+
+`utooweb-demo` 展示了一个完整的编辑、构建和预览的工作流。
+
+### 1. 编辑
+
+使用 `project.readFile()` 读取文件并显示在编辑器中。当内容更改时，调用 `project.writeFile()`（通常带有防抖动）将更改保存回 OPFS。
+
+```typescript filename="useFileContent.ts"
+const content = await project.readFile(filePath, "utf8");
+// ...
+await project.writeFile(selectedFilePath, newContent);
+```
+
+### 2. 构建
+
+用户点击"构建"按钮，调用 `project.build()`。
+
+```typescript filename="useBuild.ts"
+setIsBuilding(true);
+try {
+    await project.build();
+    // 构建成功
+} catch (e) {
+    // 构建失败
+} finally {
+    setIsBuilding(false);
+}
+```
+
+### 3. 处理构建输出
+
+构建成功后，应用程序读取构建输出（例如 `dist/stats.json`）以查找生成的资源文件（`.js`、`.css`）。然后它会生成一个包含这些资源的 `index.html`。
+
+```typescript filename="useBuild.ts"
+const statsContent = await project.readFile("dist/stats.json", "utf8");
+const stats = JSON.parse(statsContent);
+// ... 生成带有正确 script/link 标签的 HTML 的逻辑 ...
+await project.writeFile("dist/index.html", generatedHtml);
+```
+
+### 4. 预览
+
+`Preview` 组件包含一个 `iframe`，其 `src` 指向 Service Worker 范围内的入口点（例如 `/preview/dist/index.html`）。构建完成后，`iframe` 会重新从 Service Worker 加载 OPFS 中新生成的产物文件。
+
+这个循环提供了一个快速、交互式的开发循环，全部在用户的浏览器中本地运行。
+
+## 设置 Worker 脚本
+
+设置 `@utoo/web` 项目的一个关键部分是创建您传递给 `UtooProject` 构造函数的 Worker 脚本。
+
+<Tabs items={['worker.ts', 'threadWorker.ts', 'serviceWorker.ts', 'loaderWorker.ts']}>
+<Tabs.Tab>
+项目主 Worker - 处理文件系统操作和其他核心任务。
+
+```typescript filename="src/worker.ts"
+import "@utoo/web/esm/worker";
+```
+</Tabs.Tab>
+<Tabs.Tab>
+线程 Worker - 处理 CPU 密集型任务，如打包。
+
+```typescript filename="src/threadWorker.ts"
+import "@utoo/web/esm/threadWorker";
+```
+</Tabs.Tab>
+<Tabs.Tab>
+服务 Worker - 从真实文件系统提供预览。
+
+```typescript filename="src/serviceWorker.ts"
+import "@utoo/web/esm/serviceWorker";
+```
+</Tabs.Tab>
+<Tabs.Tab>
+加载器 Worker - 处理 webpack 加载器。
+
+```typescript filename="src/loaderWorker.ts"
+import "@utoo/web/esm/loaderWorker";
+```
+</Tabs.Tab>
+</Tabs>
+
+您的构建设置应配置为将这些文件输出到主应用程序可以访问的位置，以便您可以将其 URL 提供给 `UtooProject` 构造函数。

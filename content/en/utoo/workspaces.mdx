@@ -1,0 +1,100 @@
+# Workspaces
+
+utoo supports npm workspaces for monorepo management.
+
+## Setup
+
+Define workspaces in your root `package.json`:
+
+```json
+{
+  "name": "my-monorepo",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ]
+}
+```
+
+## Directory Structure
+
+```
+my-monorepo/
+├── package.json          # Root with workspaces config
+├── packages/
+│   ├── ui/
+│   │   └── package.json
+│   └── utils/
+│       └── package.json
+└── apps/
+    └── web/
+        └── package.json
+```
+
+## Commands
+
+### Target Specific Workspace
+
+Use `-w` or `--workspace` to target a specific workspace:
+
+```bash
+# Install in specific workspace
+ut install lodash -w packages/ui
+
+# Run script in specific workspace
+ut run build -w apps/web
+
+# Add dev dependency to specific workspace
+ut install -D typescript -w packages/utils
+```
+
+### Target All Workspaces
+
+Use `--workspaces` to target all workspaces:
+
+```bash
+# Run build in all workspaces
+ut run build --workspaces
+
+# Install in all workspaces
+ut install --workspaces
+```
+
+## Execution Order
+
+When using `--workspaces`, commands are executed in **topological order** based on dependency relationships:
+
+1. Packages with no internal dependencies run first
+2. Dependents run after their dependencies complete
+
+Example:
+
+```
+packages/utils    →  (runs first, no deps)
+packages/ui       →  (runs second, depends on utils)
+apps/web          →  (runs last, depends on ui)
+```
+
+## Inter-workspace Dependencies
+
+Reference workspace packages using the `workspace:` protocol:
+
+```json
+{
+  "name": "apps/web",
+  "dependencies": {
+    "@my-monorepo/ui": "workspace:*",
+    "@my-monorepo/utils": "workspace:^1.0.0"
+  }
+}
+```
+
+## Interactive Mode
+
+Run `ut run` without arguments for interactive workspace and script selection:
+
+```bash
+ut run
+# → Select workspace: packages/ui
+# → Select script: build
+```

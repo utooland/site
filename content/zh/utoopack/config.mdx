@@ -1,0 +1,165 @@
+# 配置
+
+import { Callout, Tabs } from 'nextra/components'
+
+`@utoo/pack` 可通过 `utoopack.json` 文件或编程 API 配置。
+
+## 配置文件
+
+在项目根目录创建 `utoopack.json`：
+
+```json filename="utoopack.json"
+{
+  "mode": "production",
+  "entry": [
+    {
+      "import": "./src/index.ts",
+      "html": {
+        "template": "./index.html"
+      }
+    }
+  ],
+  "output": {
+    "path": "./dist",
+    "filename": "[name].[contenthash:8].js",
+    "chunkFilename": "[name].[contenthash:8].js",
+    "clean": true
+  },
+  "sourceMaps": true
+}
+```
+
+## 核心选项
+
+### mode
+
+构建模式，影响优化和默认值。
+
+```json
+{
+  "mode": "production" // 或 "development"
+}
+```
+
+| 值 | 描述 |
+|----|------|
+| `development` | 更快构建，更好调试，启用 HMR |
+| `production` | 优化输出，压缩，tree shaking |
+
+### entry
+
+定义应用入口。
+
+```json
+{
+  "entry": [
+    {
+      "name": "main",
+      "import": "./src/index.ts",
+      "html": {
+        "template": "./index.html",
+        "filename": "index.html"
+      }
+    }
+  ]
+}
+```
+
+### output
+
+配置输出设置。
+
+```json
+{
+  "output": {
+    "path": "./dist",
+    "filename": "[name].[contenthash:8].js",
+    "chunkFilename": "[name].[contenthash:8].js",
+    "publicPath": "/",
+    "clean": true
+  }
+}
+```
+
+| 选项 | 描述 |
+|------|------|
+| `path` | 输出目录 |
+| `filename` | 入口 chunk 文件名模板 |
+| `chunkFilename` | 非入口 chunk 文件名模板 |
+| `publicPath` | 资源的公共 URL 路径 |
+| `clean` | 构建前清理输出目录 |
+
+### define
+
+构建时变量替换。
+
+```json
+{
+  "define": {
+    "process.env.NODE_ENV": "\"production\"",
+    "__VERSION__": "\"1.0.0\""
+  }
+}
+```
+
+### externals
+
+从打包中排除依赖。
+
+```json
+{
+  "externals": {
+    "react": "React",
+    "react-dom": "ReactDOM"
+  }
+}
+```
+
+### resolve
+
+模块解析配置。
+
+```json
+{
+  "resolve": {
+    "alias": {
+      "@": "./src",
+      "@components": "./src/components"
+    },
+    "extensions": [".ts", ".tsx", ".js", ".jsx"]
+  }
+}
+```
+
+## 编程 API
+
+<Tabs items={['build()', 'dev()']}>
+  <Tabs.Tab>
+```javascript
+const { build } = require('@utoo/pack');
+
+await build({
+  mode: "production",
+  entry: [{ import: "./src/index.ts" }],
+  output: { path: "./dist" }
+});
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```javascript
+const { dev } = require('@utoo/pack');
+
+const server = await dev({
+  mode: "development",
+  entry: [{ import: "./src/index.ts" }],
+  output: { path: "./dist" }
+});
+
+// server.close() 停止服务
+```
+  </Tabs.Tab>
+</Tabs>
+
+<Callout type="info">
+  完整配置 schema 见 [config_schema.json](https://github.com/utooland/utoo/blob/main/packages/pack/config_schema.json)。
+</Callout>

@@ -1,0 +1,64 @@
+# install
+
+Install project dependencies or add new packages.
+
+**Aliases:** `i`, `add`
+
+## Usage
+
+```bash filename="Terminal"
+ut install [OPTIONS] [PACKAGES...]
+```
+
+## Examples
+
+```bash filename="Terminal" copy
+# Install all dependencies from package.json
+ut install
+ut i
+
+# Install specific packages
+ut install lodash
+ut install react react-dom
+
+# Install with version
+ut install lodash@4.17.21
+ut install react@^18.0.0
+
+# Install as dev dependency
+ut install -D typescript
+ut install --save-dev @types/node
+
+# Install as peer dependency
+ut install --save-peer react
+
+# Install as optional dependency
+ut install -O fsevents
+
+# Install globally
+ut install -g utoo
+```
+
+## Options
+
+| Option | Description |
+|--------|-------------|
+| `-D, --save-dev` | Save as dev dependency |
+| `--save-peer` | Save as peer dependency |
+| `-O, --save-optional` | Save as optional dependency |
+| `-g, --global` | Install package globally |
+| `-w, --workspace <name>` | Install in specific workspace |
+| `--production` | Only install production dependencies |
+| `--omit <type>` | Omit dependency types: `dev`, `optional`, `peer` |
+| `--ignore-scripts` | Skip running dependency scripts |
+| `--legacy-peer-deps` | Legacy peer dependency handling |
+
+## Version Specification
+
+When adding packages, utoo normalizes versions:
+
+| Input | Result in package.json |
+|-------|------------------------|
+| `lodash` | `"^4.17.21"` (latest) |
+| `lodash@^4.17.0` | `"^4.17.0"` (range preserved) |
+| `lodash@4.17.21` | `"4.17.21"` (exact version) |

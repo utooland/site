@@ -1,0 +1,114 @@
+# 功能特性
+
+import { Callout } from 'nextra/components'
+
+`@utoo/pack` 旨在高度兼容 Webpack 生态，同时提供更优的性能。
+
+## 功能状态说明
+
+- ✅ 已完成
+- 🟠 开发中
+- ❓ 待定
+
+## Entry & Output
+
+| 功能 | 状态 | 描述 |
+|------|------|------|
+| `name` & `import` | ✅ | [Webpack entry 配置](https://webpack.js.org/configuration/entry-context/#entry) |
+| `filename` 模板 | ✅ | 如 `[name].[contenthash:8].js` |
+| `library` | ✅ | 支持 UMD (root, export) 和 `dynamicImportToRequire` |
+| `path` | ✅ | 输出目录 |
+| `publicPath` | ✅ | 资源公共 URL 路径 |
+| `chunkFilename` | ✅ | 非入口 chunk 文件名 |
+| `clean` | ✅ | 构建前清理输出目录 |
+| `copy` | ✅ | 复制静态文件 |
+
+## Module & Resolve
+
+| 功能 | 状态 | 描述 |
+|------|------|------|
+| `rules` | ✅ | `loader-runner` 支持主流 webpack loader |
+| `alias` | ✅ | 模块路径别名 |
+| `extensions` | ✅ | 自动解析文件扩展名 |
+| `externals` | ✅ | 从打包中排除依赖 |
+
+## 优化
+
+| 功能 | 状态 | 描述 |
+|------|------|------|
+| `concatenateModules` | ✅ | 模块合并 (scope hoisting) |
+| `moduleIds` | ✅ | 支持 "named" 或 "deterministic" |
+| `minify` | ✅ | 代码压缩 |
+| `treeShaking` | ✅ | 移除未使用代码 |
+| `splitChunks` | 🟠 | Chunk 分割配置 |
+| `modularizeImports` | ✅ | 类似 `babel-plugin-import` |
+| `packageImports` | ✅ | 类似 Next.js `optimizePackageImports` |
+| `transpilePackages` | ✅ | 转译指定包 |
+| `removeConsole` | ✅ | 移除 console 语句 |
+
+## 样式
+
+| 功能 | 状态 | 描述 |
+|------|------|------|
+| Less | ✅ | Less 预处理器支持 |
+| Sass | ✅ | Sass/SCSS 支持 |
+| PostCSS | ✅ | PostCSS 处理 |
+| CSS Modules | ✅ | 作用域 CSS 类名 |
+| Inline CSS | ✅ | 通过 style 标签注入 CSS |
+| LightningCSS | ✅ | 快速 CSS 解析、转换和压缩 |
+| styled-jsx | ✅ | Vercel 的 CSS-in-JS 方案 |
+| styled-components | ✅ | 流行的 CSS-in-JS 库 |
+| Emotion | ✅ | CSS-in-JS 库 |
+
+## 图片和资源
+
+| 功能 | 状态 | 描述 |
+|------|------|------|
+| Inline | ✅ | 小图片内联为 base64 |
+| Blur placeholder | ✅ | 为图片生成模糊占位图 |
+
+## 开发
+
+| 功能 | 状态 | 描述 |
+|------|------|------|
+| Source Maps | ✅ | 完整 devtool 支持 |
+| HMR | ✅ | 热模块替换 |
+| Dev Server | ✅ | 内置开发服务器 |
+| Lazy Compiling | 🟠 | 按需编译 |
+
+## 工具和分析
+
+| 功能 | 状态 | 描述 |
+|------|------|------|
+| Stats | ✅ | 构建统计输出 |
+| Bundle Analysis | ✅ | 可视化包组成 |
+| Tracing Log (文件) | ✅ | 构建性能追踪 |
+| Tracing Log (查看器) | 🟠 | 可视化追踪查看器 |
+
+## 高级功能
+
+| 功能 | 状态 | 描述 |
+|------|------|------|
+| Mode | ✅ | development/production 模式 |
+| Define | ✅ | 构建时变量替换 |
+| Providers | ✅ | 自动提供模块 |
+| Node Polyfill | ✅ | 为浏览器 polyfill Node.js 内置模块 |
+| SWC Transform Plugin | ✅ | 支持 SWC 插件 |
+| Webpack 兼容模式 | ✅ | 部分 webpack.config.js 支持 |
+| Magic Comments | 🟠 | `webpackChunkName`、`webpackIgnore` |
+
+## 计划中的功能
+
+| 功能 | 状态 | 描述 |
+|------|------|------|
+| MDX | ❓ | MDX 支持 |
+| SSR | ❓ | 服务端渲染 |
+| RSC | ❓ | React Server Components |
+| Server Actions | ❓ | Next.js 风格的服务端操作 |
+| Edge Runtime | ❓ | Edge 运行时支持 |
+| Persistent Caching | 🟠 | 跨构建缓存 |
+| Module Federation | ❓ | 微前端支持 |
+
+<Callout type="info">
+  功能持续增加中。查看 [GitHub 仓库](https://github.com/utooland/utoo) 获取最新更新。
+</Callout>

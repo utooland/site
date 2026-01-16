@@ -1,0 +1,64 @@
+# install
+
+安装项目依赖或添加新包。
+
+**别名:** `i`, `add`
+
+## 用法
+
+```bash filename="Terminal"
+ut install [OPTIONS] [PACKAGES...]
+```
+
+## 示例
+
+```bash filename="Terminal" copy
+# 从 package.json 安装所有依赖
+ut install
+ut i
+
+# 安装指定包
+ut install lodash
+ut install react react-dom
+
+# 安装指定版本
+ut install lodash@4.17.21
+ut install react@^18.0.0
+
+# 安装为开发依赖
+ut install -D typescript
+ut install --save-dev @types/node
+
+# 安装为 peer 依赖
+ut install --save-peer react
+
+# 安装为可选依赖
+ut install -O fsevents
+
+# 全局安装
+ut install -g utoo
+```
+
+## 选项
+
+| 选项 | 描述 |
+|------|------|
+| `-D, --save-dev` | 保存为开发依赖 |
+| `--save-peer` | 保存为 peer 依赖 |
+| `-O, --save-optional` | 保存为可选依赖 |
+| `-g, --global` | 全局安装包 |
+| `-w, --workspace <name>` | 在指定工作区安装 |
+| `--production` | 仅安装生产依赖 |
+| `--omit <type>` | 忽略依赖类型: `dev`, `optional`, `peer` |
+| `--ignore-scripts` | 跳过运行依赖脚本 |
+| `--legacy-peer-deps` | 传统 peer 依赖处理 |
+
+## 版本规范
+
+添加包时，utoo 会规范化版本：
+
+| 输入 | package.json 中的结果 |
+|------|----------------------|
+| `lodash` | `"^4.17.21"` (最新版) |
+| `lodash@^4.17.0` | `"^4.17.0"` (保留范围) |
+| `lodash@4.17.21` | `"4.17.21"` (精确版本) |

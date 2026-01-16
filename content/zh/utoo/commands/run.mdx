@@ -1,0 +1,55 @@
+# run
+
+运行 package.json 中定义的脚本。
+
+**别名:** `r`
+
+## 用法
+
+```bash filename="Terminal"
+ut run [OPTIONS] [SCRIPT] [ARGS...]
+```
+
+## 示例
+
+```bash filename="Terminal" copy
+# 运行脚本
+ut run build
+ut run dev
+ut r test
+
+# 传递参数给脚本
+ut run test -- --watch
+ut run build -- --mode production
+
+# 在指定工作区运行
+ut run build -w my-app
+
+# 在所有工作区运行（按拓扑顺序）
+ut run build --workspaces
+
+# 交互模式（不指定脚本）
+ut run
+# → 会提示选择工作区和脚本
+```
+
+## 快捷方式
+
+可以直接运行脚本，无需 `run`：
+
+```bash filename="Terminal" copy
+ut build      # 等同于: ut run build
+ut dev        # 等同于: ut run dev
+ut test       # 等同于: ut run test
+```
+
+## 选项
+
+| 选项 | 描述 |
+|------|------|
+| `-w, --workspace <name>` | 在指定工作区运行 |
+| `--workspaces` | 在所有工作区按拓扑顺序运行 |
+
+## 工作区执行顺序
+
+使用 `--workspaces` 时，脚本按依赖关系的拓扑顺序执行，确保依赖项先于被依赖项构建。
