@@ -37,7 +37,7 @@ my-monorepo/
 
 使用 `-w` 或 `--workspace` 指定工作区：
 
-```bash
+```bash filename="Terminal" copy
 # 在指定工作区安装
 ut install lodash -w packages/ui
 
@@ -52,7 +52,7 @@ ut install -D typescript -w packages/utils
 
 使用 `--workspaces` 针对所有工作区：
 
-```bash
+```bash filename="Terminal" copy
 # 在所有工作区运行构建
 ut run build --workspaces
 
@@ -93,7 +93,7 @@ apps/web          →  （最后，依赖 ui）
 
 不带参数运行 `ut run` 进入交互式选择工作区和脚本：
 
-```bash
+```bash filename="Terminal" copy
 ut run
 # → 选择工作区: packages/ui
 # → 选择脚本: build

@@ -9,22 +9,23 @@ utoo 使用多个目录存储配置、缓存和全局包。
 <FileTree>
   <FileTree.Folder name="~/.utoo" defaultOpen>
     <FileTree.File name="config.toml" />
-    <FileTree.Folder name="cache" defaultOpen>
-      <FileTree.Folder name="lodash">
-        <FileTree.File name="4.17.21.tgz" />
-      </FileTree.Folder>
-      <FileTree.Folder name="react">
-        <FileTree.File name="18.2.0.tgz" />
-        <FileTree.File name="18.3.0.tgz" />
-      </FileTree.Folder>
+  </FileTree.Folder>
+  <FileTree.Folder name="~/.cache/nm" defaultOpen>
+    <FileTree.Folder name="lodash">
+      <FileTree.File name="4.17.21.tgz" />
     </FileTree.Folder>
-    <FileTree.Folder name="global">
-      <FileTree.Folder name="node_modules">
-        <FileTree.Folder name=".bin">
-          <FileTree.File name="tsc" />
-        </FileTree.Folder>
-        <FileTree.Folder name="typescript" />
-      </FileTree.Folder>
+    <FileTree.Folder name="react">
+      <FileTree.File name="18.2.0.tgz" />
+      <FileTree.File name="18.3.0.tgz" />
+    </FileTree.Folder>
+  </FileTree.Folder>
+  <FileTree.Folder name="/usr/local" defaultOpen>
+    <FileTree.Folder name="bin">
+      <FileTree.File name="ut" />
+      <FileTree.File name="tsc" />
+    </FileTree.Folder>
+    <FileTree.Folder name="lib/node_modules" defaultOpen>
+      <FileTree.Folder name="typescript" />
     </FileTree.Folder>
   </FileTree.Folder>
 </FileTree>
@@ -34,12 +35,12 @@ utoo 使用多个目录存储配置、缓存和全局包。
 | 路径 | 用途 |
 |------|------|
 | `~/.utoo/config.toml` | 全局配置文件 |
-| `~/.utoo/cache/` | 下载的包压缩包 |
-| `~/.utoo/global/` | 全局安装的包 |
+| `~/.cache/nm/` | 下载的包压缩包 |
+| `{prefix}/lib/node_modules/` | 全局安装的包（与 npm 一致） |
 
 ## 包缓存
 
-安装包时，utoo 会将压缩包缓存到 `~/.utoo/cache/`：
+安装包时，utoo 会将压缩包缓存到 `~/.cache/nm/`：
 
 <Callout>
   缓存的包会在项目间复用，加快后续安装速度。
@@ -68,15 +69,15 @@ ut config get cache-dir
 
 ## 全局包
 
-全局安装的包存储在 `~/.utoo/global/`：
+全局安装的包存储在 utoo 安装位置的相对路径，与 npm 一致（如 `/usr/local/lib/node_modules/`）：
 
 ```bash filename="Terminal" copy
 # 全局安装
 ut install -g typescript
 
 # 存储位置
-# ~/.utoo/global/node_modules/typescript/
-# ~/.utoo/global/node_modules/.bin/tsc
+# /usr/local/lib/node_modules/typescript/
+# /usr/local/bin/tsc
 ```
 
 ## 自定义路径

@@ -9,22 +9,23 @@ utoo uses several directories for configuration, cache, and global packages.
 <FileTree>
   <FileTree.Folder name="~/.utoo" defaultOpen>
     <FileTree.File name="config.toml" />
-    <FileTree.Folder name="cache" defaultOpen>
-      <FileTree.Folder name="lodash">
-        <FileTree.File name="4.17.21.tgz" />
-      </FileTree.Folder>
-      <FileTree.Folder name="react">
-        <FileTree.File name="18.2.0.tgz" />
-        <FileTree.File name="18.3.0.tgz" />
-      </FileTree.Folder>
+  </FileTree.Folder>
+  <FileTree.Folder name="~/.cache/nm" defaultOpen>
+    <FileTree.Folder name="lodash">
+      <FileTree.File name="4.17.21.tgz" />
     </FileTree.Folder>
-    <FileTree.Folder name="global">
-      <FileTree.Folder name="node_modules">
-        <FileTree.Folder name=".bin">
-          <FileTree.File name="tsc" />
-        </FileTree.Folder>
-        <FileTree.Folder name="typescript" />
-      </FileTree.Folder>
+    <FileTree.Folder name="react">
+      <FileTree.File name="18.2.0.tgz" />
+      <FileTree.File name="18.3.0.tgz" />
+    </FileTree.Folder>
+  </FileTree.Folder>
+  <FileTree.Folder name="/usr/local" defaultOpen>
+    <FileTree.Folder name="bin">
+      <FileTree.File name="ut" />
+      <FileTree.File name="tsc" />
+    </FileTree.Folder>
+    <FileTree.Folder name="lib/node_modules" defaultOpen>
+      <FileTree.Folder name="typescript" />
     </FileTree.Folder>
   </FileTree.Folder>
 </FileTree>
@@ -34,12 +35,12 @@ utoo uses several directories for configuration, cache, and global packages.
 | Path | Purpose |
 |------|---------|
 | `~/.utoo/config.toml` | Global configuration file |
-| `~/.utoo/cache/` | Downloaded package tarballs |
-| `~/.utoo/global/` | Global package installations |
+| `~/.cache/nm/` | Downloaded package tarballs |
+| `{prefix}/lib/node_modules/` | Global package installations (same as npm) |
 
 ## Package Cache
 
-When you install a package, utoo caches the tarball in `~/.utoo/cache/`:
+When you install a package, utoo caches the tarball in `~/.cache/nm/`:
 
 <Callout>
   Cached packages are reused across projects, speeding up subsequent installations.
@@ -68,15 +69,15 @@ ut config get cache-dir
 
 ## Global Packages
 
-Globally installed packages are stored in `~/.utoo/global/`:
+Globally installed packages are stored relative to utoo's install location, same as npm (e.g., `/usr/local/lib/node_modules/`):
 
 ```bash filename="Terminal" copy
 # Install globally
 ut install -g typescript
 
 # Location
-# ~/.utoo/global/node_modules/typescript/
-# ~/.utoo/global/node_modules/.bin/tsc
+# /usr/local/lib/node_modules/typescript/
+# /usr/local/bin/tsc
 ```
 
 ## Custom Paths

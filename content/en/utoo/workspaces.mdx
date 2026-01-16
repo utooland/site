@@ -37,7 +37,7 @@ my-monorepo/
 
 Use `-w` or `--workspace` to target a specific workspace:
 
-```bash
+```bash filename="Terminal" copy
 # Install in specific workspace
 ut install lodash -w packages/ui
 
@@ -52,7 +52,7 @@ ut install -D typescript -w packages/utils
 
 Use `--workspaces` to target all workspaces:
 
-```bash
+```bash filename="Terminal" copy
 # Run build in all workspaces
 ut run build --workspaces
 
@@ -93,7 +93,7 @@ Reference workspace packages using the `workspace:` protocol:
 
 Run `ut run` without arguments for interactive workspace and script selection:
 
-```bash
+```bash filename="Terminal" copy
 ut run
 # → Select workspace: packages/ui
 # → Select script: build
