@@ -1,6 +1,6 @@
 # utoo
 
-import { Callout, Cards, Steps } from 'nextra/components'
+import { Callout, Cards, Steps, Tabs } from 'nextra/components'
 
 utoo (`ut`) 是一个快速、现代的 JavaScript 包管理器，提供与 npm 兼容的包管理功能，并具有性能优化。
 
@@ -10,9 +10,29 @@ utoo (`ut`) 是一个快速、现代的 JavaScript 包管理器，提供与 npm 
 
 ## 安装
 
-```bash filename="Terminal" copy
-npm install -g utoo
-```
+<Tabs items={['macOS / Linux', 'Windows', 'npm']}>
+  <Tabs.Tab>
+    无需 Node.js，一行命令安装：
+
+    ```bash filename="Terminal" copy
+    curl -fsSL https://utoo.land/install | bash
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    在 PowerShell 中运行：
+
+    ```powershell filename="PowerShell" copy
+    irm https://utoo.land/install.ps1 | iex
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    如果你已经安装了 Node.js：
+
+    ```bash filename="Terminal" copy
+    npm install -g utoo
+    ```
+  </Tabs.Tab>
+</Tabs>
 
 ## 快速开始
 
