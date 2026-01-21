@@ -1,0 +1,250 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# utoo installer
+# Usage: curl -fsSL https://utoo.land/install | bash
+
+INSTALL_DIR="${UTOO_INSTALL:-$HOME/.utoo}"
+BIN_DIR="$INSTALL_DIR/bin"
+
+# npm registries (China mirror first for better connectivity)
+REGISTRIES=(
+    "https://registry.npmmirror.com"
+    "https://registry.npmjs.org"
+)
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
+NC='\033[0m'
+
+info() {
+    printf "${CYAN}info${NC}: %s\n" "$1"
+}
+
+warn() {
+    printf "${YELLOW}warn${NC}: %s\n" "$1"
+}
+
+error() {
+    printf "${RED}error${NC}: %s\n" "$1" >&2
+    exit 1
+}
+
+success() {
+    printf "${GREEN}success${NC}: %s\n" "$1"
+}
+
+detect_platform() {
+    local os arch
+
+    os="$(uname -s)"
+    arch="$(uname -m)"
+
+    case "$os" in
+        Darwin)
+            os="darwin"
+            ;;
+        Linux)
+            os="linux"
+            ;;
+        MINGW* | MSYS* | CYGWIN* | Windows_NT)
+            os="win32"
+            ;;
+        *)
+            error "Unsupported operating system: $os"
+            ;;
+    esac
+
+    case "$arch" in
+        x86_64 | amd64)
+            arch="x64"
+            ;;
+        arm64 | aarch64)
+            arch="arm64"
+            ;;
+        *)
+            error "Unsupported architecture: $arch"
+            ;;
+    esac
+
+    if [[ "$os" == "win32" && "$arch" != "x64" ]]; then
+        error "Windows only supports x64 architecture"
+    fi
+
+    echo "${os}-${arch}"
+}
+
+get_latest_version() {
+    local version=""
+
+    for registry in "${REGISTRIES[@]}"; do
+        version=$(curl -sL --connect-timeout 5 "${registry}/utoo/latest" 2>/dev/null | grep -o '"version"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1 | sed 's/"version"[[:space:]]*:[[:space:]]*"\([^"]*\)"/\1/')
+        if [[ -n "$version" ]]; then
+            echo "$version"
+            return 0
+        fi
+    done
+
+    error "Failed to fetch latest version from npm registry"
+}
+
+install_utoo() {
+    local platform="$1"
+    local version="${2:-}"
+
+    if [[ -z "$version" ]]; then
+        info "Fetching latest version..."
+        version=$(get_latest_version)
+        if [[ -z "$version" ]]; then
+            error "Failed to get latest version"
+        fi
+    fi
+
+    info "Installing utoo v${version} for ${platform}..."
+
+    local pkg_name="utoo-${platform}"
+    local tmp_dir
+    tmp_dir=$(mktemp -d)
+    local archive_path="${tmp_dir}/utoo.tgz"
+
+    # Download binary package
+    local downloaded=false
+    for registry in "${REGISTRIES[@]}"; do
+        local download_url="${registry}/@utoo/${pkg_name}/-/${pkg_name}-${version}.tgz"
+        info "Downloading from ${registry}..."
+        # Get final URL after redirects, then download with progress
+        local final_url
+        final_url=$(curl --fail --silent --location --head --write-out '%{url_effective}' --output /dev/null --connect-timeout 10 "$download_url" 2>/dev/null) || continue
+        if curl --fail --progress-bar --connect-timeout 10 --output "$archive_path" "$final_url"; then
+            downloaded=true
+            break
+        fi
+    done
+
+    if [[ "$downloaded" != "true" ]]; then
+        rm -rf "$tmp_dir"
+        error "Failed to download @utoo/${pkg_name}@${version}"
+    fi
+
+    mkdir -p "$BIN_DIR"
+
+    info "Extracting..."
+    if ! tar -xzf "$archive_path" -C "$tmp_dir"; then
+        rm -rf "$tmp_dir"
+        error "Failed to extract archive"
+    fi
+
+    # Extract utoo binary directly to bin dir (preserves permissions from tar)
+    tar -xzf "$archive_path" -C "$BIN_DIR" --strip-components=2 package/bin/utoo
+
+    if [[ ! -f "${BIN_DIR}/utoo" ]]; then
+        rm -rf "$tmp_dir"
+        error "Could not find utoo binary in package"
+    fi
+
+    # Create ut symlink
+    ln -sf "utoo" "${BIN_DIR}/ut"
+
+    # Create utx script
+    printf '#!/bin/bash\nutoo x "$@"\n' > "${BIN_DIR}/utx"
+    chmod +x "${BIN_DIR}/utx"
+
+    rm -rf "$tmp_dir"
+
+    success "utoo v${version} installed to ${BIN_DIR}"
+}
+
+setup_shell() {
+    local shell_config=""
+    local shell_name=""
+    local export_line="export PATH=\"${BIN_DIR}:\$PATH\""
+
+    info "Configuring shell environment..."
+
+    case "${SHELL:-}" in
+        */zsh)
+            shell_name="zsh"
+            shell_config="$HOME/.zshrc"
+            ;;
+        */bash)
+            shell_name="bash"
+            if [[ -f "$HOME/.bash_profile" ]]; then
+                shell_config="$HOME/.bash_profile"
+            elif [[ -f "$HOME/.bashrc" ]]; then
+                shell_config="$HOME/.bashrc"
+            else
+                shell_config="$HOME/.profile"
+            fi
+            ;;
+        */fish)
+            shell_name="fish"
+            shell_config="$HOME/.config/fish/config.fish"
+            export_line="set -gx PATH ${BIN_DIR} \$PATH"
+            ;;
+        *)
+            shell_name="sh"
+            shell_config="$HOME/.profile"
+            ;;
+    esac
+
+    info "Detected shell: ${shell_name}"
+
+    if [[ -f "$shell_config" ]] && grep -q "${BIN_DIR}" "$shell_config" 2>/dev/null; then
+        success "PATH already configured in ${shell_config}"
+        return 0
+    fi
+
+    if [[ -n "$shell_config" ]]; then
+        info "Adding ${BIN_DIR} to PATH in ${shell_config}"
+        {
+            echo ""
+            echo "# utoo"
+            echo "$export_line"
+        } >> "$shell_config"
+        success "Updated ${shell_config}"
+    fi
+}
+
+main() {
+    echo ""
+    printf "${BOLD}${CYAN}utoo${NC} installer\n"
+    echo ""
+
+    if ! command -v curl &> /dev/null; then
+        error "curl is required but not installed"
+    fi
+
+    if ! command -v tar &> /dev/null; then
+        error "tar is required but not installed"
+    fi
+
+    local platform
+    platform=$(detect_platform)
+    info "Detected platform: ${platform}"
+
+    local version="${1:-}"
+
+    install_utoo "$platform" "$version"
+
+    setup_shell
+
+    echo ""
+    printf "${GREEN}${BOLD}utoo was installed successfully!${NC}\n"
+    echo ""
+    echo "To get started, either restart your terminal or run:"
+    echo ""
+    printf "  ${CYAN}source ~/.zshrc${NC}  # or your shell config file\n"
+    echo ""
+    echo "Then you can use:"
+    echo ""
+    printf "  ${CYAN}ut install${NC}      # install dependencies\n"
+    printf "  ${CYAN}ut run dev${NC}      # run scripts\n"
+    printf "  ${CYAN}utx cowsay hi${NC}   # execute packages\n"
+    echo ""
+}
+
+main "$@"

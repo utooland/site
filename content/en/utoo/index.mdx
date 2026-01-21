@@ -1,6 +1,6 @@
 # utoo
 
-import { Callout, Cards, Steps } from 'nextra/components'
+import { Callout, Cards, Steps, Tabs } from 'nextra/components'
 
 utoo (`ut`) is a fast, modern package manager for JavaScript projects, providing npm-compatible package management with performance optimizations.
 
@@ -10,9 +10,29 @@ utoo (`ut`) is a fast, modern package manager for JavaScript projects, providing
 
 ## Installation
 
-```bash filename="Terminal" copy
-npm install -g utoo
-```
+<Tabs items={['macOS / Linux', 'Windows', 'npm']}>
+  <Tabs.Tab>
+    No Node.js required. Install with a single command:
+
+    ```bash filename="Terminal" copy
+    curl -fsSL https://utoo.land/install | bash
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    Run in PowerShell:
+
+    ```powershell filename="PowerShell" copy
+    irm https://utoo.land/install.ps1 | iex
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    If you already have Node.js installed:
+
+    ```bash filename="Terminal" copy
+    npm install -g utoo
+    ```
+  </Tabs.Tab>
+</Tabs>
 
 ## Quick Start
 
