@@ -314,15 +314,15 @@ function QuickReference({
   const hasTabs = hasConfig || hasApi;
 
   return (
-    <div className="rounded-xl overflow-hidden border border-slate-700 bg-slate-900 backdrop-blur">
-      <div className="px-4 py-3 bg-slate-800 border-b border-slate-700 flex items-center justify-between">
+    <div className="rounded-xl overflow-hidden border border-slate-700 bg-slate-900/80 backdrop-blur shadow-xl">
+      <div className="px-3 py-2 bg-slate-800/50 border-b border-slate-700/50 flex items-center justify-between">
         {hasTabs ? (
           <div className="flex gap-1">
             <button
               onClick={() => setActiveTab("commands")}
-              className={`text-sm px-3 py-1 rounded transition-colors ${
+              className={`text-xs px-2.5 py-1 rounded transition-colors ${
                 activeTab === "commands"
-                  ? "bg-white/10 text-white"
+                  ? "bg-white/10 text-white font-medium"
                   : "text-muted-foreground hover:text-white"
               }`}
             >
@@ -331,9 +331,9 @@ function QuickReference({
             {hasConfig && (
               <button
                 onClick={() => setActiveTab("config")}
-                className={`text-sm px-3 py-1 rounded transition-colors ${
+                className={`text-xs px-2.5 py-1 rounded transition-colors ${
                   activeTab === "config"
-                    ? "bg-white/10 text-white"
+                    ? "bg-white/10 text-white font-medium"
                     : "text-muted-foreground hover:text-white"
                 }`}
               >
@@ -343,9 +343,9 @@ function QuickReference({
             {hasApi && (
               <button
                 onClick={() => setActiveTab("api")}
-                className={`text-sm px-3 py-1 rounded transition-colors ${
+                className={`text-xs px-2.5 py-1 rounded transition-colors ${
                   activeTab === "api"
-                    ? "bg-white/10 text-white"
+                    ? "bg-white/10 text-white font-medium"
                     : "text-muted-foreground hover:text-white"
                 }`}
               >
@@ -354,17 +354,17 @@ function QuickReference({
             )}
           </div>
         ) : (
-          <span className="text-sm text-muted-foreground">{t.common.quickReference}</span>
+          <span className="text-xs font-medium text-muted-foreground ml-1">{t.common.quickReference}</span>
         )}
         <span
-          className={`text-xs px-2 py-0.5 rounded-full bg-${pkg.color}-500/20 text-${pkg.color}-300 font-mono`}
+          className={`text-[10px] px-2 py-0.5 rounded-full bg-${pkg.color}-500/10 text-${pkg.color}-300 border border-${pkg.color}-500/20 font-mono`}
         >
           {pkg.name}
         </span>
       </div>
-      <div className="p-4 font-mono text-sm">
+      <div className="p-3 font-mono text-xs sm:text-sm">
         {activeTab === "commands" && (
-          <div className="space-y-3">
+          <div className="space-y-2">
             {pkg.commands.map((item, index) => (
               <motion.div
                 key={item.cmd}
@@ -372,20 +372,20 @@ function QuickReference({
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.3, delay: index * 0.1 }}
                 viewport={{ once: true }}
-                className="flex items-center justify-between gap-4"
+                className="flex items-center justify-between gap-4 group"
               >
                 <div className="flex items-center gap-2">
-                  <span className="text-green-400">$</span>
-                  <span className="text-slate-200">{item.cmd}</span>
+                  <span className={`text-${pkg.color}-400 opacity-70 group-hover:opacity-100 transition-opacity`}>$</span>
+                  <span className="text-slate-200 group-hover:text-white transition-colors">{item.cmd}</span>
                 </div>
-                <span className="text-slate-500 text-xs">{item.desc}</span>
+                <span className="text-slate-500 text-[10px] sm:text-xs text-right shrink-0">{item.desc}</span>
               </motion.div>
             ))}
           </div>
         )}
         {activeTab === "config" && pkg.config && (
           <div>
-            <div className="text-slate-500 text-xs mb-3">
+            <div className="text-slate-500 text-[10px] mb-2">
               {pkg.config.builtInto}{" "}
               <a
                 href="https://umijs.org"
@@ -397,20 +397,20 @@ function QuickReference({
               </a>
               {" "}{pkg.config.addConfig}
             </div>
-            <div className="text-slate-500 text-xs mb-1">{pkg.config.file}</div>
+            <div className="text-slate-500 text-[10px] mb-1 opacity-70">{pkg.config.file}</div>
             <pre
-              className="text-slate-200 whitespace-pre"
+              className="text-slate-200 whitespace-pre overflow-x-auto text-xs"
               dangerouslySetInnerHTML={{ __html: highlightJS(pkg.config.code) }}
             />
           </div>
         )}
         {activeTab === "api" && pkg.api && (
           <div>
-            <div className="text-slate-500 text-xs mb-3">
+            <div className="text-slate-500 text-[10px] mb-2">
               {pkg.api.description}
             </div>
             <pre
-              className="text-slate-200 whitespace-pre"
+              className="text-slate-200 whitespace-pre overflow-x-auto text-xs"
               dangerouslySetInnerHTML={{ __html: highlightJS(pkg.api.code) }}
             />
           </div>
@@ -425,9 +425,9 @@ export function Features() {
   const packages = getPackages(t);
 
   return (
-    <section id="packages" className="py-12 px-4 md:py-16">
+    <section id="packages" className="py-8 px-4 md:py-12">
       <div className="max-w-7xl mx-auto">
-        <div className="space-y-16 md:space-y-24">
+        <div className="space-y-12 md:space-y-20">
           {packages.map((pkg, pkgIndex) => (
             <motion.div
               key={pkg.name}
@@ -436,104 +436,125 @@ export function Features() {
               transition={{ duration: 0.6, delay: pkgIndex * 0.1 }}
               viewport={{ once: true }}
             >
-              {/* Package header */}
-              <div className="mb-6">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-3">
-                  <div className="flex items-center gap-4">
-                    <div
-                      className={`w-12 h-12 rounded-xl bg-gradient-to-br ${pkg.gradient} flex items-center justify-center`}
-                    >
-                      {pkgIndex === 0 && (
-                        <Terminal className="w-6 h-6 text-white" />
-                      )}
-                      {pkgIndex === 1 && <Box className="w-6 h-6 text-white" />}
-                      {pkgIndex === 2 && (
-                        <Globe className="w-6 h-6 text-white" />
-                      )}
+              {/* Main layout grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 mb-6 items-start">
+                {/* Left column: Info & Highlight */}
+                <div className="lg:col-span-7 flex flex-col gap-4">
+                  {/* Package header */}
+                  <div>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-3">
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`w-12 h-12 rounded-xl bg-gradient-to-br ${pkg.gradient} flex items-center justify-center shadow-lg shadow-${pkg.color}-500/20`}
+                        >
+                          {pkgIndex === 0 && (
+                            <Terminal className="w-6 h-6 text-white" />
+                          )}
+                          {pkgIndex === 1 && <Box className="w-6 h-6 text-white" />}
+                          {pkgIndex === 2 && (
+                            <Globe className="w-6 h-6 text-white" />
+                          )}
+                        </div>
+                        <div>
+                          <h3 className="text-2xl font-bold font-mono tracking-tight text-foreground">
+                            {pkg.name}
+                          </h3>
+                          <p className={`text-${pkg.color}-400 text-sm font-medium`}>{pkg.tagline}</p>
+                        </div>
+                      </div>
+
+                      {/* Install command */}
+                      <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900/50 border border-slate-700/50 font-mono text-xs text-slate-200 ml-auto">
+                        <span className="text-slate-500">$</span>
+                        <span className="text-slate-200">{pkg.install}</span>
+                        <CopyButton text={pkg.install} />
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="text-2xl font-bold font-mono">
-                        {pkg.name}
-                      </h3>
-                      <p className={`text-${pkg.color}-400`}>{pkg.tagline}</p>
+                    
+                    {/* Mobile install command */}
+                    <div className="flex sm:hidden items-center justify-between gap-2 px-3 py-2 rounded-lg bg-slate-900/50 border border-slate-700/50 font-mono text-xs text-slate-200 mb-3">
+                      <div className="flex items-center gap-2">
+                         <span className="text-slate-500">$</span>
+                         <span className="text-slate-200">{pkg.install}</span>
+                      </div>
+                      <CopyButton text={pkg.install} />
                     </div>
+
+                    <p className="text-muted-foreground text-base leading-relaxed max-w-2xl">
+                      {pkg.description}
+                    </p>
                   </div>
 
-                  {/* Install command */}
-                  <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 font-mono text-sm text-slate-200">
-                    <span className="text-slate-400">$</span>
-                    <span className="text-slate-200">{pkg.install}</span>
-                    <CopyButton text={pkg.install} />
+                  {/* Highlight box for key differentiators */}
+                  {pkg.highlight && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      whileInView={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.4 }}
+                      viewport={{ once: true }}
+                      className="highlight-box bg-slate-900/30 border border-white/5"
+                    >
+                      <div className="flex items-start gap-4">
+                        <div
+                          className={`w-10 h-10 rounded-lg bg-gradient-to-br ${pkg.gradient} flex items-center justify-center flex-shrink-0 shadow-inner mt-0.5`}
+                        >
+                          <pkg.highlight.icon className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                          <h4 className={`text-base font-bold highlight-title-${pkg.color} mb-1`}>
+                            {pkg.highlight.title}
+                          </h4>
+                          <p className="text-xs sm:text-sm text-muted-foreground/80 leading-relaxed">
+                            {pkg.highlight.description}
+                          </p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </div>
+
+                {/* Right column: Quick Reference */}
+                <div className="lg:col-span-5 sticky top-24">
+                  <div className="relative">
+                    <div className={`absolute -inset-1 rounded-2xl bg-gradient-to-br ${pkg.gradient} opacity-20 blur-lg`} />
+                    <QuickReference pkg={pkg} t={t} />
                   </div>
                 </div>
-                <p className="text-muted-foreground max-w-2xl">
-                  {pkg.description}
-                </p>
               </div>
 
-              {/* Highlight box for key differentiators */}
-              {pkg.highlight && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.4 }}
-                  viewport={{ once: true }}
-                  className="highlight-box"
-                >
-                  <div className="flex items-start gap-4">
-                    <div
-                      className={`w-12 h-12 rounded-lg bg-gradient-to-br ${pkg.gradient} flex items-center justify-center flex-shrink-0`}
-                    >
-                      <pkg.highlight.icon className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <h4 className={`text-lg font-semibold highlight-title-${pkg.color} mb-1`}>
-                        {pkg.highlight.title}
-                      </h4>
-                      <p className="text-muted-foreground">
-                        {pkg.highlight.description}
-                      </p>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Features grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {pkg.features.map((feature, index) => (
-                    <motion.div
-                      key={feature.title}
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.4, delay: index * 0.1 }}
-                      viewport={{ once: true }}
-                    >
-                      <Card className="feature-card glass h-full border-slate-800/50">
-                        <CardHeader className="p-4 pb-2">
-                          <div className="flex items-center gap-3">
-                            <div
-                              className={`w-8 h-8 rounded-lg bg-gradient-to-br ${pkg.gradient} flex items-center justify-center flex-shrink-0`}
-                            >
-                              <feature.icon className="w-4 h-4 text-white" />
-                            </div>
-                            <CardTitle className="text-sm font-semibold leading-tight">
-                              {feature.title}
-                            </CardTitle>
+              {/* Features grid - Full Width below */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {pkg.features.map((feature, index) => (
+                  <motion.div
+                    key={feature.title}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: index * 0.05 }}
+                    viewport={{ once: true }}
+                  >
+                    <Card className="feature-card glass h-full border-slate-800/50 hover:bg-slate-800/50 transition-colors group">
+                      <CardHeader className="p-4 pb-2">
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={`w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center flex-shrink-0 group-hover:bg-slate-700 transition-colors`}
+                          >
+                             <div className={`text-${pkg.color}-400`}>
+                                <feature.icon className="w-4 h-4" />
+                             </div>
                           </div>
-                        </CardHeader>
-                        <CardContent className="p-4 pt-0">
-                          <CardDescription className="text-xs text-slate-400 leading-relaxed">
-                            {feature.description}
-                          </CardDescription>
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                  ))}
-                </div>
-
-                {/* Commands showcase */}
-                <QuickReference pkg={pkg} t={t} />
+                          <CardTitle className="text-sm font-semibold leading-tight text-slate-200">
+                            {feature.title}
+                          </CardTitle>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="p-4 pt-0">
+                        <CardDescription className="text-xs text-slate-400 group-hover:text-slate-300 transition-colors">
+                          {feature.description}
+                        </CardDescription>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ))}
               </div>
             </motion.div>
           ))}

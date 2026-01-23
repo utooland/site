@@ -96,7 +96,7 @@ export const translations = {
             description: "Advanced tree shaking, scope hoisting, and dead code elimination for smaller bundles",
           },
           images: {
-            title: "Smart Assets",
+            title: "Image Optimization",
             description: "Automated image optimization and blur placeholder support",
           },
           modernStyles: {
@@ -300,7 +300,7 @@ export const translations = {
             description: "先进的 Tree Shaking、模块合并与产物压缩",
           },
           images: {
-            title: "资产优化",
+            title: "图片优化",
             description: "自动图片内联、多格式转换与模糊占位图生成",
           },
           modernStyles: {

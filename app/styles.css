@@ -128,7 +128,6 @@
 .highlight-box {
   border-radius: 0.75rem;
   padding: 1rem;
-  margin-bottom: 1.5rem;
 }
 .dark .highlight-box {
   background: rgba(255, 255, 255, 0.03);
