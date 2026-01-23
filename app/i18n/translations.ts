@@ -192,7 +192,7 @@ export const translations = {
         "现代前端开发的完整工具套件。极速包管理、打包构建，以及浏览器原生构建能力。",
       explorePackages: "探索功能",
       docs: "Doc",
-      wiki: "维基",
+      wiki: "Wiki",
       github: "GitHub",
     },
     // Packages

@@ -59,11 +59,11 @@ function highlightJS(code: string) {
 
   tokens.sort((a, b) => a.start - b.start);
 
-  const colors: Record<string, string> = {
-    comment: "text-slate-500",
-    string: "text-amber-400",
-    keyword: "text-pink-400",
-    number: "text-purple-400",
+const colors: Record<string, string> = {
+    comment: "text-slate-500/80",
+    string: "dark:text-amber-400 light:text-amber-600",
+    keyword: "dark:text-pink-400 light:text-pink-600",
+    number: "dark:text-purple-400 light:text-purple-600",
   };
 
   let result = "";
@@ -315,16 +315,16 @@ function QuickReference({
   const hasTabs = hasConfig || hasApi;
 
   return (
-    <div className="rounded-xl overflow-hidden border border-white/[0.05] bg-[#020203]/80 backdrop-blur-xl shadow-2xl">
-      <div className="px-3 py-2 bg-white/[0.03] border-b border-white/[0.05] flex items-center justify-between">
+    <div className="rounded-xl overflow-hidden border border-border bg-card/50 backdrop-blur-xl shadow-2xl">
+      <div className="px-3 py-2 bg-muted/30 border-b border-border flex items-center justify-between">
         {hasTabs ? (
           <div className="flex gap-1">
             <button
               onClick={() => setActiveTab("commands")}
               className={`text-xs px-2.5 py-1 rounded transition-colors ${
                 activeTab === "commands"
-                  ? "bg-white/10 text-white font-medium"
-                  : "text-muted-foreground hover:text-white"
+                  ? "bg-primary text-primary-foreground font-medium"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
               }`}
             >
               {t.common.cli}
@@ -334,8 +334,8 @@ function QuickReference({
                 onClick={() => setActiveTab("api")}
                 className={`text-xs px-2.5 py-1 rounded transition-colors ${
                   activeTab === "api"
-                    ? "bg-white/10 text-white font-medium"
-                    : "text-muted-foreground hover:text-white"
+                    ? "bg-primary text-primary-foreground font-medium"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                 }`}
               >
                 API
@@ -346,8 +346,8 @@ function QuickReference({
                 onClick={() => setActiveTab("config")}
                 className={`text-xs px-2.5 py-1 rounded transition-colors ${
                   activeTab === "config"
-                    ? "bg-white/10 text-white font-medium"
-                    : "text-muted-foreground hover:text-white"
+                    ? "bg-primary text-primary-foreground font-medium"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                 }`}
               >
                 Umi
@@ -358,14 +358,14 @@ function QuickReference({
           <span className="text-xs font-medium text-muted-foreground ml-1">{t.common.quickReference}</span>
         )}
         <span
-          className={`text-[10px] px-2 py-0.5 rounded-full bg-${pkg.color}-500/10 text-${pkg.color}-300 border border-${pkg.color}-500/20 font-mono`}
+          className={`text-[10px] px-2 py-0.5 rounded-full dark:bg-${pkg.color}-500/10 light:bg-${pkg.color}-500/5 dark:text-${pkg.color}-300 light:text-${pkg.color}-600 border border-${pkg.color}-500/20 font-mono`}
         >
           {pkg.name}
         </span>
       </div>
-      <div className="p-3 font-mono text-xs sm:text-sm">
+      <div className="p-4 font-mono text-xs sm:text-sm">
         {activeTab === "commands" && (
-          <div className="space-y-2">
+          <div className="space-y-3">
             {pkg.commands.map((item, index) => (
               <motion.div
                 key={item.cmd}
@@ -376,42 +376,42 @@ function QuickReference({
                 className="flex items-center justify-between gap-4 group"
               >
                 <div className="flex items-center gap-2">
-                  <span className={`text-${pkg.color}-400 opacity-70 group-hover:opacity-100 transition-opacity`}>$</span>
-                  <span className="text-slate-200 group-hover:text-white transition-colors">{item.cmd}</span>
+                  <span className={`text-${pkg.color}-500 opacity-60 group-hover:opacity-100 transition-opacity`}>$</span>
+                  <span className="text-foreground/80 group-hover:text-foreground transition-colors font-medium">{item.cmd}</span>
                 </div>
-                <span className="text-slate-500 text-[10px] sm:text-xs text-right shrink-0">{item.desc}</span>
+                <span className="text-muted-foreground text-[10px] sm:text-xs text-right shrink-0">{item.desc}</span>
               </motion.div>
             ))}
           </div>
         )}
         {activeTab === "config" && pkg.config && (
-          <div>
-            <div className="text-slate-500 text-[10px] mb-2">
+          <div className="space-y-2">
+            <div className="text-muted-foreground text-[10px] leading-relaxed">
               {pkg.config.builtInto}{" "}
               <a
                 href="https://umijs.org"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-pink-400 hover:text-pink-300 underline"
+                className="dark:text-pink-400 light:text-pink-600 hover:opacity-80 transition-opacity underline decoration-pink-500/30"
               >
-                umi
+                Umi
               </a>
               {" "}{pkg.config.addConfig}
             </div>
-            <div className="text-slate-500 text-[10px] mb-1 opacity-70">{pkg.config.file}</div>
+            <div className="text-muted-foreground/50 text-[10px] font-mono">{pkg.config.file}</div>
             <pre
-              className="text-slate-200 whitespace-pre overflow-x-auto text-xs"
+              className="text-foreground/90 whitespace-pre overflow-x-auto text-xs p-2 rounded bg-muted/20"
               dangerouslySetInnerHTML={{ __html: highlightJS(pkg.config.code) }}
             />
           </div>
         )}
         {activeTab === "api" && pkg.api && (
           <div>
-            <div className="text-slate-500 text-[10px] mb-2">
+            <div className="text-muted-foreground text-[10px] mb-2">
               {pkg.api.description}
             </div>
             <pre
-              className="text-slate-200 whitespace-pre overflow-x-auto text-xs"
+              className="text-foreground/90 whitespace-pre overflow-x-auto text-xs"
               dangerouslySetInnerHTML={{ __html: highlightJS(pkg.api.code) }}
             />
           </div>
@@ -499,18 +499,18 @@ export function Features() {
                       </div>
 
                       {/* Install command */}
-                      <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/40 border border-white/[0.04] font-mono text-xs text-slate-300 ml-auto">
-                        <span className="text-slate-500">$</span>
-                        <span className="text-slate-300">{pkg.install}</span>
+                      <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-card border border-border font-mono text-xs text-muted-foreground ml-auto shadow-sm">
+                        <span className="opacity-50">$</span>
+                        <span className="text-foreground/80">{pkg.install}</span>
                         <CopyButton text={pkg.install} />
                       </div>
                     </div>
                     
                     {/* Mobile install command */}
-                    <div className="flex sm:hidden items-center justify-between gap-2 px-3 py-2 rounded-lg bg-black/40 border border-white/[0.04] font-mono text-xs text-slate-300 mb-4">
+                    <div className="flex sm:hidden items-center justify-between gap-2 px-3 py-2 rounded-lg bg-card border border-border font-mono text-xs text-muted-foreground mb-4 shadow-sm">
                       <div className="flex items-center gap-2 overflow-hidden">
-                         <span className="text-slate-500">$</span>
-                         <span className="text-slate-300 truncate">{pkg.install}</span>
+                         <span className="opacity-50">$</span>
+                         <span className="text-foreground/80 truncate">{pkg.install}</span>
                       </div>
                       <CopyButton text={pkg.install} />
                     </div>
@@ -527,14 +527,14 @@ export function Features() {
                       whileInView={{ opacity: 1, scale: 1 }}
                       transition={{ duration: 0.4, delay: 0.2 }}
                       viewport={{ once: true }}
-                      className="highlight-box bg-black/10 border border-white/[0.02] p-5 rounded-xl"
+                      className="highlight-box"
                     >
                       <div className="flex items-start gap-4">
                         <div
-                          className={`w-10 h-10 rounded-lg bg-white/[0.04] border border-white/[0.08] flex items-center justify-center flex-shrink-0 mt-1 relative overflow-hidden`}
+                          className={`w-10 h-10 rounded-lg bg-background border border-border flex items-center justify-center flex-shrink-0 mt-1 relative overflow-hidden shadow-sm`}
                         >
                           <div className={`absolute inset-0 bg-gradient-to-br ${pkg.gradient} opacity-10`} />
-                          <pkg.highlight.icon className={`w-5 h-5 text-${pkg.color}-400/80 relative`} />
+                          <pkg.highlight.icon className={`w-5 h-5 text-${pkg.color}-500/80 relative`} />
                         </div>
                         <div>
                           <h4 className={`text-base font-bold highlight-title-${pkg.color} mb-1 opacity-80`}>
@@ -568,23 +568,23 @@ export function Features() {
                     transition={{ duration: 0.3, delay: index * 0.05 }}
                     viewport={{ once: true }}
                   >
-                    <Card className="feature-card h-full bg-white/[0.015] border-white/[0.03] hover:bg-white/[0.03] hover:border-white/[0.08] transition-all duration-300 group shadow-2xl">
+                    <Card className="feature-card h-full bg-card border-border hover:bg-muted/5 transition-all duration-300 group shadow-lg">
                       <CardHeader className="p-4 pb-2">
                         <div className="flex items-center gap-3">
                           <div
-                            className={`w-8 h-8 rounded bg-white/[0.01] border border-white/[0.03] flex items-center justify-center flex-shrink-0 group-hover:bg-white/[0.03] transition-colors`}
+                            className={`w-8 h-8 rounded bg-background border border-border flex items-center justify-center flex-shrink-0 group-hover:bg-muted/50 transition-colors shadow-sm`}
                           >
-                             <div className={`text-${pkg.color}-500/60 group-hover:text-${pkg.color}-400 transition-colors`}>
+                             <div className={`dark:text-${pkg.color}-500/60 light:text-${pkg.color}-600/60 group-hover:opacity-100 transition-opacity`}>
                                 <feature.icon className="w-4 h-4" />
                              </div>
                           </div>
-                          <CardTitle className="text-sm font-medium leading-tight text-slate-400 group-hover:text-slate-200 transition-colors">
+                          <CardTitle className="text-sm font-medium leading-tight text-muted-foreground group-hover:text-foreground transition-colors">
                             {feature.title}
                           </CardTitle>
                         </div>
                       </CardHeader>
                       <CardContent className="p-4 pt-1">
-                        <CardDescription className="text-[11px] text-slate-500 group-hover:text-slate-400 transition-colors leading-normal">
+                        <CardDescription className="text-[11px] text-muted-foreground group-hover:text-foreground/80 transition-colors leading-normal">
                           {feature.description}
                         </CardDescription>
                       </CardContent>

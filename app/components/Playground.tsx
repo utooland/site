@@ -29,23 +29,23 @@ export function Playground() {
           className="text-center mb-16"
         >
           <div className="flex items-center justify-center gap-4 mb-6">
-            <div className="w-14 h-14 rounded-2xl bg-[#020203] border border-white/[0.05] flex items-center justify-center relative overflow-hidden">
+            <div className="w-14 h-14 rounded-2xl bg-card border border-white/[0.05] flex items-center justify-center relative shadow-xl overflow-hidden">
                <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-amber-500/5" />
                <Globe className="w-7 h-7 text-orange-500/60 relative" />
             </div>
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
-              <span className="font-mono text-orange-500/70">@utoo/web</span>{" "}
-              <span className="text-slate-400">{t.playground.title}</span>
+              <span className="font-mono text-orange-600/80">@utoo/web</span>{" "}
+              <span className="text-foreground/60">{t.playground.title}</span>
             </h2>
           </div>
-          <p className="text-slate-500 text-lg max-w-2xl mx-auto mb-8 leading-relaxed">
+          <p className="text-muted-foreground text-lg max-w-2xl mx-auto mb-8 leading-relaxed">
             {t.playground.description}
           </p>
 
           {/* Try Playground button */}
           <Button
             onClick={() => window.open("https://utoo-repl.vercel.app/", "_blank")}
-            className="group relative px-6 py-3 rounded-xl bg-[#020203] border border-orange-500/20 text-orange-500/60 hover:text-orange-400 transition-all duration-300 overflow-hidden text-sm"
+            className="group relative px-6 py-3 rounded-xl bg-card border border-orange-500/20 text-orange-600/70 hover:text-orange-600 transition-all duration-300 overflow-hidden text-sm shadow-lg"
           >
             <div className="absolute inset-0 bg-orange-500/0 group-hover:bg-orange-500/5 transition-colors" />
             <span className="relative flex items-center font-medium">

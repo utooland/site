@@ -139,16 +139,16 @@ export function Hero() {
               transition={{ duration: 0.5, delay: 0.3 }}
               className="flex flex-wrap gap-2 mb-8"
             >
-              <span className="px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-300 text-xs font-mono border border-indigo-500/20">
+              <span className="px-3 py-1 rounded-full badge-purple text-xs font-mono border border-indigo-500/20">
                 utoo
               </span>
-              <span className="px-3 py-1 rounded-full bg-pink-500/10 text-pink-300 text-xs font-mono border border-pink-500/20">
+              <span className="px-3 py-1 rounded-full badge-pink text-xs font-mono border border-pink-500/20">
                 @utoo/pack
               </span>
-              <span className="px-3 py-1 rounded-full bg-pink-500/10 text-pink-300 text-xs font-mono border border-pink-500/20">
+              <span className="px-3 py-1 rounded-full badge-pink text-xs font-mono border border-pink-500/20">
                 @utoo/pack-cli
               </span>
-              <span className="px-3 py-1 rounded-full bg-orange-500/10 text-orange-300 text-xs font-mono border border-orange-500/20">
+              <span className="px-3 py-1 rounded-full badge-orange text-xs font-mono border border-orange-500/20">
                 @utoo/web
               </span>
             </motion.div>
@@ -162,7 +162,7 @@ export function Hero() {
             >
               <Button
                 size="lg"
-                className="group relative px-6 py-6 rounded-xl bg-[#0F0F12] border border-white/10 text-white hover:text-white transition-all duration-300 overflow-hidden h-10 text-sm"
+                className="group relative px-6 py-6 rounded-xl bg-background border border-white/10 dark:border-white/10 light:border-black/5 text-foreground transition-all duration-300 overflow-hidden h-10 text-sm shadow-xl hover:shadow-2xl"
                 onClick={() => {
                   document
                     .getElementById("packages")
