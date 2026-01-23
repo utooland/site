@@ -294,6 +294,7 @@ await dev({
       { cmd: "project.install(lock)", desc: t.packages.web.commands.install },
       { cmd: "project.build()", desc: t.packages.web.commands.build },
       { cmd: "project.readFile(path)", desc: t.packages.web.commands.readFile },
+      { cmd: "project.writeFile(path, content)", desc: t.packages.web.commands.writeFile },
     ],
     config: null,
     api: null,
@@ -314,8 +315,8 @@ function QuickReference({
   const hasTabs = hasConfig || hasApi;
 
   return (
-    <div className="rounded-xl overflow-hidden border border-white/[0.04] bg-white/[0.015] backdrop-blur-sm shadow-2xl">
-      <div className="px-3 py-2 bg-white/[0.02] border-b border-white/[0.04] flex items-center justify-between">
+    <div className="rounded-xl overflow-hidden border border-white/[0.05] bg-[#020203]/80 backdrop-blur-xl shadow-2xl">
+      <div className="px-3 py-2 bg-white/[0.03] border-b border-white/[0.05] flex items-center justify-between">
         {hasTabs ? (
           <div className="flex gap-1">
             <button
@@ -432,11 +433,7 @@ export function Features() {
       {packages.map((pkg, pkgIndex) => (
         <section
           key={pkg.name}
-          className={`relative py-16 md:py-24 overflow-hidden border-b border-white/[0.01] ${
-            pkgIndex === 1 
-              ? "bg-white/[0.015] shadow-[inset_0_0_100px_rgba(0,0,0,0.3)]" 
-              : "bg-transparent"
-          }`}
+          className="relative py-16 md:py-24 overflow-hidden border-b border-white/[0.01] bg-transparent"
         >
           {/* Dynamic Backgrounds per Section */}
           <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
@@ -555,7 +552,7 @@ export function Features() {
                 {/* Right column: Quick Reference */}
                 <div className="lg:col-span-5 sticky top-24 pt-2">
                   <div className="relative group">
-                    <div className={`absolute -inset-1 rounded-2xl bg-gradient-to-br ${pkg.gradient} opacity-10 group-hover:opacity-20 blur-xl transition-opacity duration-500`} />
+                    <div className={`absolute -inset-1 rounded-2xl bg-gradient-to-br ${pkg.gradient} opacity-[0.03] group-hover:opacity-[0.06] blur-2xl transition-opacity duration-500`} />
                     <QuickReference pkg={pkg} t={t} />
                   </div>
                 </div>

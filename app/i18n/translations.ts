@@ -4,7 +4,7 @@ export const translations = {
     hero: {
       badge: "Written in Rust, Native & WASM Supported",
       title: "Utoo",
-      subtitle: "An Unified Frontend Toolchain",
+      subtitle: "An Unified Toolchain For Web Development",
       description:
         "A complete suite of tools for modern frontend development. Lightning fast package management, bundling, and browser-native builds.",
       explorePackages: "Explore Packages",
@@ -153,6 +153,7 @@ export const translations = {
           install: "Install deps",
           build: "Build project",
           readFile: "Read files",
+          writeFile: "Write files",
         },
       },
     },
@@ -335,6 +336,7 @@ export const translations = {
           install: "安装依赖",
           build: "构建项目",
           readFile: "读取文件",
+          writeFile: "写入文件",
         },
       },
     },

@@ -1,10 +1,10 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { Zap, ArrowRight, Github, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TerminalDemo } from "./TerminalDemo";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useI18n } from "../i18n/context";
 
 function GitHubButton() {
@@ -52,22 +52,46 @@ function GitHubButton() {
 
 export function Hero() {
   const { t } = useI18n();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end start"],
+  });
+
+  const scale = useSpring(useTransform(scrollYProgress, [0, 1], [1, 0.9]), {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001,
+  });
+
+  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0.98]);
+  const borderRadius = useTransform(scrollYProgress, [0, 1], [0, 60]);
+  const y = useTransform(scrollYProgress, [0, 1], [0, -40]);
 
   return (
-    <section className="relative min-h-[60vh] flex items-center px-4 py-20 overflow-hidden md:py-32">
-      {/* Background gradient */}
-      <div className="absolute inset-0 gradient-bg" />
+    <section
+      ref={containerRef}
+      className="relative h-[130vh] flex items-start px-4 overflow-visible z-0"
+    >
+      <div className="sticky top-0 left-0 w-full h-screen flex items-center overflow-hidden">
+        <motion.div
+          style={{ scale, borderRadius, opacity }}
+          className="absolute inset-0 z-0 overflow-hidden bg-background/80 backdrop-blur-3xl border border-white/5 shadow-2xl origin-center"
+        >
+          {/* Background gradient */}
+          <div className="absolute inset-0 gradient-bg" />
 
-      {/* Animated background circles */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-96 h-96 bg-slate-800/10 rounded-full blur-[140px] animate-pulse-slow opacity-20" />
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-purple-900/5 rounded-full blur-[140px] animate-pulse-slow opacity-15" />
-      </div>
+          {/* Animated background circles */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <div className="absolute -top-40 -right-40 w-96 h-96 bg-slate-800/10 rounded-full blur-[140px] animate-pulse-slow opacity-20" />
+            <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-indigo-900/10 rounded-full blur-[140px] animate-pulse-slow opacity-15" />
+          </div>
+        </motion.div>
 
-      <div className="relative z-10 max-w-7xl mx-auto w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-          {/* Left: Text content */}
-          <div className="max-w-xl">
+        <motion.div style={{ y }} className="relative z-10 max-w-7xl mx-auto w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+            {/* Left: Text content */}
+            <div className="max-w-xl">
             {/* Badge */}
             <motion.div
               initial={{ opacity: 0, y: 15 }}
@@ -167,10 +191,8 @@ export function Hero() {
             <TerminalDemo />
           </motion.div>
         </div>
-      </div>
-
-      {/* Bottom fade */}
-      <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-background to-transparent pointer-events-none" />
-    </section>
-  );
+      </motion.div>
+    </div>
+  </section>
+);
 }
