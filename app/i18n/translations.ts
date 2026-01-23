@@ -2,13 +2,14 @@ export const translations = {
   en: {
     // Hero
     hero: {
-      badge: "Powered by Rust & WebAssembly",
+      badge: "Written in Rust, Native & WASM Supported",
       title: "Utoo",
-      subtitle: "Unified Frontend Toolchain",
+      subtitle: "An Unified Toolchain For Web Development",
       description:
         "A complete suite of tools for modern frontend development. Lightning fast package management, bundling, and browser-native builds.",
       explorePackages: "Explore Packages",
       docs: "Doc",
+      wiki: "Wiki",
       github: "GitHub",
     },
     // Packages
@@ -16,7 +17,7 @@ export const translations = {
       utoo: {
         tagline: "Package Manager",
         description:
-          "A high-performance npm package manager built with Rust. Drop-in replacement for npm with native lockfile compatibility.",
+          "A high-performance npm package manager built with Rust. Features content-addressable storage, optimized workspace support, and native lockfile compatibility for lightning-fast, reproducible builds.",
         highlight: {
           title: "Native npm Lockfile",
           description:
@@ -39,9 +40,19 @@ export const translations = {
             title: "Lock Generation",
             description: "Generate package-lock.json with ut deps",
           },
+          workspaces: {
+            title: "Workspaces",
+            description: "Isolated and optimized monorepo management",
+          },
+          globalCache: {
+            title: "Global Cache",
+            description: "Content-addressable storage to save disk space",
+          },
         },
         commands: {
           install: "Install from lockfile",
+          add: "Add new dependency",
+          remove: "Remove dependency",
           deps: "Generate package-lock.json",
           list: "Show dependency tree",
           view: "View package info",
@@ -51,28 +62,60 @@ export const translations = {
       pack: {
         tagline: "Next-Gen Bundler",
         description:
-          "A modern bundler powered by Turbopack. Zero config, instant HMR, and optimized production builds.",
+          "Next-generation bundler powered by Turbopack and SWC. Minimal config, instant HMR, and optimized production builds.",
         highlight: {
-          title: "umi Ecosystem Compatible",
+          title: "Turbopack & SWC Powered Engine",
           description:
-            "Use as standalone CLI or integrate seamlessly with umi ecosystem. Enable with just one line of config.",
+            "High-performance incremental builds with built-in persistent caching for maximum speed.",
         },
         features: {
           faster: {
-            title: "10x Faster",
-            description: "Native-speed compilation with Rust core",
+            title: "Native Speed",
+            description: "Ultra-fast compilation and bundling powered by SWC and Turbopack",
           },
           hmr: {
             title: "Instant HMR",
-            description: "Sub-millisecond hot module replacement",
+            description: "Sub-millisecond hot module replacement for rapid iteration",
           },
           codeSplitting: {
-            title: "Code Splitting",
-            description: "Automatic chunking and tree shaking",
+            title: "Modular Assets",
+            description: "Automatic code splitting and optimized loading strategies",
           },
           css: {
-            title: "CSS Support",
-            description: "Less, Tailwind, PostCSS out of the box",
+            title: "Lightning CSS",
+            description: "Next-gen CSS parsing and transformation via lightningcss",
+          },
+          webpack: {
+            title: "Loader Compatibility",
+            description: "Supports most mainstream Webpack loaders and features for seamless migration",
+          },
+          caching: {
+            title: "Persistent Caching",
+            description: "Advanced persistent disk storage for near-instant restarts",
+          },
+          nodePolyfill: {
+            title: "Node Bridge",
+            description: "Automatic polyfills for running Node.js modules in browsers",
+          },
+          analysis: {
+            title: "Visual Insights",
+            description: "Built-in bundle analyzer for deep performance optimization",
+          },
+          optimization: {
+            title: "Code Optimization",
+            description: "Advanced tree shaking, scope hoisting, and dead code elimination for smaller bundles",
+          },
+          images: {
+            title: "Image Optimization",
+            description: "Automated image optimization and blur placeholder support",
+          },
+          modernStyles: {
+            title: "Modern Styling",
+            description: "Native integration for Emotion and Styled Components",
+          },
+          devServer: {
+            title: "Integrated Dev Server",
+            description: "Feature-rich development proxy and static file serving",
           },
         },
         commands: {
@@ -85,17 +128,17 @@ export const translations = {
           addConfig: "— just add config to enable",
         },
         api: {
-          description: "Integrate programmatically with Node.js API",
+          description: "Integrate programmatically with Node.js API. Built into Umi.",
         },
       },
       web: {
-        tagline: "Browser-Native Builds",
+        tagline: "In-browser Development Environment",
         description:
-          "Run the full build pipeline in the browser. No server required—install, compile, and bundle entirely in WebAssembly.",
+          "A high-performance web development environment running entirely in the browser. Features native-speed multi-threaded builds, seamless Webpack loader support, and instant HMR without Node.js emulation.",
         highlight: {
-          title: "True Browser Builds",
+          title: "Native Browser Environment",
           description:
-            "Install npm packages, compile TypeScript, and bundle assets—all running natively in the browser via WebAssembly.",
+            "Install npm packages, execute WASM-native TypeScript compilation, and bundle assets with full HMR support—all natively via OPFS.",
         },
         features: {
           browserInstall: {
@@ -103,16 +146,16 @@ export const translations = {
             description: "Install packages directly from npm registry",
           },
           opfs: {
-            title: "OPFS Storage",
-            description: "Persistent file system in browser storage",
+            title: "Multi-threaded Build",
+            description: "Tokio-powered parallel bundling and compilation in WASM",
           },
-          wasmCompiler: {
-            title: "WASM Compiler",
-            description: "Full TypeScript compiler in WebAssembly",
+          wasmEngine: {
+            title: "Webpack Loader Support",
+            description: "Seamlessly execute loaders with built-in Node.js polyfills",
           },
           serviceWorker: {
-            title: "Service Worker",
-            description: "Serve builds without a backend server",
+            title: "In-browser HMR",
+            description: "Instant hot module replacement without a backend server",
           },
         },
         commands: {
@@ -120,6 +163,7 @@ export const translations = {
           install: "Install deps",
           build: "Build project",
           readFile: "Read files",
+          writeFile: "Write files",
         },
       },
     },
@@ -128,11 +172,6 @@ export const translations = {
       title: "Playground",
       description:
         "Experience browser-native builds. This playground runs entirely in your browser—no server required. Dependencies are installed from npm, TypeScript is compiled, and assets are bundled using WebAssembly.",
-      features: {
-        isomorphicInstall: "Isomorphic npm Install",
-        wasmCompiler: "WASM Compiler",
-        opfsFileSystem: "OPFS File System",
-      },
       tryButton: "Try Playground",
       buildButton: "Build Project",
       building: "Building...",
@@ -140,23 +179,6 @@ export const translations = {
         projectFiles: "Project Files",
         editor: "Editor",
         preview: "Preview",
-      },
-      steps: {
-        step1: {
-          title: "Install Dependencies",
-          description:
-            "Reads package-lock.json and installs packages directly from npm registry into browser storage.",
-        },
-        step2: {
-          title: "Compile & Bundle",
-          description:
-            "TypeScript compilation and bundling runs in WebAssembly with full Less and Tailwind CSS support.",
-        },
-        step3: {
-          title: "Serve via Service Worker",
-          description:
-            "Build output is served through a Service Worker, enabling instant preview without any server.",
-        },
       },
     },
     // Footer
@@ -173,13 +195,14 @@ export const translations = {
   zh: {
     // Hero
     hero: {
-      badge: "由 Rust 和 WebAssembly 驱动",
+      badge: "Rust 语言编写，支持 Native & WASM",
       title: "Utoo",
       subtitle: "通用前端工具链",
       description:
         "现代前端开发的完整工具套件。极速包管理、打包构建，以及浏览器原生构建能力。",
       explorePackages: "探索功能",
       docs: "Doc",
+      wiki: "Wiki",
       github: "GitHub",
     },
     // Packages
@@ -187,7 +210,7 @@ export const translations = {
       utoo: {
         tagline: "包管理器",
         description:
-          "基于 Rust 构建的高性能 npm 包管理器。可直接替代 npm，原生兼容 lockfile 和目录结构",
+          "基于 Rust 构建的高性能 npm 包管理器。具备内容可寻址存储、优化的工作区支持以及原生 Lockfile 兼容性，实现极速且可重现的构建体验。",
         highlight: {
           title: "原生 npm Lockfile",
           description:
@@ -210,9 +233,19 @@ export const translations = {
             title: "依赖解析",
             description: "使用 ut deps 生成 package-lock.json",
           },
+          workspaces: {
+            title: "工作区管理",
+            description: "原生支持 Monorepo 与依赖共享",
+          },
+          globalCache: {
+            title: "全局缓存",
+            description: "内容可寻址存储，极大地节省磁盘空间",
+          },
         },
         commands: {
           install: "从 lockfile 安装",
+          add: "添加新依赖",
+          remove: "移除依赖",
           deps: "生成 package-lock.json",
           list: "显示依赖树",
           view: "查看包信息",
@@ -222,28 +255,60 @@ export const translations = {
       pack: {
         tagline: "新一代打包器",
         description:
-          "基于 Turbopack 的现代打包器。零配置、即时 HMR、优化的生产构建。",
+          "基于 Turbopack 与 SWC 的新一代打包器。极简配置、即时 HMR、优化的生产构建。",
         highlight: {
-          title: "兼容 umi 生态",
+          title: "Turbopack 与 SWC 强力驱动",
           description:
-            "支持独立 CLI 使用，也可无缝集成 umi 生态，一行配置即可启用。",
+            "基于 Turbopack 的增量构建引擎，支持持久化构建缓存。",
         },
         features: {
           faster: {
-            title: "快 10 倍",
-            description: "Rust 内核，原生速度编译",
+            title: "原生速度",
+            description: "基于 SWC 与 Turbopack 的 Rust 内核，提供极速编译与打包体验",
           },
           hmr: {
             title: "即时 HMR",
-            description: "亚毫秒级热模块替换",
+            description: "亚毫秒级热更新，极大提升本地开发效率",
           },
           codeSplitting: {
-            title: "代码分割",
-            description: "自动分块和 Tree Shaking",
+            title: "智能拆包",
+            description: "自动代码分割与按需加载策略，优化运行性能",
           },
           css: {
-            title: "CSS 支持",
-            description: "开箱即用的 Less、Tailwind、PostCSS",
+            title: "Lightning CSS",
+            description: "基于 Rust 的高性能 CSS 解析、转换与压缩引擎",
+          },
+          webpack: {
+            title: "Loader 兼容",
+            description: "支持大多数主流 Webpack Loader 与配置，实现平滑迁移",
+          },
+          caching: {
+            title: "持久化缓存",
+            description: "基于磁盘的高级持久化缓存，实现秒级增量构建",
+          },
+          nodePolyfill: {
+            title: "Node.js 兼容",
+            description: "内置浏览器端 Node.js 核心模块 Polyfill 支持",
+          },
+          analysis: {
+            title: "产物分析",
+            description: "可视化分析工具，辅助优化产物大小与依赖关系",
+          },
+          optimization: {
+            title: "代码优化",
+            description: "先进的 Tree Shaking、模块合并与产物压缩",
+          },
+          images: {
+            title: "图片优化",
+            description: "自动图片内联、多格式转换与模糊占位图生成",
+          },
+          modernStyles: {
+            title: "现代样式",
+            description: "原生支持 Emotion、Styled Components 等 CSS-in-JS",
+          },
+          devServer: {
+            title: "集成式开发服务器",
+            description: "内置高性能代理、静态文件服务与调试工具",
           },
         },
         commands: {
@@ -256,17 +321,17 @@ export const translations = {
           addConfig: "— 添加配置即可启用",
         },
         api: {
-          description: "通过 Node.js API 集成调用",
+          description: "通过 Node.js API 集成调用，已内置于 Umi。",
         },
       },
       web: {
-        tagline: "浏览器原生构建",
+        tagline: "浏览器原生开发环境",
         description:
-          "在浏览器中运行完整构建流程。无需服务器，完全在 WebAssembly 中安装、编译和打包。",
+          "完全运行在浏览器中的高性能 Web 开发环境。支持原生级多线程构建、无缝 Webpack Loader 兼容以及即时 HMR，无需 Node.js 模拟环境。",
         highlight: {
-          title: "真正的浏览器构建",
+          title: "真正的浏览器原生环境",
           description:
-            "安装 npm 包、编译 tsx、打包资源——全部通过 WebAssembly 在浏览器中原生运行。",
+            "安装 npm 包、使用多线程 WASM 引擎编译 tsx、打包资源——全部在浏览器中原生运行，支持 HMR。",
         },
         features: {
           browserInstall: {
@@ -274,16 +339,16 @@ export const translations = {
             description: "直接从 npm 注册表安装包",
           },
           opfs: {
-            title: "OPFS 存储",
-            description: "浏览器存储中的持久化文件系统",
+            title: "多线程构建",
+            description: "基于 Tokio 移植的 WASM 运行时，实现并行编译与打包",
           },
-          wasmCompiler: {
-            title: "WASM 编译器",
-            description: "WebAssembly 中的完整 TypeScript 编译器",
+          wasmEngine: {
+            title: "Loader 无缝兼容",
+            description: "内置 Node.js Polyfill，无缝执行主流 Webpack Loader",
           },
           serviceWorker: {
-            title: "Service Worker",
-            description: "无需后端服务器即可提供构建服务",
+            title: "浏览器原生 HMR",
+            description: "无需后端服务器，在浏览器环境内实现即时模块热替换",
           },
         },
         commands: {
@@ -291,6 +356,7 @@ export const translations = {
           install: "安装依赖",
           build: "构建项目",
           readFile: "读取文件",
+          writeFile: "写入文件",
         },
       },
     },
@@ -299,11 +365,6 @@ export const translations = {
       title: "Playground",
       description:
         "体验浏览器原生构建。此演练场完全在浏览器中运行，无需服务器。依赖从 npm 安装，TypeScript 被编译，资源使用 WebAssembly 打包。",
-      features: {
-        isomorphicInstall: "同构 npm 安装",
-        wasmCompiler: "WASM 编译器",
-        opfsFileSystem: "OPFS 文件系统",
-      },
       tryButton: "体验 Playground",
       buildButton: "构建项目",
       building: "构建中...",
@@ -311,23 +372,6 @@ export const translations = {
         projectFiles: "项目文件",
         editor: "编辑器",
         preview: "预览",
-      },
-      steps: {
-        step1: {
-          title: "安装依赖",
-          description:
-            "读取 package-lock.json 并从 npm registry 直接安装包到浏览器存储。",
-        },
-        step2: {
-          title: "编译和打包",
-          description:
-            "TypeScript 编译和打包在 WebAssembly 中运行，完整支持 Less 和 Tailwind CSS。",
-        },
-        step3: {
-          title: "通过 Service Worker 代理",
-          description:
-            "构建输出通过 Service Worker 提供，无需任何服务器即可即时预览。",
-        },
       },
     },
     // Footer

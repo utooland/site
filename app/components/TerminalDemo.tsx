@@ -81,7 +81,7 @@ const demos: { title: string; package: string; lines: TerminalLine[] }[] = [
     title: "Dev Server",
     package: "@utoo/pack-cli",
     lines: [
-      { type: "command", text: "$ up dev" },
+      { type: "command", text: "$ utx up dev" },
       { type: "info", text: "Starting dev server..." },
       { type: "output", text: "Compiling..." },
       { type: "success", text: "✓ Ready in 120ms" },
@@ -95,10 +95,10 @@ const demos: { title: string; package: string; lines: TerminalLine[] }[] = [
     title: "Build Project",
     package: "@utoo/pack-cli",
     lines: [
-      { type: "command", text: "$ up build" },
+      { type: "command", text: "$ utx up build" },
       { type: "info", text: "Reading utoopack.json..." },
       { type: "output", text: "Compiling TypeScript..." },
-      { type: "output", text: "Bundling with tree-shaking..." },
+      { type: "output", text: "Production build..." },
       { type: "output", text: "" },
       { type: "output", text: "  dist/index.js     45.2 kB" },
       { type: "output", text: "  dist/index.css    12.1 kB" },
@@ -160,28 +160,28 @@ export function TerminalDemo() {
   const getLineColor = (type: TerminalLine["type"]) => {
     switch (type) {
       case "command":
-        return "text-green-400";
+        return "dark:text-green-400 light:text-green-600";
       case "success":
-        return "text-emerald-400";
+        return "dark:text-emerald-400 light:text-emerald-600";
       case "info":
-        return "text-blue-400";
+        return "dark:text-blue-400 light:text-blue-600";
       case "highlight":
-        return "text-yellow-300";
+        return "dark:text-yellow-300 light:text-amber-600";
       default:
-        return "text-slate-300";
+        return "dark:text-slate-300 light:text-slate-600";
     }
   };
 
   return (
     <div className="relative">
       {/* Terminal window */}
-      <div className="rounded-xl overflow-hidden border border-white/10 bg-slate-900 backdrop-blur-xl shadow-2xl">
+      <div className="rounded-xl overflow-hidden border dark:border-white/[0.04] light:border-black/5 bg-card backdrop-blur-sm shadow-2xl">
         {/* Title bar */}
-        <div className="flex items-center justify-between px-4 py-3 bg-slate-800/50 border-b border-white/5">
+        <div className="flex items-center justify-between px-4 py-3 dark:bg-white/[0.02] light:bg-black/[0.02] border-b dark:border-white/[0.04] light:border-black/5">
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-red-500" />
-            <div className="w-3 h-3 rounded-full bg-yellow-500" />
-            <div className="w-3 h-3 rounded-full bg-green-500" />
+            <div className="w-2.5 h-2.5 rounded-full bg-red-500/40" />
+            <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/40" />
+            <div className="w-2.5 h-2.5 rounded-full bg-green-500/40" />
           </div>
           <div className="flex items-center gap-2">
             <span className="text-xs text-muted-foreground font-mono">
@@ -223,14 +223,14 @@ export function TerminalDemo() {
                   {line.type === "command" &&
                     index === visibleLines - 1 &&
                     isTyping && (
-                      <span className="inline-block w-2 h-4 ml-1 bg-green-400 animate-pulse" />
+                      <span className="inline-block w-2 h-4 ml-1 dark:bg-green-400 light:bg-green-600 animate-pulse" />
                     )}
                 </motion.div>
               ))}
               {visibleLines === 0 && (
-                <div className="text-green-400">
+                <div className="dark:text-green-400 light:text-green-600">
                   ${" "}
-                  <span className="inline-block w-2 h-4 ml-1 bg-green-400 animate-pulse" />
+                  <span className="inline-block w-2 h-4 ml-1 dark:bg-green-400 light:bg-green-600 animate-pulse" />
                 </div>
               )}
             </motion.div>
@@ -246,8 +246,8 @@ export function TerminalDemo() {
             onClick={() => setCurrentDemo(index)}
             className={`w-2 h-2 rounded-full transition-all ${
               index === currentDemo
-                ? "bg-purple-500 w-6"
-                : "bg-slate-600 hover:bg-slate-500"
+                ? "bg-indigo-500 w-6 shadow-[0_0_10px_rgba(99,102,241,0.5)]"
+                : "bg-slate-500/30 hover:bg-slate-500/50"
             }`}
           />
         ))}

@@ -15,13 +15,13 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Utoo - Unified Frontend Toolchain",
+  title: "Utoo - An Unified Toolchain For  Web Development",
   description:
     "A complete suite of tools for modern frontend development. Lightning fast package management, bundling, and browser-native builds.",
   keywords: ["bundler", "package manager", "turbopack", "rust", "webassembly", "typescript"],
   authors: [{ name: "Utoo Team" }],
   openGraph: {
-    title: "Utoo - Unified Frontend Toolchain",
+    title: "Utoo - An Unified Toolchain For  Web Development",
     description:
       "A complete suite of tools for modern frontend development.",
     type: "website",
