@@ -175,13 +175,13 @@ export function TerminalDemo() {
   return (
     <div className="relative">
       {/* Terminal window */}
-      <div className="rounded-xl overflow-hidden border border-white/10 bg-slate-900 backdrop-blur-xl shadow-2xl">
+      <div className="rounded-xl overflow-hidden border border-white/[0.03] bg-[#020203] shadow-2xl">
         {/* Title bar */}
-        <div className="flex items-center justify-between px-4 py-3 bg-slate-800/50 border-b border-white/5">
+        <div className="flex items-center justify-between px-4 py-3 bg-white/[0.02] border-b border-white/[0.03]">
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-red-500" />
-            <div className="w-3 h-3 rounded-full bg-yellow-500" />
-            <div className="w-3 h-3 rounded-full bg-green-500" />
+            <div className="w-2.5 h-2.5 rounded-full bg-red-500/40" />
+            <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/40" />
+            <div className="w-2.5 h-2.5 rounded-full bg-green-500/40" />
           </div>
           <div className="flex items-center gap-2">
             <span className="text-xs text-muted-foreground font-mono">

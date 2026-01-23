@@ -4,7 +4,7 @@ export const translations = {
     hero: {
       badge: "Written in Rust, Native & WASM Supported",
       title: "Utoo",
-      subtitle: "Unified Frontend Toolchain",
+      subtitle: "An Unified Frontend Toolchain",
       description:
         "A complete suite of tools for modern frontend development. Lightning fast package management, bundling, and browser-native builds.",
       explorePackages: "Explore Packages",
@@ -122,13 +122,13 @@ export const translations = {
         },
       },
       web: {
-        tagline: "Browser-Native Builds",
+        tagline: "In-browser Development Environment",
         description:
-          "Run the full build pipeline in the browser. No server required—install, compile, and bundle entirely in WebAssembly.",
+          "A high-performance web development environment running entirely in the browser. Features native-speed multi-threaded builds, seamless Webpack loader support, and instant HMR without Node.js emulation.",
         highlight: {
-          title: "True Browser Builds",
+          title: "Native Browser Environment",
           description:
-            "Install npm packages, compile TypeScript, and bundle assets—all running natively in the browser via WebAssembly.",
+            "Install npm packages, execute WASM-native TypeScript compilation, and bundle assets with full HMR support—all natively via OPFS.",
         },
         features: {
           browserInstall: {
@@ -136,16 +136,16 @@ export const translations = {
             description: "Install packages directly from npm registry",
           },
           opfs: {
-            title: "OPFS Storage",
-            description: "Persistent file system in browser storage",
+            title: "Multi-threaded Build",
+            description: "Tokio-powered parallel bundling and compilation in WASM",
           },
-          wasmCompiler: {
-            title: "WASM Compiler",
-            description: "Full TypeScript compiler in WebAssembly",
+          wasmEngine: {
+            title: "Webpack Loader Support",
+            description: "Seamlessly execute loaders with built-in Node.js polyfills",
           },
           serviceWorker: {
-            title: "Service Worker",
-            description: "Serve builds without a backend server",
+            title: "In-browser HMR",
+            description: "Instant hot module replacement without a backend server",
           },
         },
         commands: {
@@ -161,11 +161,6 @@ export const translations = {
       title: "Playground",
       description:
         "Experience browser-native builds. This playground runs entirely in your browser—no server required. Dependencies are installed from npm, TypeScript is compiled, and assets are bundled using WebAssembly.",
-      features: {
-        isomorphicInstall: "Isomorphic npm Install",
-        wasmCompiler: "WASM Compiler",
-        opfsFileSystem: "OPFS File System",
-      },
       tryButton: "Try Playground",
       buildButton: "Build Project",
       building: "Building...",
@@ -173,23 +168,6 @@ export const translations = {
         projectFiles: "Project Files",
         editor: "Editor",
         preview: "Preview",
-      },
-      steps: {
-        step1: {
-          title: "Install Dependencies",
-          description:
-            "Reads package-lock.json and installs packages directly from npm registry into browser storage.",
-        },
-        step2: {
-          title: "Compile & Bundle",
-          description:
-            "TypeScript compilation and bundling runs in WebAssembly with full Less and Tailwind CSS support.",
-        },
-        step3: {
-          title: "Serve via Service Worker",
-          description:
-            "Build output is served through a Service Worker, enabling instant preview without any server.",
-        },
       },
     },
     // Footer
@@ -326,13 +304,13 @@ export const translations = {
         },
       },
       web: {
-        tagline: "浏览器原生构建",
+        tagline: "浏览器原生开发环境",
         description:
-          "在浏览器中运行完整构建流程。无需服务器，完全在 WebAssembly 中安装、编译和打包。",
+          "完全运行在浏览器中的高性能 Web 开发环境。支持原生级多线程构建、无缝 Webpack Loader 兼容以及即时 HMR，无需 Node.js 模拟环境。",
         highlight: {
-          title: "真正的浏览器构建",
+          title: "真正的浏览器原生环境",
           description:
-            "安装 npm 包、编译 tsx、打包资源——全部通过 WebAssembly 在浏览器中原生运行。",
+            "安装 npm 包、使用多线程 WASM 引擎编译 tsx、打包资源——全部在浏览器中原生运行，支持 HMR。",
         },
         features: {
           browserInstall: {
@@ -340,16 +318,16 @@ export const translations = {
             description: "直接从 npm 注册表安装包",
           },
           opfs: {
-            title: "OPFS 存储",
-            description: "浏览器存储中的持久化文件系统",
+            title: "多线程构建",
+            description: "基于 Tokio 移植的 WASM 运行时，实现并行编译与打包",
           },
-          wasmCompiler: {
-            title: "WASM 编译器",
-            description: "WebAssembly 中的完整 TypeScript 编译器",
+          wasmEngine: {
+            title: "Loader 无缝兼容",
+            description: "内置 Node.js Polyfill，无缝执行主流 Webpack Loader",
           },
           serviceWorker: {
-            title: "Service Worker",
-            description: "无需后端服务器即可提供构建服务",
+            title: "浏览器原生 HMR",
+            description: "无需后端服务器，在浏览器环境内实现即时模块热替换",
           },
         },
         commands: {
@@ -365,11 +343,6 @@ export const translations = {
       title: "Playground",
       description:
         "体验浏览器原生构建。此演练场完全在浏览器中运行，无需服务器。依赖从 npm 安装，TypeScript 被编译，资源使用 WebAssembly 打包。",
-      features: {
-        isomorphicInstall: "同构 npm 安装",
-        wasmCompiler: "WASM 编译器",
-        opfsFileSystem: "OPFS 文件系统",
-      },
       tryButton: "体验 Playground",
       buildButton: "构建项目",
       building: "构建中...",
@@ -377,23 +350,6 @@ export const translations = {
         projectFiles: "项目文件",
         editor: "编辑器",
         preview: "预览",
-      },
-      steps: {
-        step1: {
-          title: "安装依赖",
-          description:
-            "读取 package-lock.json 并从 npm registry 直接安装包到浏览器存储。",
-        },
-        step2: {
-          title: "编译和打包",
-          description:
-            "TypeScript 编译和打包在 WebAssembly 中运行，完整支持 Less 和 Tailwind CSS。",
-        },
-        step3: {
-          title: "通过 Service Worker 代理",
-          description:
-            "构建输出通过 Service Worker 提供，无需任何服务器即可即时预览。",
-        },
       },
     },
     // Footer

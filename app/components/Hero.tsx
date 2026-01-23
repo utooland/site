@@ -60,8 +60,8 @@ export function Hero() {
 
       {/* Animated background circles */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-96 h-96 bg-purple-600/20 rounded-full blur-[100px] animate-pulse-slow" />
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-pink-600/20 rounded-full blur-[100px] animate-pulse-slow" />
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-purple-900/10 rounded-full blur-[120px] animate-pulse-slow opacity-30" />
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-pink-900/10 rounded-full blur-[120px] animate-pulse-slow opacity-30" />
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto w-full">
@@ -87,13 +87,13 @@ export function Hero() {
               className="hero-title text-4xl md:text-6xl font-bold mb-5 tracking-tight"
             >
               <div className="flex items-center gap-3 mb-2">
-                <span className="gradient-text">{t.hero.title}</span>
+                <span className="gradient-text opacity-90">{t.hero.title}</span>
                 <span className="text-2xl md:text-3xl animate-bounce-slow">🌖</span>
-                <span className="text-lg md:text-xl font-normal text-muted-foreground/60 font-mono self-end pb-1">
+                <span className="text-lg md:text-xl font-normal text-muted-foreground/40 font-mono self-end pb-1">
                   /juːtuː/
                 </span>
               </div>
-              <span className="text-3xl md:text-4xl text-muted-foreground block leading-tight">
+              <span className="text-3xl md:text-4xl text-muted-foreground/70 block leading-tight">
                 {t.hero.subtitle}
               </span>
             </motion.h1>
@@ -138,15 +138,18 @@ export function Hero() {
             >
               <Button
                 size="lg"
-                className="btn-glow bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white border-0 h-10 px-6 text-sm"
+                className="group relative px-6 py-6 rounded-xl bg-[#0F0F12] border border-white/10 text-white hover:text-white transition-all duration-300 overflow-hidden h-10 text-sm"
                 onClick={() => {
                   document
                     .getElementById("packages")
                     ?.scrollIntoView({ behavior: "smooth" });
                 }}
               >
-                {t.hero.explorePackages}
-                <ArrowRight className="ml-2 w-4 h-4" />
+                <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-600/20 to-violet-600/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <span className="relative flex items-center">
+                  {t.hero.explorePackages}
+                  <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
+                </span>
               </Button>
               <div className="scale-90 origin-left sm:scale-100">
                 <GitHubButton />

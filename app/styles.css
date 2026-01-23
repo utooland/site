@@ -7,26 +7,26 @@
 
   /* Dark theme (default) */
   .dark {
-    --background: 222.2 84% 4.9%;
+    --background: 265 60% 3%;
     --foreground: 210 40% 98%;
 
-    --card: 222.2 84% 4.9%;
+    --card: 265 60% 3%;
     --card-foreground: 210 40% 98%;
 
-    --primary: 262.1 83.3% 57.8%;
+    --primary: 290 84% 60%;
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 217.2 32.6% 17.5%;
+    --secondary: 265 30% 20%;
     --secondary-foreground: 210 40% 98%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 265 30% 20%;
+    --muted-foreground: 265 20% 70%;
 
-    --accent: 262.1 83.3% 57.8%;
+    --accent: 290 84% 60%;
     --accent-foreground: 210 40% 98%;
 
-    --border: 217.2 32.6% 17.5%;
-    --ring: 262.1 83.3% 57.8%;
+    --border: 265 30% 20%;
+    --ring: 290 84% 60%;
   }
 
   /* Light theme */
@@ -165,14 +165,14 @@
 
 /* Gradient text */
 .dark .gradient-text {
-  background: linear-gradient(135deg, #c084fc 0%, #e879f9 50%, #f472b6 100%);
+  background: linear-gradient(135deg, #f472b6 0%, #c084fc 50%, #fb923c 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .light .gradient-text {
-  background: linear-gradient(135deg, #9333ea 0%, #db2777 50%, #ea580c 100%);
+  background: linear-gradient(135deg, #db2777 0%, #9333ea 50%, #ea580c 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -180,45 +180,13 @@
 
 /* Gradient background */
 .dark .gradient-bg {
-  background: radial-gradient(circle at 50% 0%, rgba(58, 13, 102, 0.4), rgba(0, 0, 0, 0) 60%),
-              radial-gradient(circle at 0% 0%, rgba(88, 28, 135, 0.2), transparent 50%),
-              radial-gradient(circle at 100% 0%, rgba(124, 58, 237, 0.1), transparent 50%);
-  background-color: #020617; /* Slate 950 base */
+  background: radial-gradient(circle at 10% 20%, rgba(192, 132, 252, 0.15), transparent 40%),
+              radial-gradient(circle at 90% 80%, rgba(244, 114, 182, 0.1), transparent 40%);
 }
 
 .light .gradient-bg {
-  background: radial-gradient(circle at 50% 0%, rgba(147, 51, 234, 0.05), transparent 70%);
-  background-color: #ffffff;
-}
-
-/* Section Divider */
-.section-divider {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-}
-.section-fade-top {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 6rem;
-  background: linear-gradient(to bottom, hsl(var(--background)), transparent);
-  pointer-events: none;
-  z-index: 10;
-}
-.section-fade-bottom {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 6rem;
-  background: linear-gradient(to top, hsl(var(--background)), transparent);
-  pointer-events: none;
-  z-index: 10;
+  background: radial-gradient(circle at 10% 20%, rgba(147, 51, 234, 0.05), transparent 40%),
+              radial-gradient(circle at 90% 80%, rgba(219, 39, 119, 0.05), transparent 40%);
 }
 
 /* Animated gradient border */
@@ -233,7 +201,7 @@
   position: absolute;
   inset: -1px;
   border-radius: calc(var(--radius) + 1px);
-  background: linear-gradient(135deg, #c084fc, #e879f9, #f472b6);
+  background: linear-gradient(135deg, #f472b6, #c084fc, #fb923c);
   z-index: -1;
   opacity: 0.5;
   transition: opacity 0.3s;

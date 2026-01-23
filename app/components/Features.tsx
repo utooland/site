@@ -280,8 +280,8 @@ await dev({
       },
       {
         icon: Cpu,
-        title: t.packages.web.features.wasmCompiler.title,
-        description: t.packages.web.features.wasmCompiler.description,
+        title: t.packages.web.features.wasmEngine.title,
+        description: t.packages.web.features.wasmEngine.description,
       },
       {
         icon: Workflow,
@@ -314,8 +314,8 @@ function QuickReference({
   const hasTabs = hasConfig || hasApi;
 
   return (
-    <div className="rounded-xl overflow-hidden border border-slate-700 bg-slate-900/80 backdrop-blur shadow-xl">
-      <div className="px-3 py-2 bg-slate-800/50 border-b border-slate-700/50 flex items-center justify-between">
+    <div className="rounded-xl overflow-hidden border border-white/[0.03] bg-[#020203] shadow-2xl">
+      <div className="px-3 py-2 bg-white/[0.01] border-b border-white/[0.03] flex items-center justify-between">
         {hasTabs ? (
           <div className="flex gap-1">
             <button
@@ -425,71 +425,99 @@ export function Features() {
   const packages = getPackages(t);
 
   return (
-    <section id="packages" className="py-8 px-4 md:py-12 relative overflow-hidden">
-      {/* Transitions */}
-      <div className="section-fade-top" />
-      <div className="section-divider opacity-50" />
-      
-      {/* Background ambient light */}
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-purple-600/5 rounded-full blur-[100px] -z-10 pointer-events-none" />
-      <div className="absolute top-[30%] left-0 w-[500px] h-[500px] bg-blue-600/5 rounded-full blur-[100px] -z-10 pointer-events-none" />
-      <div className="absolute bottom-0 right-[20%] w-[500px] h-[500px] bg-pink-600/5 rounded-full blur-[100px] -z-10 pointer-events-none" />
+    <div id="packages" className="relative w-full">
+      {/* Global Transition Fade */}
+      <div className="section-fade-top z-10" />
 
-      <div className="max-w-7xl mx-auto">
-        <div className="space-y-12 md:space-y-20">
-          {packages.map((pkg, pkgIndex) => (
+      {packages.map((pkg, pkgIndex) => (
+        <section
+          key={pkg.name}
+          className={`relative py-16 md:py-24 overflow-hidden border-b border-white/[0.01] ${
+            pkgIndex === 0 
+              ? "bg-[#020204]/40" 
+              : pkgIndex === 1 
+              ? "bg-black/80 shadow-[inset_0_0_100px_rgba(0,0,0,0.8)]" 
+              : "bg-[#010102]"
+          }`}
+        >
+          {/* Dynamic Backgrounds per Section */}
+          <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
+             {pkgIndex === 0 && (
+               <>
+                 <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-purple-900/5 rounded-full blur-[120px] opacity-20" />
+                 <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-indigo-900/5 rounded-full blur-[120px] opacity-20" />
+               </>
+             )}
+             {pkgIndex === 1 && (
+               <>
+                 <div className="absolute top-0 left-0 w-[700px] h-[700px] bg-pink-900/[0.03] rounded-full blur-[130px] opacity-15" />
+                 <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-rose-900/[0.03] rounded-full blur-[120px] opacity-15" />
+                 <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.02] to-transparent" />
+               </>
+             )}
+             {pkgIndex === 2 && (
+               <>
+                 <div className="absolute top-20 right-0 w-[600px] h-[600px] bg-amber-900/[0.03] rounded-full blur-[120px] opacity-15" />
+                 <div className="absolute bottom-0 left-10 w-[500px] h-[500px] bg-orange-900/[0.03] rounded-full blur-[120px] opacity-15" />
+               </>
+             )}
+          </div>
+
+          <div className="max-w-7xl mx-auto px-4 md:px-6">
             <motion.div
-              key={pkg.name}
-              initial={{ opacity: 0, y: 40 }}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: pkgIndex * 0.1 }}
-              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+              viewport={{ once: true, margin: "-50px" }}
             >
               {/* Main layout grid */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 mb-6 items-start">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-8 items-start">
                 {/* Left column: Info & Highlight */}
-                <div className="lg:col-span-7 flex flex-col gap-4">
+                <div className="lg:col-span-7 flex flex-col gap-6">
                   {/* Package header */}
                   <div>
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-3">
-                      <div className="flex items-center gap-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-4">
+                      <div className="flex items-center gap-4">
                         <div
-                          className={`w-12 h-12 rounded-xl bg-gradient-to-br ${pkg.gradient} flex items-center justify-center shadow-lg shadow-${pkg.color}-500/20`}
+                          className={`w-14 h-14 rounded-2xl bg-[#0F0F12] border border-white/[0.08] flex items-center justify-center shadow-2xl relative overflow-hidden group/icon`}
                         >
-                          {pkgIndex === 0 && (
-                            <Terminal className="w-6 h-6 text-white" />
-                          )}
-                          {pkgIndex === 1 && <Box className="w-6 h-6 text-white" />}
-                          {pkgIndex === 2 && (
-                            <Globe className="w-6 h-6 text-white" />
-                          )}
+                          <div className={`absolute inset-0 bg-gradient-to-br ${pkg.gradient} opacity-10`} />
+                          <div className={`relative`}>
+                            {pkgIndex === 0 && (
+                              <Terminal className={`w-7 h-7 text-${pkg.color}-400/90`} />
+                            )}
+                            {pkgIndex === 1 && <Box className={`w-7 h-7 text-${pkg.color}-400/90`} /> }
+                            {pkgIndex === 2 && (
+                              <Globe className={`w-7 h-7 text-${pkg.color}-400/90`} />
+                            )}
+                          </div>
                         </div>
                         <div>
-                          <h3 className="text-2xl font-bold font-mono tracking-tight text-foreground">
+                          <h3 className="text-3xl font-bold font-mono tracking-tight text-foreground opacity-90">
                             {pkg.name}
                           </h3>
-                          <p className={`text-${pkg.color}-400 text-sm font-medium`}>{pkg.tagline}</p>
+                          <p className={`text-${pkg.color}-500/80 text-sm font-medium`}>{pkg.tagline}</p>
                         </div>
                       </div>
 
                       {/* Install command */}
-                      <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900/50 border border-slate-700/50 font-mono text-xs text-slate-200 ml-auto">
+                      <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/40 border border-white/[0.04] font-mono text-xs text-slate-300 ml-auto">
                         <span className="text-slate-500">$</span>
-                        <span className="text-slate-200">{pkg.install}</span>
+                        <span className="text-slate-300">{pkg.install}</span>
                         <CopyButton text={pkg.install} />
                       </div>
                     </div>
                     
                     {/* Mobile install command */}
-                    <div className="flex sm:hidden items-center justify-between gap-2 px-3 py-2 rounded-lg bg-slate-900/50 border border-slate-700/50 font-mono text-xs text-slate-200 mb-3">
-                      <div className="flex items-center gap-2">
+                    <div className="flex sm:hidden items-center justify-between gap-2 px-3 py-2 rounded-lg bg-black/40 border border-white/[0.04] font-mono text-xs text-slate-300 mb-4">
+                      <div className="flex items-center gap-2 overflow-hidden">
                          <span className="text-slate-500">$</span>
-                         <span className="text-slate-200">{pkg.install}</span>
+                         <span className="text-slate-300 truncate">{pkg.install}</span>
                       </div>
                       <CopyButton text={pkg.install} />
                     </div>
 
-                    <p className="text-muted-foreground text-base leading-relaxed max-w-2xl">
+                    <p className="text-muted-foreground text-lg leading-relaxed max-w-2xl">
                       {pkg.description}
                     </p>
                   </div>
@@ -497,23 +525,24 @@ export function Features() {
                   {/* Highlight box for key differentiators */}
                   {pkg.highlight && (
                     <motion.div
-                      initial={{ opacity: 0, scale: 0.95 }}
+                      initial={{ opacity: 0, scale: 0.98 }}
                       whileInView={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.4 }}
+                      transition={{ duration: 0.4, delay: 0.2 }}
                       viewport={{ once: true }}
-                      className="highlight-box bg-slate-900/30 border border-white/5"
+                      className="highlight-box bg-black/10 border border-white/[0.02] p-5 rounded-xl"
                     >
                       <div className="flex items-start gap-4">
                         <div
-                          className={`w-10 h-10 rounded-lg bg-gradient-to-br ${pkg.gradient} flex items-center justify-center flex-shrink-0 shadow-inner mt-0.5`}
+                          className={`w-10 h-10 rounded-lg bg-[#0F0F12] border border-white/[0.05] flex items-center justify-center flex-shrink-0 mt-1 relative overflow-hidden`}
                         >
-                          <pkg.highlight.icon className="w-5 h-5 text-white" />
+                          <div className={`absolute inset-0 bg-gradient-to-br ${pkg.gradient} opacity-5`} />
+                          <pkg.highlight.icon className={`w-5 h-5 text-${pkg.color}-400/80 relative`} />
                         </div>
                         <div>
-                          <h4 className={`text-base font-bold highlight-title-${pkg.color} mb-1`}>
+                          <h4 className={`text-base font-bold highlight-title-${pkg.color} mb-1 opacity-80`}>
                             {pkg.highlight.title}
                           </h4>
-                          <p className="text-xs sm:text-sm text-muted-foreground/80 leading-relaxed">
+                          <p className="text-sm text-muted-foreground/60 leading-relaxed">
                             {pkg.highlight.description}
                           </p>
                         </div>
@@ -523,9 +552,9 @@ export function Features() {
                 </div>
 
                 {/* Right column: Quick Reference */}
-                <div className="lg:col-span-5 sticky top-24">
-                  <div className="relative">
-                    <div className={`absolute -inset-1 rounded-2xl bg-gradient-to-br ${pkg.gradient} opacity-20 blur-lg`} />
+                <div className="lg:col-span-5 sticky top-24 pt-2">
+                  <div className="relative group">
+                    <div className={`absolute -inset-1 rounded-2xl bg-gradient-to-br ${pkg.gradient} opacity-10 group-hover:opacity-20 blur-xl transition-opacity duration-500`} />
                     <QuickReference pkg={pkg} t={t} />
                   </div>
                 </div>
@@ -536,28 +565,28 @@ export function Features() {
                 {pkg.features.map((feature, index) => (
                   <motion.div
                     key={feature.title}
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 10 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: index * 0.05 }}
+                    transition={{ duration: 0.3, delay: index * 0.05 }}
                     viewport={{ once: true }}
                   >
-                    <Card className="feature-card glass h-full border-slate-800/50 hover:bg-slate-800/50 transition-colors group">
+                    <Card className="feature-card h-full bg-[#010101] border-white/[0.02] hover:bg-[#050505] hover:border-white/[0.05] transition-all duration-300 group">
                       <CardHeader className="p-4 pb-2">
                         <div className="flex items-center gap-3">
                           <div
-                            className={`w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center flex-shrink-0 group-hover:bg-slate-700 transition-colors`}
+                            className={`w-8 h-8 rounded bg-white/[0.01] border border-white/[0.03] flex items-center justify-center flex-shrink-0 group-hover:bg-white/[0.03] transition-colors`}
                           >
-                             <div className={`text-${pkg.color}-400`}>
+                             <div className={`text-${pkg.color}-500/60 group-hover:text-${pkg.color}-400 transition-colors`}>
                                 <feature.icon className="w-4 h-4" />
                              </div>
                           </div>
-                          <CardTitle className="text-sm font-semibold leading-tight text-slate-200">
+                          <CardTitle className="text-sm font-medium leading-tight text-slate-400 group-hover:text-slate-200 transition-colors">
                             {feature.title}
                           </CardTitle>
                         </div>
                       </CardHeader>
-                      <CardContent className="p-4 pt-0">
-                        <CardDescription className="text-xs text-slate-400 group-hover:text-slate-300 transition-colors">
+                      <CardContent className="p-4 pt-1">
+                        <CardDescription className="text-[11px] text-slate-500 group-hover:text-slate-400 transition-colors leading-normal">
                           {feature.description}
                         </CardDescription>
                       </CardContent>
@@ -566,9 +595,9 @@ export function Features() {
                 ))}
               </div>
             </motion.div>
-          ))}
-        </div>
-      </div>
-    </section>
+          </div>
+        </section>
+      ))}
+    </div>
   );
 }

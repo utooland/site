@@ -1,6 +1,6 @@
 # Utoo Landing Page
 
-Landing page for [Utoo](https://github.com/utooland/utoo) - Unified Frontend Toolchain.
+Landing page for [Utoo](https://github.com/utooland/utoo) - An Unified Frontend Toolchain.
 
 ## Features
 
