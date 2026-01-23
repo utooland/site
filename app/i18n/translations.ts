@@ -54,7 +54,7 @@ export const translations = {
         description:
           "Next-generation bundler powered by Turbopack and SWC. Minimal config, instant HMR, and optimized production builds.",
         highlight: {
-          title: "Turbopack-powered Incremental Engine",
+          title: "Turbopack & SWC Powered Engine",
           description:
             "High-performance incremental builds with built-in persistent caching for maximum speed.",
         },
@@ -258,7 +258,7 @@ export const translations = {
         description:
           "基于 Turbopack 与 SWC 的新一代打包器。极简配置、即时 HMR、优化的生产构建。",
         highlight: {
-          title: "增量构建与持久化缓存",
+          title: "Turbopack 与 SWC 强力驱动",
           description:
             "基于 Turbopack 的增量构建引擎，支持持久化构建缓存。",
         },
@@ -308,7 +308,7 @@ export const translations = {
             description: "原生支持 Emotion、Styled Components 等 CSS-in-JS",
           },
           devServer: {
-            title: "全能开发服务器",
+            title: "集成式开发服务器",
             description: "内置高性能代理、静态文件服务与调试工具",
           },
         },
