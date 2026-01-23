@@ -98,7 +98,7 @@ const demos: { title: string; package: string; lines: TerminalLine[] }[] = [
       { type: "command", text: "$ utx up build" },
       { type: "info", text: "Reading utoopack.json..." },
       { type: "output", text: "Compiling TypeScript..." },
-      { type: "output", text: "Bundling with tree-shaking..." },
+      { type: "output", text: "Production build..." },
       { type: "output", text: "" },
       { type: "output", text: "  dist/index.js     45.2 kB" },
       { type: "output", text: "  dist/index.css    12.1 kB" },

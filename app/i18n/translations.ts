@@ -2,13 +2,14 @@ export const translations = {
   en: {
     // Hero
     hero: {
-      badge: "Rust Powered: Native & WASM",
+      badge: "Written in Rust, Native & WASM Supported",
       title: "Utoo",
       subtitle: "Unified Frontend Toolchain",
       description:
         "A complete suite of tools for modern frontend development. Lightning fast package management, bundling, and browser-native builds.",
       explorePackages: "Explore Packages",
       docs: "Doc",
+      wiki: "Wiki",
       github: "GitHub",
     },
     // Packages
@@ -51,7 +52,7 @@ export const translations = {
       pack: {
         tagline: "Next-Gen Bundler",
         description:
-          "A modern bundler powered by Turbopack. Minimal config, instant HMR, and optimized production builds.",
+          "Next-generation bundler powered by Turbopack and SWC. Minimal config, instant HMR, and optimized production builds.",
         highlight: {
           title: "Turbopack-powered Incremental Engine",
           description:
@@ -60,7 +61,7 @@ export const translations = {
         features: {
           faster: {
             title: "Native Speed",
-            description: "Rust-powered core for ultra-fast compilation and bundling",
+            description: "Ultra-fast compilation and bundling powered by SWC and Turbopack",
           },
           hmr: {
             title: "Instant HMR",
@@ -79,7 +80,7 @@ export const translations = {
             description: "Supports most mainstream Webpack loaders and features for seamless migration",
           },
           caching: {
-            title: "Smart Caching",
+            title: "Persistent Caching",
             description: "Advanced persistent disk storage for near-instant restarts",
           },
           nodePolyfill: {
@@ -91,8 +92,8 @@ export const translations = {
             description: "Built-in bundle analyzer for deep performance optimization",
           },
           optimization: {
-            title: "Advanced Tree Shaking",
-            description: "Scope hoisting and dead code elimination for smaller bundles",
+            title: "Code Optimization",
+            description: "Advanced tree shaking, scope hoisting, and dead code elimination for smaller bundles",
           },
           images: {
             title: "Smart Assets",
@@ -103,7 +104,7 @@ export const translations = {
             description: "Native integration for Emotion and Styled Components",
           },
           devServer: {
-            title: "Unified Dev Server",
+            title: "Integrated Dev Server",
             description: "Feature-rich development proxy and static file serving",
           },
         },
@@ -205,13 +206,14 @@ export const translations = {
   zh: {
     // Hero
     hero: {
-      badge: "Rust 开发：支持 Native & WASM",
+      badge: "Rust 语言编写，支持 Native & WASM",
       title: "Utoo",
       subtitle: "通用前端工具链",
       description:
         "现代前端开发的完整工具套件。极速包管理、打包构建，以及浏览器原生构建能力。",
       explorePackages: "探索功能",
       docs: "Doc",
+      wiki: "维基",
       github: "GitHub",
     },
     // Packages
@@ -254,7 +256,7 @@ export const translations = {
       pack: {
         tagline: "新一代打包器",
         description:
-          "基于 Turbopack 的现代打包器。极简配置、即时 HMR、优化的生产构建。",
+          "基于 Turbopack 与 SWC 的新一代打包器。极简配置、即时 HMR、优化的生产构建。",
         highlight: {
           title: "增量构建与持久化缓存",
           description:
@@ -263,7 +265,7 @@ export const translations = {
         features: {
           faster: {
             title: "原生速度",
-            description: "Rust 内核，提供极速的编译与打包体验",
+            description: "基于 SWC 与 Turbopack 的 Rust 内核，提供极速编译与打包体验",
           },
           hmr: {
             title: "即时 HMR",
@@ -282,7 +284,7 @@ export const translations = {
             description: "支持大多数主流 Webpack Loader 与配置，实现平滑迁移",
           },
           caching: {
-            title: "极速二次启动",
+            title: "持久化缓存",
             description: "基于磁盘的高级持久化缓存，实现秒级增量构建",
           },
           nodePolyfill: {
@@ -294,7 +296,7 @@ export const translations = {
             description: "可视化分析工具，辅助优化产物大小与依赖关系",
           },
           optimization: {
-            title: "深度优化",
+            title: "代码优化",
             description: "先进的 Tree Shaking、模块合并与产物压缩",
           },
           images: {
@@ -306,7 +308,7 @@ export const translations = {
             description: "原生支持 Emotion、Styled Components 等 CSS-in-JS",
           },
           devServer: {
-            title: "开发服务器",
+            title: "全能开发服务器",
             description: "内置高性能代理、静态文件服务与调试工具",
           },
         },

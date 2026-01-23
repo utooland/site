@@ -54,7 +54,7 @@ export function Hero() {
   const { t } = useI18n();
 
   return (
-    <section className="relative min-h-screen flex items-center px-4 py-20 overflow-hidden">
+    <section className="relative min-h-[70vh] flex items-center px-4 pt-16 pb-12 overflow-hidden md:pt-20">
       {/* Background gradient */}
       <div className="absolute inset-0 gradient-bg" />
 
@@ -119,6 +119,9 @@ export function Hero() {
               </span>
               <span className="px-3 py-1 rounded-full badge-pink text-sm font-mono">
                 @utoo/pack
+              </span>
+              <span className="px-3 py-1 rounded-full badge-pink text-sm font-mono">
+                @utoo/pack-cli
               </span>
               <span className="px-3 py-1 rounded-full badge-orange text-sm font-mono">
                 @utoo/web

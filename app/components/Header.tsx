@@ -1,6 +1,6 @@
 "use client";
 
-import { Moon, Sun, Globe, BookOpen } from "lucide-react";
+import { Moon, Sun, Globe, BookOpen, Search } from "lucide-react";
 import { useTheme } from "../theme/context";
 import { useI18n } from "../i18n/context";
 import Link from "next/link";
@@ -20,6 +20,17 @@ export function Header() {
           <BookOpen className="w-4 h-4" />
           <span>{t.hero.docs}</span>
         </Link>
+
+        {/* Wiki link */}
+        <a
+          href="https://deepwiki.com/utooland/utoo"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg glass hover:opacity-80 transition-all text-sm"
+        >
+          <Search className="w-4 h-4" />
+          <span>{t.hero.wiki}</span>
+        </a>
 
         {/* Language switcher */}
         <button

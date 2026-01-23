@@ -425,9 +425,9 @@ export function Features() {
   const packages = getPackages(t);
 
   return (
-    <section id="packages" className="py-20 px-4">
+    <section id="packages" className="py-12 px-4 md:py-16">
       <div className="max-w-7xl mx-auto">
-        <div className="space-y-24">
+        <div className="space-y-16 md:space-y-24">
           {packages.map((pkg, pkgIndex) => (
             <motion.div
               key={pkg.name}
@@ -437,8 +437,8 @@ export function Features() {
               viewport={{ once: true }}
             >
               {/* Package header */}
-              <div className="mb-8">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-4">
+              <div className="mb-6">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-3">
                   <div className="flex items-center gap-4">
                     <div
                       className={`w-12 h-12 rounded-xl bg-gradient-to-br ${pkg.gradient} flex items-center justify-center`}
@@ -509,19 +509,21 @@ export function Features() {
                       transition={{ duration: 0.4, delay: index * 0.1 }}
                       viewport={{ once: true }}
                     >
-                      <Card className="feature-card glass h-full">
-                        <CardHeader className="pb-2">
-                          <div
-                            className={`w-10 h-10 rounded-lg bg-gradient-to-br ${pkg.gradient} flex items-center justify-center mb-2`}
-                          >
-                            <feature.icon className="w-5 h-5 text-white" />
+                      <Card className="feature-card glass h-full border-slate-800/50">
+                        <CardHeader className="p-4 pb-2">
+                          <div className="flex items-center gap-3">
+                            <div
+                              className={`w-8 h-8 rounded-lg bg-gradient-to-br ${pkg.gradient} flex items-center justify-center flex-shrink-0`}
+                            >
+                              <feature.icon className="w-4 h-4 text-white" />
+                            </div>
+                            <CardTitle className="text-sm font-semibold leading-tight">
+                              {feature.title}
+                            </CardTitle>
                           </div>
-                          <CardTitle className="text-base">
-                            {feature.title}
-                          </CardTitle>
                         </CardHeader>
-                        <CardContent>
-                          <CardDescription className="text-sm">
+                        <CardContent className="p-4 pt-0">
+                          <CardDescription className="text-xs text-slate-400 leading-relaxed">
                             {feature.description}
                           </CardDescription>
                         </CardContent>
