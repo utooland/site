@@ -9,10 +9,14 @@ export function Playground() {
   const { t } = useI18n();
 
   return (
-    <section id="playground" className="py-20 px-4 relative">
+    <section id="playground" className="py-20 px-4 relative overflow-hidden">
+      {/* Transitions */}
+      <div className="section-fade-top" />
+      <div className="section-divider opacity-50" />
+
       {/* Background accent */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-orange-500/5 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-orange-500/5 rounded-full blur-[120px]" />
       </div>
 
       <div className="max-w-7xl mx-auto relative">

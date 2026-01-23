@@ -165,14 +165,14 @@
 
 /* Gradient text */
 .dark .gradient-text {
-  background: linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #f97316 100%);
+  background: linear-gradient(135deg, #c084fc 0%, #e879f9 50%, #f472b6 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .light .gradient-text {
-  background: linear-gradient(135deg, #7c3aed 0%, #db2777 50%, #ea580c 100%);
+  background: linear-gradient(135deg, #9333ea 0%, #db2777 50%, #ea580c 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -180,19 +180,45 @@
 
 /* Gradient background */
 .dark .gradient-bg {
-  background: linear-gradient(135deg,
-    rgba(168, 85, 247, 0.15) 0%,
-    rgba(236, 72, 153, 0.15) 50%,
-    rgba(249, 115, 22, 0.1) 100%
-  );
+  background: radial-gradient(circle at 50% 0%, rgba(58, 13, 102, 0.4), rgba(0, 0, 0, 0) 60%),
+              radial-gradient(circle at 0% 0%, rgba(88, 28, 135, 0.2), transparent 50%),
+              radial-gradient(circle at 100% 0%, rgba(124, 58, 237, 0.1), transparent 50%);
+  background-color: #020617; /* Slate 950 base */
 }
 
 .light .gradient-bg {
-  background: linear-gradient(135deg,
-    rgba(124, 58, 237, 0.06) 0%,
-    rgba(219, 39, 119, 0.04) 50%,
-    rgba(234, 88, 12, 0.03) 100%
-  );
+  background: radial-gradient(circle at 50% 0%, rgba(147, 51, 234, 0.05), transparent 70%);
+  background-color: #ffffff;
+}
+
+/* Section Divider */
+.section-divider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+}
+.section-fade-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6rem;
+  background: linear-gradient(to bottom, hsl(var(--background)), transparent);
+  pointer-events: none;
+  z-index: 10;
+}
+.section-fade-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 6rem;
+  background: linear-gradient(to top, hsl(var(--background)), transparent);
+  pointer-events: none;
+  z-index: 10;
 }
 
 /* Animated gradient border */
@@ -207,7 +233,7 @@
   position: absolute;
   inset: -1px;
   border-radius: calc(var(--radius) + 1px);
-  background: linear-gradient(135deg, #a855f7, #ec4899, #f97316);
+  background: linear-gradient(135deg, #c084fc, #e879f9, #f472b6);
   z-index: -1;
   opacity: 0.5;
   transition: opacity 0.3s;

@@ -425,7 +425,16 @@ export function Features() {
   const packages = getPackages(t);
 
   return (
-    <section id="packages" className="py-8 px-4 md:py-12">
+    <section id="packages" className="py-8 px-4 md:py-12 relative overflow-hidden">
+      {/* Transitions */}
+      <div className="section-fade-top" />
+      <div className="section-divider opacity-50" />
+      
+      {/* Background ambient light */}
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-purple-600/5 rounded-full blur-[100px] -z-10 pointer-events-none" />
+      <div className="absolute top-[30%] left-0 w-[500px] h-[500px] bg-blue-600/5 rounded-full blur-[100px] -z-10 pointer-events-none" />
+      <div className="absolute bottom-0 right-[20%] w-[500px] h-[500px] bg-pink-600/5 rounded-full blur-[100px] -z-10 pointer-events-none" />
+
       <div className="max-w-7xl mx-auto">
         <div className="space-y-12 md:space-y-20">
           {packages.map((pkg, pkgIndex) => (
