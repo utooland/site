@@ -3,7 +3,7 @@ export function SharedFooter({ className }: { className?: string }) {
     <div className={`flex flex-col md:flex-row items-center justify-between gap-4 w-full ${className || ''}`}>
       <div className="flex items-center gap-2">
         <span className="font-semibold">Utoo</span>
-        <span className="text-gray-500 dark:text-gray-400 text-sm">- Unified Toolchain for web development</span>
+        <span className="text-gray-500 dark:text-gray-400 text-sm">- An Unified Toolchain for web development</span>
       </div>
 
       <a
@@ -26,7 +26,7 @@ export function SharedFooter({ className }: { className?: string }) {
           rel="noopener noreferrer"
           className="text-purple-500 dark:text-purple-400 hover:text-purple-600 dark:hover:text-purple-300 transition-colors"
         >
-          utoo
+          Utoo
         </a>
         {" & "}
         <a
@@ -35,7 +35,7 @@ export function SharedFooter({ className }: { className?: string }) {
           rel="noopener noreferrer"
           className="text-pink-500 dark:text-pink-400 hover:text-pink-600 dark:hover:text-pink-300 transition-colors"
         >
-          turbopack
+          Turbopack
         </a>
       </div>
     </div>
