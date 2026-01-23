@@ -118,7 +118,7 @@ export const translations = {
           addConfig: "— just add config to enable",
         },
         api: {
-          description: "Integrate programmatically with Node.js API",
+          description: "Integrate programmatically with Node.js API. Built into Umi.",
         },
       },
       web: {
@@ -300,7 +300,7 @@ export const translations = {
           addConfig: "— 添加配置即可启用",
         },
         api: {
-          description: "通过 Node.js API 集成调用",
+          description: "通过 Node.js API 集成调用，已内置于 Umi。",
         },
       },
       web: {

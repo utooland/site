@@ -328,18 +328,6 @@ function QuickReference({
             >
               {t.common.cli}
             </button>
-            {hasConfig && (
-              <button
-                onClick={() => setActiveTab("config")}
-                className={`text-xs px-2.5 py-1 rounded transition-colors ${
-                  activeTab === "config"
-                    ? "bg-white/10 text-white font-medium"
-                    : "text-muted-foreground hover:text-white"
-                }`}
-              >
-                umi
-              </button>
-            )}
             {hasApi && (
               <button
                 onClick={() => setActiveTab("api")}
@@ -350,6 +338,18 @@ function QuickReference({
                 }`}
               >
                 API
+              </button>
+            )}
+            {hasConfig && (
+              <button
+                onClick={() => setActiveTab("config")}
+                className={`text-xs px-2.5 py-1 rounded transition-colors ${
+                  activeTab === "config"
+                    ? "bg-white/10 text-white font-medium"
+                    : "text-muted-foreground hover:text-white"
+                }`}
+              >
+                Umi
               </button>
             )}
           </div>
