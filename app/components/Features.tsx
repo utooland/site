@@ -113,8 +113,8 @@ function getPackages(t: Translations) {
     name: "utoo",
     tagline: t.packages.utoo.tagline,
     description: t.packages.utoo.description,
-    color: "purple",
-    gradient: "from-purple-500 to-violet-500",
+    color: "indigo",
+    gradient: "from-indigo-500 to-blue-500",
     install: "npm i -g utoo",
     highlight: {
       icon: FileText,
@@ -314,8 +314,8 @@ function QuickReference({
   const hasTabs = hasConfig || hasApi;
 
   return (
-    <div className="rounded-xl overflow-hidden border border-white/[0.03] bg-[#020203] shadow-2xl">
-      <div className="px-3 py-2 bg-white/[0.01] border-b border-white/[0.03] flex items-center justify-between">
+    <div className="rounded-xl overflow-hidden border border-white/[0.04] bg-white/[0.015] backdrop-blur-sm shadow-2xl">
+      <div className="px-3 py-2 bg-white/[0.02] border-b border-white/[0.04] flex items-center justify-between">
         {hasTabs ? (
           <div className="flex gap-1">
             <button
@@ -433,32 +433,33 @@ export function Features() {
         <section
           key={pkg.name}
           className={`relative py-16 md:py-24 overflow-hidden border-b border-white/[0.01] ${
-            pkgIndex === 0 
-              ? "bg-[#020204]/40" 
-              : pkgIndex === 1 
-              ? "bg-black/80 shadow-[inset_0_0_100px_rgba(0,0,0,0.8)]" 
-              : "bg-[#010102]"
+            pkgIndex === 1 
+              ? "bg-white/[0.015] shadow-[inset_0_0_100px_rgba(0,0,0,0.3)]" 
+              : "bg-transparent"
           }`}
         >
           {/* Dynamic Backgrounds per Section */}
           <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
              {pkgIndex === 0 && (
                <>
-                 <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-purple-900/5 rounded-full blur-[120px] opacity-20" />
-                 <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-indigo-900/5 rounded-full blur-[120px] opacity-20" />
+                 <div className="absolute top-0 right-0 w-[1000px] h-[1000px] bg-indigo-900/[0.04] rounded-full blur-[140px] opacity-25" />
+                 <div className="absolute bottom-0 left-0 w-[800px] h-[800px] bg-slate-800/[0.03] rounded-full blur-[120px] opacity-20" />
+                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(99,102,241,0.03),transparent_70%)]" />
                </>
              )}
              {pkgIndex === 1 && (
                <>
-                 <div className="absolute top-0 left-0 w-[700px] h-[700px] bg-pink-900/[0.03] rounded-full blur-[130px] opacity-15" />
-                 <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-rose-900/[0.03] rounded-full blur-[120px] opacity-15" />
-                 <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.02] to-transparent" />
+                 <div className="absolute top-0 left-0 w-[1000px] h-[1000px] bg-pink-900/[0.03] rounded-full blur-[140px] opacity-20" />
+                 <div className="absolute bottom-0 right-0 w-[800px] h-[800px] bg-slate-800/[0.03] rounded-full blur-[120px] opacity-20" />
+                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(219,39,119,0.02),transparent_70%)]" />
+                 <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.05] to-transparent" />
                </>
              )}
              {pkgIndex === 2 && (
                <>
-                 <div className="absolute top-20 right-0 w-[600px] h-[600px] bg-amber-900/[0.03] rounded-full blur-[120px] opacity-15" />
-                 <div className="absolute bottom-0 left-10 w-[500px] h-[500px] bg-orange-900/[0.03] rounded-full blur-[120px] opacity-15" />
+                 <div className="absolute top-20 right-0 w-[1000px] h-[1000px] bg-amber-900/[0.03] rounded-full blur-[140px] opacity-20" />
+                 <div className="absolute bottom-0 left-10 w-[800px] h-[800px] bg-slate-800/[0.03] rounded-full blur-[120px] opacity-20" />
+                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(217,119,6,0.015),transparent_70%)]" />
                </>
              )}
           </div>
@@ -479,12 +480,12 @@ export function Features() {
                     <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-4">
                       <div className="flex items-center gap-4">
                         <div
-                          className={`w-14 h-14 rounded-2xl bg-[#0F0F12] border border-white/[0.08] flex items-center justify-center shadow-2xl relative overflow-hidden group/icon`}
+                          className={`w-14 h-14 rounded-2xl bg-white/[0.03] border border-white/[0.1] flex items-center justify-center shadow-2xl relative overflow-hidden group/icon`}
                         >
-                          <div className={`absolute inset-0 bg-gradient-to-br ${pkg.gradient} opacity-10`} />
+                          <div className={`absolute inset-0 bg-gradient-to-br ${pkg.gradient} opacity-20`} />
                           <div className={`relative`}>
                             {pkgIndex === 0 && (
-                              <Terminal className={`w-7 h-7 text-${pkg.color}-400/90`} />
+                              <Terminal className={`w-7 h-7 text-indigo-400/90`} />
                             )}
                             {pkgIndex === 1 && <Box className={`w-7 h-7 text-${pkg.color}-400/90`} /> }
                             {pkgIndex === 2 && (
@@ -533,9 +534,9 @@ export function Features() {
                     >
                       <div className="flex items-start gap-4">
                         <div
-                          className={`w-10 h-10 rounded-lg bg-[#0F0F12] border border-white/[0.05] flex items-center justify-center flex-shrink-0 mt-1 relative overflow-hidden`}
+                          className={`w-10 h-10 rounded-lg bg-white/[0.04] border border-white/[0.08] flex items-center justify-center flex-shrink-0 mt-1 relative overflow-hidden`}
                         >
-                          <div className={`absolute inset-0 bg-gradient-to-br ${pkg.gradient} opacity-5`} />
+                          <div className={`absolute inset-0 bg-gradient-to-br ${pkg.gradient} opacity-10`} />
                           <pkg.highlight.icon className={`w-5 h-5 text-${pkg.color}-400/80 relative`} />
                         </div>
                         <div>
@@ -570,7 +571,7 @@ export function Features() {
                     transition={{ duration: 0.3, delay: index * 0.05 }}
                     viewport={{ once: true }}
                   >
-                    <Card className="feature-card h-full bg-[#010101] border-white/[0.02] hover:bg-[#050505] hover:border-white/[0.05] transition-all duration-300 group">
+                    <Card className="feature-card h-full bg-white/[0.015] border-white/[0.03] hover:bg-white/[0.03] hover:border-white/[0.08] transition-all duration-300 group shadow-2xl">
                       <CardHeader className="p-4 pb-2">
                         <div className="flex items-center gap-3">
                           <div

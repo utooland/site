@@ -175,9 +175,9 @@ export function TerminalDemo() {
   return (
     <div className="relative">
       {/* Terminal window */}
-      <div className="rounded-xl overflow-hidden border border-white/[0.03] bg-[#020203] shadow-2xl">
+      <div className="rounded-xl overflow-hidden border border-white/[0.04] bg-white/[0.015] backdrop-blur-sm shadow-2xl">
         {/* Title bar */}
-        <div className="flex items-center justify-between px-4 py-3 bg-white/[0.02] border-b border-white/[0.03]">
+        <div className="flex items-center justify-between px-4 py-3 bg-white/[0.02] border-b border-white/[0.04]">
           <div className="flex items-center gap-2">
             <div className="w-2.5 h-2.5 rounded-full bg-red-500/40" />
             <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/40" />
@@ -246,7 +246,7 @@ export function TerminalDemo() {
             onClick={() => setCurrentDemo(index)}
             className={`w-2 h-2 rounded-full transition-all ${
               index === currentDemo
-                ? "bg-purple-500 w-6"
+                ? "bg-indigo-500 w-6"
                 : "bg-slate-600 hover:bg-slate-500"
             }`}
           />

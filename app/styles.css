@@ -7,26 +7,26 @@
 
   /* Dark theme (default) */
   .dark {
-    --background: 265 60% 3%;
+    --background: 230 10% 5%;
     --foreground: 210 40% 98%;
 
-    --card: 265 60% 3%;
+    --card: 230 10% 7%;
     --card-foreground: 210 40% 98%;
 
-    --primary: 290 84% 60%;
+    --primary: 230 60% 60%;
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 265 30% 20%;
+    --secondary: 230 20% 12%;
     --secondary-foreground: 210 40% 98%;
 
-    --muted: 265 30% 20%;
-    --muted-foreground: 265 20% 70%;
+    --muted: 230 10% 12%;
+    --muted-foreground: 230 10% 70%;
 
-    --accent: 290 84% 60%;
+    --accent: 230 60% 60%;
     --accent-foreground: 210 40% 98%;
 
-    --border: 265 30% 20%;
-    --ring: 290 84% 60%;
+    --border: 230 15% 15%;
+    --ring: 230 60% 60%;
   }
 
   /* Light theme */
@@ -180,8 +180,8 @@
 
 /* Gradient background */
 .dark .gradient-bg {
-  background: radial-gradient(circle at 10% 20%, rgba(192, 132, 252, 0.15), transparent 40%),
-              radial-gradient(circle at 90% 80%, rgba(244, 114, 182, 0.1), transparent 40%);
+  background: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.08), transparent 50%),
+              radial-gradient(circle at 90% 80%, rgba(30, 41, 59, 0.1), transparent 50%);
 }
 
 .light .gradient-bg {

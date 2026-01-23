@@ -60,8 +60,8 @@ export function Hero() {
 
       {/* Animated background circles */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-96 h-96 bg-purple-900/10 rounded-full blur-[120px] animate-pulse-slow opacity-30" />
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-pink-900/10 rounded-full blur-[120px] animate-pulse-slow opacity-30" />
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-slate-800/10 rounded-full blur-[140px] animate-pulse-slow opacity-20" />
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-purple-900/5 rounded-full blur-[140px] animate-pulse-slow opacity-15" />
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto w-full">
@@ -115,16 +115,16 @@ export function Hero() {
               transition={{ duration: 0.5, delay: 0.3 }}
               className="flex flex-wrap gap-2 mb-8"
             >
-              <span className="px-3 py-1 rounded-full badge-purple text-xs font-mono border border-purple-500/20">
+              <span className="px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-300 text-xs font-mono border border-indigo-500/20">
                 utoo
               </span>
-              <span className="px-3 py-1 rounded-full badge-pink text-xs font-mono border border-pink-500/20">
+              <span className="px-3 py-1 rounded-full bg-pink-500/10 text-pink-300 text-xs font-mono border border-pink-500/20">
                 @utoo/pack
               </span>
-              <span className="px-3 py-1 rounded-full badge-pink text-xs font-mono border border-pink-500/20">
+              <span className="px-3 py-1 rounded-full bg-pink-500/10 text-pink-300 text-xs font-mono border border-pink-500/20">
                 @utoo/pack-cli
               </span>
-              <span className="px-3 py-1 rounded-full badge-orange text-xs font-mono border border-orange-500/20">
+              <span className="px-3 py-1 rounded-full bg-orange-500/10 text-orange-300 text-xs font-mono border border-orange-500/20">
                 @utoo/web
               </span>
             </motion.div>
