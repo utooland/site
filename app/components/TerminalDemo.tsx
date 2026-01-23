@@ -81,7 +81,7 @@ const demos: { title: string; package: string; lines: TerminalLine[] }[] = [
     title: "Dev Server",
     package: "@utoo/pack-cli",
     lines: [
-      { type: "command", text: "$ up dev" },
+      { type: "command", text: "$ utx up dev" },
       { type: "info", text: "Starting dev server..." },
       { type: "output", text: "Compiling..." },
       { type: "success", text: "✓ Ready in 120ms" },
@@ -95,7 +95,7 @@ const demos: { title: string; package: string; lines: TerminalLine[] }[] = [
     title: "Build Project",
     package: "@utoo/pack-cli",
     lines: [
-      { type: "command", text: "$ up build" },
+      { type: "command", text: "$ utx up build" },
       { type: "info", text: "Reading utoopack.json..." },
       { type: "output", text: "Compiling TypeScript..." },
       { type: "output", text: "Bundling with tree-shaking..." },

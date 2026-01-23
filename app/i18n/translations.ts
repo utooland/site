@@ -2,7 +2,7 @@ export const translations = {
   en: {
     // Hero
     hero: {
-      badge: "Powered by Rust & WebAssembly",
+      badge: "Rust Powered: Native & WASM",
       title: "Utoo",
       subtitle: "Unified Frontend Toolchain",
       description:
@@ -51,28 +51,60 @@ export const translations = {
       pack: {
         tagline: "Next-Gen Bundler",
         description:
-          "A modern bundler powered by Turbopack. Zero config, instant HMR, and optimized production builds.",
+          "A modern bundler powered by Turbopack. Minimal config, instant HMR, and optimized production builds.",
         highlight: {
-          title: "umi Ecosystem Compatible",
+          title: "Turbopack-powered Incremental Engine",
           description:
-            "Use as standalone CLI or integrate seamlessly with umi ecosystem. Enable with just one line of config.",
+            "High-performance incremental builds with built-in persistent caching for maximum speed.",
         },
         features: {
           faster: {
-            title: "10x Faster",
-            description: "Native-speed compilation with Rust core",
+            title: "Native Speed",
+            description: "Rust-powered core for ultra-fast compilation and bundling",
           },
           hmr: {
             title: "Instant HMR",
-            description: "Sub-millisecond hot module replacement",
+            description: "Sub-millisecond hot module replacement for rapid iteration",
           },
           codeSplitting: {
-            title: "Code Splitting",
-            description: "Automatic chunking and tree shaking",
+            title: "Modular Assets",
+            description: "Automatic code splitting and optimized loading strategies",
           },
           css: {
-            title: "CSS Support",
-            description: "Less, Tailwind, PostCSS out of the box",
+            title: "Lightning CSS",
+            description: "Next-gen CSS parsing and transformation via lightningcss",
+          },
+          webpack: {
+            title: "Loader Compatibility",
+            description: "Supports most mainstream Webpack loaders and features for seamless migration",
+          },
+          caching: {
+            title: "Smart Caching",
+            description: "Advanced persistent disk storage for near-instant restarts",
+          },
+          nodePolyfill: {
+            title: "Node Bridge",
+            description: "Automatic polyfills for running Node.js modules in browsers",
+          },
+          analysis: {
+            title: "Visual Insights",
+            description: "Built-in bundle analyzer for deep performance optimization",
+          },
+          optimization: {
+            title: "Advanced Tree Shaking",
+            description: "Scope hoisting and dead code elimination for smaller bundles",
+          },
+          images: {
+            title: "Smart Assets",
+            description: "Automated image optimization and blur placeholder support",
+          },
+          modernStyles: {
+            title: "Modern Styling",
+            description: "Native integration for Emotion and Styled Components",
+          },
+          devServer: {
+            title: "Unified Dev Server",
+            description: "Feature-rich development proxy and static file serving",
           },
         },
         commands: {
@@ -173,7 +205,7 @@ export const translations = {
   zh: {
     // Hero
     hero: {
-      badge: "由 Rust 和 WebAssembly 驱动",
+      badge: "Rust 开发：支持 Native & WASM",
       title: "Utoo",
       subtitle: "通用前端工具链",
       description:
@@ -222,28 +254,60 @@ export const translations = {
       pack: {
         tagline: "新一代打包器",
         description:
-          "基于 Turbopack 的现代打包器。零配置、即时 HMR、优化的生产构建。",
+          "基于 Turbopack 的现代打包器。极简配置、即时 HMR、优化的生产构建。",
         highlight: {
-          title: "兼容 umi 生态",
+          title: "增量构建与持久化缓存",
           description:
-            "支持独立 CLI 使用，也可无缝集成 umi 生态，一行配置即可启用。",
+            "基于 Turbopack 的增量构建引擎，支持持久化构建缓存。",
         },
         features: {
           faster: {
-            title: "快 10 倍",
-            description: "Rust 内核，原生速度编译",
+            title: "原生速度",
+            description: "Rust 内核，提供极速的编译与打包体验",
           },
           hmr: {
             title: "即时 HMR",
-            description: "亚毫秒级热模块替换",
+            description: "亚毫秒级热更新，极大提升本地开发效率",
           },
           codeSplitting: {
-            title: "代码分割",
-            description: "自动分块和 Tree Shaking",
+            title: "智能拆包",
+            description: "自动代码分割与按需加载策略，优化运行性能",
           },
           css: {
-            title: "CSS 支持",
-            description: "开箱即用的 Less、Tailwind、PostCSS",
+            title: "Lightning CSS",
+            description: "基于 Rust 的高性能 CSS 解析、转换与压缩引擎",
+          },
+          webpack: {
+            title: "Loader 兼容",
+            description: "支持大多数主流 Webpack Loader 与配置，实现平滑迁移",
+          },
+          caching: {
+            title: "极速二次启动",
+            description: "基于磁盘的高级持久化缓存，实现秒级增量构建",
+          },
+          nodePolyfill: {
+            title: "Node.js 兼容",
+            description: "内置浏览器端 Node.js 核心模块 Polyfill 支持",
+          },
+          analysis: {
+            title: "产物分析",
+            description: "可视化分析工具，辅助优化产物大小与依赖关系",
+          },
+          optimization: {
+            title: "深度优化",
+            description: "先进的 Tree Shaking、模块合并与产物压缩",
+          },
+          images: {
+            title: "资产优化",
+            description: "自动图片内联、多格式转换与模糊占位图生成",
+          },
+          modernStyles: {
+            title: "现代样式",
+            description: "原生支持 Emotion、Styled Components 等 CSS-in-JS",
+          },
+          devServer: {
+            title: "开发服务器",
+            description: "内置高性能代理、静态文件服务与调试工具",
           },
         },
         commands: {

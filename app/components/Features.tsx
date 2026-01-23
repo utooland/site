@@ -19,6 +19,10 @@ import {
   Workflow,
   Copy,
   Check,
+  Zap,
+  Image as ImageIcon,
+  Layout,
+  Server,
 } from "lucide-react";
 import {
   Card,
@@ -155,7 +159,7 @@ function getPackages(t: Translations) {
     description: t.packages.pack.description,
     color: "pink",
     gradient: "from-pink-500 to-rose-500",
-    install: "ut i @utoo/pack-cli -D",
+    install: "ut i @utoo/pack @utoo/pack-cli -D",
     highlight: {
       icon: Workflow,
       title: t.packages.pack.highlight.title,
@@ -181,6 +185,46 @@ function getPackages(t: Translations) {
         icon: Palette,
         title: t.packages.pack.features.css.title,
         description: t.packages.pack.features.css.description,
+      },
+      {
+        icon: Box,
+        title: t.packages.pack.features.webpack.title,
+        description: t.packages.pack.features.webpack.description,
+      },
+      {
+        icon: HardDrive,
+        title: t.packages.pack.features.caching.title,
+        description: t.packages.pack.features.caching.description,
+      },
+      {
+        icon: Cpu,
+        title: t.packages.pack.features.nodePolyfill.title,
+        description: t.packages.pack.features.nodePolyfill.description,
+      },
+      {
+        icon: Search,
+        title: t.packages.pack.features.analysis.title,
+        description: t.packages.pack.features.analysis.description,
+      },
+      {
+        icon: Zap,
+        title: t.packages.pack.features.optimization.title,
+        description: t.packages.pack.features.optimization.description,
+      },
+      {
+        icon: ImageIcon,
+        title: t.packages.pack.features.images.title,
+        description: t.packages.pack.features.images.description,
+      },
+      {
+        icon: Layout,
+        title: t.packages.pack.features.modernStyles.title,
+        description: t.packages.pack.features.modernStyles.description,
+      },
+      {
+        icon: Server,
+        title: t.packages.pack.features.devServer.title,
+        description: t.packages.pack.features.devServer.description,
       },
     ],
     commands: [
