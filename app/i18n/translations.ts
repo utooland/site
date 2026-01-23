@@ -17,7 +17,7 @@ export const translations = {
       utoo: {
         tagline: "Package Manager",
         description:
-          "A high-performance npm package manager built with Rust. Drop-in replacement for npm with native lockfile compatibility.",
+          "A high-performance npm package manager built with Rust. Features content-addressable storage, optimized workspace support, and native lockfile compatibility for lightning-fast, reproducible builds.",
         highlight: {
           title: "Native npm Lockfile",
           description:
@@ -40,9 +40,19 @@ export const translations = {
             title: "Lock Generation",
             description: "Generate package-lock.json with ut deps",
           },
+          workspaces: {
+            title: "Workspaces",
+            description: "Isolated and optimized monorepo management",
+          },
+          globalCache: {
+            title: "Global Cache",
+            description: "Content-addressable storage to save disk space",
+          },
         },
         commands: {
           install: "Install from lockfile",
+          add: "Add new dependency",
+          remove: "Remove dependency",
           deps: "Generate package-lock.json",
           list: "Show dependency tree",
           view: "View package info",
@@ -200,7 +210,7 @@ export const translations = {
       utoo: {
         tagline: "包管理器",
         description:
-          "基于 Rust 构建的高性能 npm 包管理器。可直接替代 npm，原生兼容 lockfile 和目录结构",
+          "基于 Rust 构建的高性能 npm 包管理器。具备内容可寻址存储、优化的工作区支持以及原生 Lockfile 兼容性，实现极速且可重现的构建体验。",
         highlight: {
           title: "原生 npm Lockfile",
           description:
@@ -223,9 +233,19 @@ export const translations = {
             title: "依赖解析",
             description: "使用 ut deps 生成 package-lock.json",
           },
+          workspaces: {
+            title: "工作区管理",
+            description: "原生支持 Monorepo 与依赖共享",
+          },
+          globalCache: {
+            title: "全局缓存",
+            description: "内容可寻址存储，极大地节省磁盘空间",
+          },
         },
         commands: {
           install: "从 lockfile 安装",
+          add: "添加新依赖",
+          remove: "移除依赖",
           deps: "生成 package-lock.json",
           list: "显示依赖树",
           view: "查看包信息",

@@ -142,9 +142,21 @@ function getPackages(t: Translations) {
         title: t.packages.utoo.features.lockGeneration.title,
         description: t.packages.utoo.features.lockGeneration.description,
       },
+      {
+        icon: Workflow,
+        title: t.packages.utoo.features.workspaces.title,
+        description: t.packages.utoo.features.workspaces.description,
+      },
+      {
+        icon: HardDrive,
+        title: t.packages.utoo.features.globalCache.title,
+        description: t.packages.utoo.features.globalCache.description,
+      },
     ],
     commands: [
       { cmd: "ut install", desc: t.packages.utoo.commands.install },
+      { cmd: "ut add <pkg>", desc: t.packages.utoo.commands.add },
+      { cmd: "ut remove <pkg>", desc: t.packages.utoo.commands.remove },
       { cmd: "ut deps", desc: t.packages.utoo.commands.deps },
       { cmd: "ut list <pkg>", desc: t.packages.utoo.commands.list },
       { cmd: "ut view <pkg>", desc: t.packages.utoo.commands.view },
