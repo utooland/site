@@ -33,7 +33,7 @@ function GitHubButton() {
     <Button
       size="lg"
       variant="outline"
-      className="glass border-white/20 hover:bg-white/10"
+      className="glass dark:border-white/20 light:border-black/10 dark:hover:bg-white/10 light:hover:bg-black/5 transition-colors"
       onClick={() =>
         window.open("https://github.com/utooland/utoo", "_blank")
       }
@@ -76,7 +76,7 @@ export function Hero() {
       <div className="sticky top-0 left-0 w-full h-screen flex items-center overflow-hidden">
         <motion.div
           style={{ scale, borderRadius, opacity }}
-          className="absolute inset-0 z-0 overflow-hidden bg-background/80 backdrop-blur-3xl border border-white/5 shadow-2xl origin-center"
+          className="absolute inset-0 z-0 overflow-hidden bg-background/80 backdrop-blur-3xl dark:border-white/5 light:border-black/5 shadow-2xl origin-center"
         >
           {/* Background gradient */}
           <div className="absolute inset-0 gradient-bg" />
@@ -144,9 +144,6 @@ export function Hero() {
               </span>
               <span className="px-3 py-1 rounded-full badge-pink text-xs font-mono border border-pink-500/20">
                 @utoo/pack
-              </span>
-              <span className="px-3 py-1 rounded-full badge-pink text-xs font-mono border border-pink-500/20">
-                @utoo/pack-cli
               </span>
               <span className="px-3 py-1 rounded-full badge-orange text-xs font-mono border border-orange-500/20">
                 @utoo/web

@@ -388,7 +388,7 @@ function QuickReference({
                 className="flex items-center justify-between gap-4 group"
               >
                 <div className="flex items-center gap-2">
-                  <span className={`text-${pkg.color}-500 opacity-60 group-hover:opacity-100 transition-opacity`}>$</span>
+                  <span className={`dark:text-${pkg.color}-400 light:text-${pkg.color}-600 opacity-60 group-hover:opacity-100 transition-opacity`}>$</span>
                   <span className="text-foreground/80 group-hover:text-foreground transition-colors font-medium">{item.cmd}</span>
                 </div>
                 <span className="text-muted-foreground text-[10px] sm:text-xs text-right shrink-0">{item.desc}</span>
@@ -451,24 +451,24 @@ export function Features() {
           <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
              {pkgIndex === 0 && (
                <>
-                 <div className="absolute top-0 right-0 w-[1000px] h-[1000px] bg-indigo-900/[0.04] rounded-full blur-[140px] opacity-25" />
-                 <div className="absolute bottom-0 left-0 w-[800px] h-[800px] bg-slate-800/[0.03] rounded-full blur-[120px] opacity-20" />
-                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(99,102,241,0.03),transparent_70%)]" />
+                 <div className="absolute top-0 right-0 w-[1000px] h-[1000px] dark:bg-indigo-900/[0.04] light:bg-indigo-500/[0.08] rounded-full blur-[140px] opacity-25" />
+                 <div className="absolute bottom-0 left-0 w-[800px] h-[800px] dark:bg-slate-800/[0.03] light:bg-slate-500/[0.05] rounded-full blur-[120px] opacity-20" />
+                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(99,102,241,0.04),transparent_70%)]" />
                </>
              )}
              {pkgIndex === 1 && (
                <>
-                 <div className="absolute top-0 left-0 w-[1000px] h-[1000px] bg-pink-900/[0.03] rounded-full blur-[140px] opacity-20" />
-                 <div className="absolute bottom-0 right-0 w-[800px] h-[800px] bg-slate-800/[0.03] rounded-full blur-[120px] opacity-20" />
-                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(219,39,119,0.02),transparent_70%)]" />
-                 <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.05] to-transparent" />
+                 <div className="absolute top-0 left-0 w-[1000px] h-[1000px] dark:bg-pink-900/[0.03] light:bg-pink-500/[0.06] rounded-full blur-[140px] opacity-20" />
+                 <div className="absolute bottom-0 right-0 w-[800px] h-[800px] dark:bg-slate-800/[0.03] light:bg-slate-500/[0.05] rounded-full blur-[120px] opacity-20" />
+                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(219,39,119,0.03),transparent_70%)]" />
+                 <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent dark:via-white/[0.05] light:via-black/[0.05] to-transparent" />
                </>
              )}
              {pkgIndex === 2 && (
                <>
-                 <div className="absolute top-20 right-0 w-[1000px] h-[1000px] bg-amber-900/[0.03] rounded-full blur-[140px] opacity-20" />
-                 <div className="absolute bottom-0 left-10 w-[800px] h-[800px] bg-slate-800/[0.03] rounded-full blur-[120px] opacity-20" />
-                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(217,119,6,0.015),transparent_70%)]" />
+                 <div className="absolute top-20 right-0 w-[1000px] h-[1000px] dark:bg-amber-900/[0.03] light:bg-amber-500/[0.06] rounded-full blur-[140px] opacity-20" />
+                 <div className="absolute bottom-0 left-10 w-[800px] h-[800px] dark:bg-slate-800/[0.03] light:bg-slate-500/[0.05] rounded-full blur-[120px] opacity-20" />
+                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(217,119,6,0.02),transparent_70%)]" />
                </>
              )}
           </div>
@@ -489,16 +489,16 @@ export function Features() {
                     <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-4">
                       <div className="flex items-center gap-4">
                         <div
-                          className={`w-14 h-14 rounded-2xl bg-white/[0.03] border border-white/[0.1] flex items-center justify-center shadow-2xl relative overflow-hidden group/icon`}
+                          className={`w-14 h-14 rounded-2xl dark:bg-white/[0.03] light:bg-black/[0.02] dark:border-white/[0.1] light:border-black/[0.08] flex items-center justify-center shadow-2xl relative overflow-hidden group/icon`}
                         >
                           <div className={`absolute inset-0 bg-gradient-to-br ${pkg.gradient} opacity-20`} />
                           <div className={`relative`}>
                             {pkgIndex === 0 && (
-                              <Terminal className={`w-7 h-7 text-indigo-400/90`} />
+                              <Terminal className={`w-7 h-7 dark:text-indigo-400 light:text-indigo-600`} />
                             )}
-                            {pkgIndex === 1 && <Box className={`w-7 h-7 text-${pkg.color}-400/90`} /> }
+                            {pkgIndex === 1 && <Box className={`w-7 h-7 dark:text-${pkg.color}-400 light:text-${pkg.color}-600`} /> }
                             {pkgIndex === 2 && (
-                              <Globe className={`w-7 h-7 text-${pkg.color}-400/90`} />
+                              <Globe className={`w-7 h-7 dark:text-${pkg.color}-400 light:text-${pkg.color}-600`} />
                             )}
                           </div>
                         </div>
@@ -506,7 +506,7 @@ export function Features() {
                           <h3 className="text-3xl font-bold font-mono tracking-tight text-foreground opacity-90">
                             {pkg.name}
                           </h3>
-                          <p className={`text-${pkg.color}-500/80 text-sm font-medium`}>{pkg.tagline}</p>
+                          <p className={`dark:text-${pkg.color}-400 light:text-${pkg.color}-600 text-sm font-medium`}>{pkg.tagline}</p>
                         </div>
                       </div>
 
@@ -546,7 +546,7 @@ export function Features() {
                           className={`w-10 h-10 rounded-lg bg-background border border-border flex items-center justify-center flex-shrink-0 mt-1 relative overflow-hidden shadow-sm`}
                         >
                           <div className={`absolute inset-0 bg-gradient-to-br ${pkg.gradient} opacity-10`} />
-                          <pkg.highlight.icon className={`w-5 h-5 text-${pkg.color}-500/80 relative`} />
+                          <pkg.highlight.icon className={`w-5 h-5 dark:text-${pkg.color}-400 light:text-${pkg.color}-600 relative`} />
                         </div>
                         <div>
                           <h4 className={`text-base font-bold highlight-title-${pkg.color} mb-1 opacity-80`}>

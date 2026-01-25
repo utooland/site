@@ -31,26 +31,26 @@
 
   /* Light theme */
   .light {
-    --background: 210 20% 98%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 230 40% 98%;
+    --foreground: 230 40% 10%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 230 40% 10%;
 
-    --primary: 262.1 83.3% 50%;
+    --primary: 230 70% 55%;
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 210 30% 94%;
-    --secondary-foreground: 222.2 84% 4.9%;
+    --secondary: 230 25% 94%;
+    --secondary-foreground: 230 40% 10%;
 
-    --muted: 210 30% 94%;
-    --muted-foreground: 215.4 16.3% 40%;
+    --muted: 230 25% 94%;
+    --muted-foreground: 230 20% 45%;
 
-    --accent: 262.1 83.3% 50%;
-    --accent-foreground: 222.2 84% 4.9%;
+    --accent: 230 70% 55%;
+    --accent-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 85%;
-    --ring: 262.1 83.3% 50%;
+    --border: 230 25% 88%;
+    --ring: 230 70% 55%;
   }
 
   * {

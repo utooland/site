@@ -109,7 +109,7 @@ const demos: { title: string; package: string; lines: TerminalLine[] }[] = [
     title: "Webpack Compat",
     package: "@utoo/pack-cli",
     lines: [
-      { type: "command", text: "$ up build --webpack" },
+      { type: "command", text: "$ upx up build --webpack" },
       { type: "info", text: "Reading webpack.config.js..." },
       { type: "output", text: "Using Webpack compatibility mode" },
       { type: "output", text: "Compiling with existing config..." },
@@ -188,10 +188,10 @@ export function TerminalDemo() {
               {demo.title}
             </span>
             <span
-              className={`text-xs px-2 py-0.5 rounded-full font-mono ${
+              className={`text-xs px-2 py-0.5 rounded-full font-mono transition-colors ${
                 demo.package === "utoo"
-                  ? "bg-purple-500/20 text-purple-300"
-                  : "bg-pink-500/20 text-pink-300"
+                  ? "dark:bg-purple-500/20 light:bg-purple-100 dark:text-purple-300 light:text-purple-700"
+                  : "dark:bg-pink-500/20 light:bg-pink-100 dark:text-pink-300 light:text-pink-700"
               }`}
             >
               {demo.package}
