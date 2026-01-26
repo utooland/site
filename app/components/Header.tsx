@@ -11,7 +11,7 @@ export function Header() {
 
   return (
     <header className="sticky top-0 left-0 right-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-end items-center">
+      <div className="max-w-[1600px] mx-auto px-6 md:px-12 py-4 flex justify-end items-center">
         <div className="flex items-center gap-2">
         {/* Docs link */}
         <Link

@@ -88,7 +88,7 @@ export function Hero() {
           </div>
         </motion.div>
 
-        <motion.div style={{ y }} className="relative z-10 max-w-7xl mx-auto w-full">
+        <motion.div style={{ y }} className="relative z-10 max-w-[1600px] mx-auto w-full px-6 md:px-12">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             {/* Left: Text content */}
             <div className="max-w-xl">
