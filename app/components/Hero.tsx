@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { TerminalDemo } from "./TerminalDemo";
 import { useEffect, useState, useRef } from "react";
 import { useI18n } from "../i18n/context";
+import { ChevronDown } from "lucide-react";
 
 function GitHubButton() {
   const { t } = useI18n();
@@ -105,29 +106,37 @@ export function Hero() {
 
             {/* Main title */}
             <motion.h1
-              initial={{ opacity: 0, y: 15 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="hero-title text-4xl md:text-6xl font-bold mb-5 tracking-tight"
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+              className="hero-title text-6xl md:text-8xl font-extrabold mb-8 tracking-[-0.04em] leading-[0.9]"
             >
-              <div className="flex items-center gap-3 mb-2">
-                <span className="gradient-text opacity-90">{t.hero.title}</span>
-                <span className="text-2xl md:text-3xl animate-bounce-slow">🌖</span>
-                <span className="text-lg md:text-xl font-normal text-muted-foreground/40 font-mono self-end pb-1">
-                  /juːtuː/
-                </span>
+              <div className="flex items-baseline flex-wrap gap-x-6 gap-y-4 mb-4">
+                <span className="gradient-text">{t.hero.title}</span>
+                <div className="flex items-center gap-4">
+                  <motion.span 
+                    animate={{ rotate: [0, 10, -10, 0] }}
+                    transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+                    className="text-4xl md:text-6xl"
+                  >
+                    🌖
+                  </motion.span>
+                  <span className="text-sm md:text-base font-medium text-muted-foreground/20 font-mono tracking-[0.2em] mt-4 uppercase">
+                    /juːtuː/
+                  </span>
+                </div>
               </div>
-              <span className="text-3xl md:text-4xl text-muted-foreground/70 block leading-tight">
+              <span className="text-5xl md:text-6xl text-foreground font-bold block mt-2 opacity-90">
                 {t.hero.subtitle}
               </span>
             </motion.h1>
 
             {/* Subtitle */}
             <motion.p
-              initial={{ opacity: 0, y: 15 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-lg text-muted-foreground/80 mb-6 leading-relaxed"
+              transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+              className="text-xl md:text-2xl text-muted-foreground/60 mb-10 leading-relaxed max-w-lg font-medium tracking-tight"
             >
               {t.hero.description}
             </motion.p>
@@ -137,59 +146,78 @@ export function Hero() {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.3 }}
-              className="flex flex-wrap gap-2 mb-8"
+              className="flex flex-wrap gap-3 mb-10"
             >
-              <span className="px-3 py-1 rounded-full badge-purple text-xs font-mono border border-indigo-500/20">
+              <span className="px-4 py-1.5 rounded-full bg-indigo-500/5 text-indigo-400 dark:text-indigo-300 text-[11px] font-bold font-mono border border-indigo-500/20 backdrop-blur-sm">
                 utoo
               </span>
-              <span className="px-3 py-1 rounded-full badge-pink text-xs font-mono border border-pink-500/20">
+              <span className="px-4 py-1.5 rounded-full bg-pink-500/5 text-pink-400 dark:text-pink-300 text-[11px] font-bold font-mono border border-pink-500/20 backdrop-blur-sm">
                 @utoo/pack
               </span>
-              <span className="px-3 py-1 rounded-full badge-orange text-xs font-mono border border-orange-500/20">
+              <span className="px-4 py-1.5 rounded-full bg-orange-500/5 text-orange-400 dark:text-orange-300 text-[11px] font-bold font-mono border border-orange-500/20 backdrop-blur-sm">
                 @utoo/web
               </span>
             </motion.div>
 
             {/* CTA buttons */}
             <motion.div
-              initial={{ opacity: 0, y: 15 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              className="flex flex-col sm:flex-row gap-3"
+              transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+              className="flex flex-col sm:flex-row gap-4"
             >
               <Button
                 size="lg"
-                className="group relative px-6 py-6 rounded-xl bg-background border border-white/10 dark:border-white/10 light:border-black/5 text-foreground transition-all duration-300 overflow-hidden h-10 text-sm shadow-xl hover:shadow-2xl"
+                className="group relative px-8 py-8 rounded-2xl bg-white text-black hover:bg-white/90 transition-all duration-300 overflow-hidden h-14 text-base font-bold shadow-[0_0_40px_rgba(255,255,255,0.1)] hover:shadow-[0_0_60px_rgba(255,255,255,0.2)]"
                 onClick={() => {
                   document
                     .getElementById("packages")
                     ?.scrollIntoView({ behavior: "smooth" });
                 }}
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-600/20 to-violet-600/20 opacity-0 group-hover:opacity-100 transition-opacity" />
                 <span className="relative flex items-center">
                   {t.hero.explorePackages}
-                  <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
+                  <ArrowRight className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-1" />
                 </span>
               </Button>
-              <div className="scale-90 origin-left sm:scale-100">
-                <GitHubButton />
+              <div className="scale-100">
+                <div className="h-14">
+                  <GitHubButton />
+                </div>
               </div>
             </motion.div>
           </div>
 
           {/* Right: Terminal Demo */}
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="w-full max-w-lg mx-auto lg:max-w-none lg:mr-0"
+            initial={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
+            animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+            transition={{ duration: 1, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+            className="w-full max-w-lg mx-auto lg:max-w-none lg:mr-0 perspective-1000"
           >
-            <TerminalDemo />
+            <div className="transform-gpu group-hover:rotate-y-2 transition-transform duration-700">
+              <TerminalDemo />
+            </div>
           </motion.div>
         </div>
-      </motion.div>
-    </div>
-  </section>
-);
+
+        {/* Scroll Indicator */}
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1, duration: 1 }}
+          className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+        >
+          <span className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground/40 font-bold">Scroll</span>
+          <motion.div
+            animate={{ y: [0, 8, 0] }}
+            transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+          >
+            <ChevronDown className="w-4 h-4 text-muted-foreground/20" />
+          </motion.div>
+        </motion.div>
+        </motion.div>
+      </div>
+    </section>
+  );
 }

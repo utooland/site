@@ -10,51 +10,57 @@ export function Header() {
   const { locale, setLocale, t } = useI18n();
 
   return (
-    <header className="sticky top-0 left-0 right-0 z-50">
-      <div className="max-w-[1600px] mx-auto px-6 md:px-12 py-4 flex justify-end items-center">
-        <div className="flex items-center gap-2">
-        {/* Docs link */}
-        <Link
-          href={`/${locale}/docs/utoo`}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg glass hover:opacity-80 transition-all text-sm"
-        >
-          <BookOpen className="w-4 h-4" />
-          <span>{t.hero.docs}</span>
+    <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/[0.03] backdrop-blur-xl bg-black/5">
+      <div className="max-w-[1600px] mx-auto px-6 md:px-12 h-16 flex justify-between items-center">
+        <Link href="/" className="flex items-center gap-2 group">
+          <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center group-hover:rotate-12 transition-transform duration-300">
+            <span className="text-black font-black text-xl">U</span>
+          </div>
+          <span className="font-black text-xl tracking-tighter">UTOO</span>
         </Link>
+        <div className="flex items-center gap-2">
+          {/* Docs link */}
+          <Link
+            href={`/${locale}/docs/utoo`}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-300 text-sm font-bold text-muted-foreground hover:text-foreground hover:bg-white/5"
+          >
+            <BookOpen className="w-4 h-4" />
+            <span>{t.hero.docs}</span>
+          </Link>
 
-        {/* Wiki link */}
-        <a
-          href="https://deepwiki.com/utooland/utoo"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg glass hover:opacity-80 transition-all text-sm"
-        >
-          <Search className="w-4 h-4" />
-          <span>{t.hero.wiki}</span>
-        </a>
+          {/* Wiki link */}
+          <a
+            href="https://deepwiki.com/utooland/utoo"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-300 text-sm font-bold text-muted-foreground hover:text-foreground hover:bg-white/5"
+          >
+            <Search className="w-4 h-4" />
+            <span>{t.hero.wiki}</span>
+          </a>
 
-        {/* Language switcher */}
-        <button
-          onClick={() => setLocale(locale === "en" ? "zh" : "en")}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg glass hover:opacity-80 transition-all text-sm"
-          title={locale === "en" ? "切换到中文" : "Switch to English"}
-        >
-          <Globe className="w-4 h-4" />
-          <span>{locale === "en" ? "EN" : "中文"}</span>
-        </button>
+          <div className="w-px h-4 bg-white/10 mx-2" />
 
-        {/* Theme switcher */}
-        <button
-          onClick={toggleTheme}
-          className="p-2 rounded-lg glass hover:opacity-80 transition-all"
-          title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-        >
-          {theme === "dark" ? (
-            <Sun className="w-4 h-4" />
-          ) : (
-            <Moon className="w-4 h-4" />
-          )}
-        </button>
+          {/* Language switcher */}
+          <button
+            onClick={() => setLocale(locale === "en" ? "zh" : "en")}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-300 text-sm font-bold text-muted-foreground hover:text-foreground hover:bg-white/5"
+          >
+            <Globe className="w-4 h-4" />
+            <span>{locale === "en" ? "EN" : "ZH"}</span>
+          </button>
+
+          {/* Theme switcher */}
+          <button
+            onClick={toggleTheme}
+            className="p-2.5 rounded-xl transition-all duration-300 text-muted-foreground hover:text-foreground hover:bg-white/5"
+          >
+            {theme === "dark" ? (
+              <Sun className="w-5 h-5" />
+            ) : (
+              <Moon className="w-5 h-5" />
+            )}
+          </button>
         </div>
       </div>
     </header>

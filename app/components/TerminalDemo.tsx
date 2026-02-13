@@ -160,38 +160,39 @@ export function TerminalDemo() {
   const getLineColor = (type: TerminalLine["type"]) => {
     switch (type) {
       case "command":
-        return "dark:text-green-400 light:text-green-600";
+        return "dark:text-green-400 light:text-green-700";
       case "success":
-        return "dark:text-emerald-400 light:text-emerald-600";
+        return "dark:text-emerald-400 light:text-emerald-700 font-bold";
       case "info":
-        return "dark:text-blue-400 light:text-blue-600";
+        return "dark:text-blue-400 light:text-blue-700 font-bold";
       case "highlight":
-        return "dark:text-yellow-300 light:text-amber-600";
+        return "dark:text-yellow-300 light:text-orange-600 font-bold";
       default:
-        return "dark:text-slate-300 light:text-slate-600";
+        return "dark:text-slate-400 light:text-slate-600 font-medium";
     }
   };
 
   return (
     <div className="relative">
       {/* Terminal window */}
-      <div className="rounded-xl overflow-hidden border dark:border-white/[0.04] light:border-black/5 bg-card backdrop-blur-sm shadow-2xl">
+      <div className="glass shadow-[0_30px_100px_rgba(0,0,0,0.1)] dark:shadow-[0_30px_100px_rgba(0,0,0,0.5)] rounded-2xl overflow-hidden border border-black/5 dark:border-white/[0.08] bg-white/70 dark:bg-[#0b0e14]/90 backdrop-blur-2xl">
         {/* Title bar */}
-        <div className="flex items-center justify-between px-4 py-3 dark:bg-white/[0.02] light:bg-black/[0.02] border-b dark:border-white/[0.04] light:border-black/5">
-          <div className="flex items-center gap-2">
-            <div className="w-2.5 h-2.5 rounded-full bg-red-500/40" />
-            <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/40" />
-            <div className="w-2.5 h-2.5 rounded-full bg-green-500/40" />
+        <div className="flex items-center justify-between px-6 py-4 bg-black/[0.02] dark:bg-white/[0.05] border-b border-black/5 dark:border-white/[0.05]">
+          <div className="flex items-center gap-2.5">
+            <div className="w-3 h-3 rounded-full bg-[#ff5f56] opacity-80" />
+            <div className="w-3 h-3 rounded-full bg-[#ffbd2e] opacity-80" />
+            <div className="w-3 h-3 rounded-full bg-[#27c93f] opacity-80" />
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground font-mono">
+          <div className="flex items-center gap-3">
+            <div className="h-4 w-px bg-black/10 dark:bg-white/10" />
+            <span className="text-[10px] text-black/30 dark:text-white/30 font-black uppercase tracking-[0.2em]">
               {demo.title}
             </span>
             <span
-              className={`text-xs px-2 py-0.5 rounded-full font-mono transition-colors ${
+              className={`text-[9px] px-2 py-0.5 rounded-md font-black tracking-tight uppercase ${
                 demo.package === "utoo"
-                  ? "dark:bg-purple-500/20 light:bg-purple-100 dark:text-purple-300 light:text-purple-700"
-                  : "dark:bg-pink-500/20 light:bg-pink-100 dark:text-pink-300 light:text-pink-700"
+                  ? "bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20"
+                  : "bg-pink-500/10 text-pink-600 dark:text-pink-400 border border-pink-500/20"
               }`}
             >
               {demo.package}
@@ -200,7 +201,7 @@ export function TerminalDemo() {
         </div>
 
         {/* Terminal content */}
-        <div className="p-4 font-mono text-sm h-[280px] overflow-hidden">
+        <div className="p-6 font-mono text-sm h-[300px] overflow-hidden">
           <AnimatePresence mode="wait">
             <motion.div
               key={currentDemo}

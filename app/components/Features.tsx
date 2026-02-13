@@ -273,7 +273,7 @@ await dev({
     description: t.packages.web.description,
     color: "orange",
     gradient: "from-orange-500 to-amber-500",
-    install: "ut i @utoo/web",
+    install: "ut i @utoo/web -S",
     highlight: {
       icon: Globe,
       title: t.packages.web.highlight.title,
@@ -327,16 +327,16 @@ function QuickReference({
   const hasTabs = hasConfig || hasApi;
 
   return (
-    <div className="rounded-xl overflow-hidden border border-border bg-card/50 backdrop-blur-xl shadow-2xl">
-      <div className="px-3 py-2 bg-muted/30 border-b border-border flex items-center justify-between">
+    <div className="glass-card rounded-2xl overflow-hidden shadow-2xl transition-all duration-500 hover:shadow-primary/5 group/qr">
+      <div className="px-5 py-4 bg-white/5 border-b border-white/5 flex items-center justify-between">
         {hasTabs ? (
-          <div className="flex gap-1">
+          <div className="flex gap-2">
             <button
               onClick={() => setActiveTab("commands")}
-              className={`text-xs px-2.5 py-1 rounded transition-colors ${
+              className={`text-xs px-4 py-2 rounded-lg transition-all duration-300 ${
                 activeTab === "commands"
-                  ? "bg-primary text-primary-foreground font-medium"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                  ? "bg-white text-black font-bold shadow-xl scale-105"
+                  : "text-muted-foreground hover:text-foreground hover:bg-white/5"
               }`}
             >
               {t.common.cli}
@@ -344,10 +344,10 @@ function QuickReference({
             {hasApi && (
               <button
                 onClick={() => setActiveTab("api")}
-                className={`text-xs px-2.5 py-1 rounded transition-colors ${
+                className={`text-xs px-4 py-2 rounded-lg transition-all duration-300 ${
                   activeTab === "api"
-                    ? "bg-primary text-primary-foreground font-medium"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    ? "bg-white text-black font-bold shadow-xl scale-105"
+                    : "text-muted-foreground hover:text-foreground hover:bg-white/5"
                 }`}
               >
                 API
@@ -356,10 +356,10 @@ function QuickReference({
             {hasConfig && (
               <button
                 onClick={() => setActiveTab("config")}
-                className={`text-xs px-2.5 py-1 rounded transition-colors ${
+                className={`text-xs px-4 py-2 rounded-lg transition-all duration-300 ${
                   activeTab === "config"
-                    ? "bg-primary text-primary-foreground font-medium"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    ? "bg-white text-black font-bold shadow-xl scale-105"
+                    : "text-muted-foreground hover:text-foreground hover:bg-white/5"
                 }`}
               >
                 Umi
@@ -367,31 +367,31 @@ function QuickReference({
             )}
           </div>
         ) : (
-          <span className="text-xs font-medium text-muted-foreground ml-1">{t.common.quickReference}</span>
+          <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground/40 ml-1">{t.common.quickReference}</span>
         )}
         <span
-          className={`text-[10px] px-2 py-0.5 rounded-full dark:bg-${pkg.color}-500/10 light:bg-${pkg.color}-500/5 dark:text-${pkg.color}-300 light:text-${pkg.color}-600 border border-${pkg.color}-500/20 font-mono`}
+          className={`text-[10px] px-3 py-1 rounded-full bg-${pkg.color}-500/10 text-${pkg.color}-400 border border-${pkg.color}-500/20 font-mono font-bold tracking-tight group-hover/qr:scale-110 transition-transform`}
         >
           {pkg.name}
         </span>
       </div>
-      <div className="p-4 font-mono text-xs sm:text-sm">
+      <div className="p-6 font-mono text-xs sm:text-sm bg-black/20">
         {activeTab === "commands" && (
-          <div className="space-y-3">
+          <div className="space-y-5">
             {pkg.commands.map((item, index) => (
               <motion.div
                 key={item.cmd}
-                initial={{ opacity: 0, x: -10 }}
+                initial={{ opacity: 0, x: -20 }}
                 whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.3, delay: index * 0.1 }}
+                transition={{ duration: 0.5, delay: index * 0.05, ease: [0.16, 1, 0.3, 1] }}
                 viewport={{ once: true }}
-                className="flex items-center justify-between gap-4 group"
+                className="flex items-center justify-between gap-4 group/cmd"
               >
-                <div className="flex items-center gap-2">
-                  <span className={`dark:text-${pkg.color}-400 light:text-${pkg.color}-600 opacity-60 group-hover:opacity-100 transition-opacity`}>$</span>
-                  <span className="text-foreground/80 group-hover:text-foreground transition-colors font-medium">{item.cmd}</span>
+                <div className="flex items-center gap-3">
+                  <span className={`text-${pkg.color}-400/40 group-hover/cmd:text-${pkg.color}-400 transition-colors`}>$</span>
+                  <span className="text-foreground/80 group-hover/cmd:text-foreground transition-colors font-medium tracking-tight">{item.cmd}</span>
                 </div>
-                <span className="text-muted-foreground text-[10px] sm:text-xs text-right shrink-0">{item.desc}</span>
+                <span className="text-muted-foreground/30 text-[10px] sm:text-[11px] text-right shrink-0 group-hover/cmd:text-muted-foreground/60 transition-colors font-medium italic">{item.desc}</span>
               </motion.div>
             ))}
           </div>
@@ -539,8 +539,9 @@ export function Features() {
                       whileInView={{ opacity: 1, scale: 1 }}
                       transition={{ duration: 0.4, delay: 0.2 }}
                       viewport={{ once: true }}
-                      className="highlight-box"
+                      className={`highlight-box border-l-4 border-l-${pkg.color}-500/50 relative overflow-hidden group/highlight`}
                     >
+                      <div className={`absolute inset-0 bg-gradient-to-r from-${pkg.color}-500/[0.03] to-transparent opacity-0 group-hover/highlight:opacity-100 transition-opacity duration-500`} />
                       <div className="flex items-start gap-4">
                         <div
                           className={`w-10 h-10 rounded-lg bg-background border border-border flex items-center justify-center flex-shrink-0 mt-1 relative overflow-hidden shadow-sm`}
@@ -552,7 +553,7 @@ export function Features() {
                           <h4 className={`text-base font-bold highlight-title-${pkg.color} mb-1 opacity-80`}>
                             {pkg.highlight.title}
                           </h4>
-                          <p className="text-sm text-muted-foreground/60 leading-relaxed">
+                          <p className="text-sm text-muted-foreground/80 leading-relaxed font-medium">
                             {pkg.highlight.description}
                           </p>
                         </div>
@@ -571,36 +572,30 @@ export function Features() {
               </div>
 
               {/* Features grid - Full Width below */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {pkg.features.map((feature, index) => (
                   <motion.div
                     key={feature.title}
-                    initial={{ opacity: 0, y: 10 }}
+                    initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                    transition={{ duration: 0.6, delay: index * 0.05, ease: [0.16, 1, 0.3, 1] }}
                     viewport={{ once: true }}
                   >
-                    <Card className="feature-card h-full bg-card border-border hover:bg-muted/5 transition-all duration-300 group shadow-lg">
-                      <CardHeader className="p-4 pb-2">
-                        <div className="flex items-center gap-3">
-                          <div
-                            className={`w-8 h-8 rounded bg-background border border-border flex items-center justify-center flex-shrink-0 group-hover:bg-muted/50 transition-colors shadow-sm`}
-                          >
-                             <div className={`dark:text-${pkg.color}-500/60 light:text-${pkg.color}-600/60 group-hover:opacity-100 transition-opacity`}>
-                                <feature.icon className="w-4 h-4" />
-                             </div>
-                          </div>
-                          <CardTitle className="text-sm font-medium leading-tight text-muted-foreground group-hover:text-foreground transition-colors">
-                            {feature.title}
-                          </CardTitle>
+                    <div className="glass-card group h-full rounded-2xl p-6 transition-all duration-500 hover:-translate-y-2 hover:bg-white/[0.04] hover:shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
+                      <div className="flex items-start gap-4 mb-4">
+                        <div
+                          className={`w-12 h-12 rounded-xl bg-${pkg.color}-500/10 border border-${pkg.color}-500/20 flex items-center justify-center flex-shrink-0 group-hover:scale-110 group-hover:bg-${pkg.color}-500/20 transition-all duration-500`}
+                        >
+                          <feature.icon className={`w-6 h-6 text-${pkg.color}-400`} />
                         </div>
-                      </CardHeader>
-                      <CardContent className="p-4 pt-1">
-                        <CardDescription className="text-[11px] text-muted-foreground group-hover:text-foreground/80 transition-colors leading-normal">
-                          {feature.description}
-                        </CardDescription>
-                      </CardContent>
-                    </Card>
+                        <h5 className="text-base font-bold text-foreground/90 group-hover:text-foreground transition-colors leading-tight tracking-tight mt-1">
+                          {feature.title}
+                        </h5>
+                      </div>
+                      <p className="text-sm text-muted-foreground/60 group-hover:text-muted-foreground/90 transition-colors leading-relaxed font-medium">
+                        {feature.description}
+                      </p>
+                    </div>
                   </motion.div>
                 ))}
               </div>
