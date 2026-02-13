@@ -375,7 +375,7 @@ function QuickReference({
           {pkg.name}
         </span>
       </div>
-      <div className="p-6 font-mono text-xs sm:text-sm bg-black/20">
+      <div className="p-6 font-mono text-xs sm:text-sm bg-black/20 h-[280px] overflow-y-auto custom-scrollbar">
         {activeTab === "commands" && (
           <div className="space-y-5">
             {pkg.commands.map((item, index) => (
@@ -481,53 +481,45 @@ export function Features() {
               viewport={{ once: true, margin: "-50px" }}
             >
               {/* Main layout grid */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-8 items-start">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 mb-20 items-center">
                 {/* Left column: Info & Highlight */}
-                <div className="lg:col-span-7 flex flex-col gap-6">
+                <div className="lg:col-span-6 flex flex-col gap-8">
                   {/* Package header */}
                   <div>
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-4">
-                      <div className="flex items-center gap-4">
-                        <div
-                          className={`w-14 h-14 rounded-2xl dark:bg-white/[0.03] light:bg-black/[0.02] dark:border-white/[0.1] light:border-black/[0.08] flex items-center justify-center shadow-2xl relative overflow-hidden group/icon`}
-                        >
-                          <div className={`absolute inset-0 bg-gradient-to-br ${pkg.gradient} opacity-20`} />
-                          <div className={`relative`}>
-                            {pkgIndex === 0 && (
-                              <Terminal className={`w-7 h-7 dark:text-indigo-400 light:text-indigo-600`} />
-                            )}
-                            {pkgIndex === 1 && <Box className={`w-7 h-7 dark:text-${pkg.color}-400 light:text-${pkg.color}-600`} /> }
-                            {pkgIndex === 2 && (
-                              <Globe className={`w-7 h-7 dark:text-${pkg.color}-400 light:text-${pkg.color}-600`} />
-                            )}
+                      <div className="flex flex-col gap-4 mb-6">
+                        <div className="flex items-center gap-5">
+                          <div
+                            className={`w-16 h-16 rounded-2xl dark:bg-white/[0.03] light:bg-black/[0.02] dark:border-white/[0.1] light:border-black/[0.08] flex items-center justify-center shadow-2xl relative overflow-hidden group/icon`}
+                          >
+                            <div className={`absolute inset-0 bg-gradient-to-br ${pkg.gradient} opacity-20`} />
+                            <div className={`relative`}>
+                              {pkgIndex === 0 && (
+                                <Terminal className={`w-8 h-8 dark:text-indigo-400 light:text-indigo-600`} />
+                              )}
+                              {pkgIndex === 1 && <Box className={`w-8 h-8 dark:text-${pkg.color}-400 light:text-${pkg.color}-600`} /> }
+                              {pkgIndex === 2 && (
+                                <Globe className={`w-8 h-8 dark:text-${pkg.color}-400 light:text-${pkg.color}-600`} />
+                              )}
+                            </div>
+                          </div>
+                          <div>
+                            <h3 className="text-4xl md:text-5xl font-black font-mono tracking-tighter text-foreground">
+                              {pkg.name}
+                            </h3>
+                            <p className={`dark:text-${pkg.color}-400 light:text-${pkg.color}-600 text-sm font-bold tracking-widest uppercase opacity-70`}>{pkg.tagline}</p>
                           </div>
                         </div>
-                        <div>
-                          <h3 className="text-3xl font-bold font-mono tracking-tight text-foreground opacity-90">
-                            {pkg.name}
-                          </h3>
-                          <p className={`dark:text-${pkg.color}-400 light:text-${pkg.color}-600 text-sm font-medium`}>{pkg.tagline}</p>
+
+                        {/* Install command - more prominent and integrated */}
+                        <div className="flex items-center gap-3 w-fit px-4 py-2 rounded-xl bg-white/[0.02] border border-white/[0.05] font-mono text-xs text-muted-foreground shadow-2xl backdrop-blur-sm">
+                          <span className={`text-${pkg.color}-400 font-bold opacity-40`}>$</span>
+                          <span className="text-foreground/60 font-medium">{pkg.install}</span>
+                          <div className="w-px h-3 bg-white/10 mx-1" />
+                          <CopyButton text={pkg.install} />
                         </div>
                       </div>
-
-                      {/* Install command */}
-                      <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-card border border-border font-mono text-xs text-muted-foreground ml-auto shadow-sm">
-                        <span className="opacity-50">$</span>
-                        <span className="text-foreground/80">{pkg.install}</span>
-                        <CopyButton text={pkg.install} />
-                      </div>
-                    </div>
                     
-                    {/* Mobile install command */}
-                    <div className="flex sm:hidden items-center justify-between gap-2 px-3 py-2 rounded-lg bg-card border border-border font-mono text-xs text-muted-foreground mb-4 shadow-sm">
-                      <div className="flex items-center gap-2 overflow-hidden">
-                         <span className="opacity-50">$</span>
-                         <span className="text-foreground/80 truncate">{pkg.install}</span>
-                      </div>
-                      <CopyButton text={pkg.install} />
-                    </div>
-
-                    <p className="text-muted-foreground text-lg leading-relaxed max-w-2xl">
+                    <p className="text-muted-foreground text-xl leading-relaxed max-w-2xl font-medium tracking-tight">
                       {pkg.description}
                     </p>
                   </div>
@@ -563,9 +555,9 @@ export function Features() {
                 </div>
 
                 {/* Right column: Quick Reference */}
-                <div className="lg:col-span-5 sticky top-24 pt-2">
+                <div className="lg:col-span-6">
                   <div className="relative group">
-                    <div className={`absolute -inset-1 rounded-2xl bg-gradient-to-br ${pkg.gradient} opacity-[0.03] group-hover:opacity-[0.06] blur-2xl transition-opacity duration-500`} />
+                    <div className={`absolute -inset-4 rounded-[2rem] bg-gradient-to-br ${pkg.gradient} opacity-[0.05] group-hover:opacity-[0.1] blur-3xl transition-opacity duration-700`} />
                     <QuickReference pkg={pkg} t={t} />
                   </div>
                 </div>
