@@ -32,20 +32,23 @@ const { build } = require('@utoo/pack');
 
 async function runBuild() {
   await build({
-    mode: "production",
-    entry: [
-      {
-        import: "./src/index.ts",
-        html: { template: "./index.html" }
-      }
-    ],
-    output: {
-      path: "./dist",
-      filename: "[name].[contenthash:8].js",
-      chunkFilename: "[name].[contenthash:8].js",
-      clean: true
-    },
-    sourceMaps: true
+    config: {
+      entry: [
+        {
+          import: "./src/index.ts",
+          html: {
+            template: "./index.html"
+          }
+        }
+      ],
+      output: {
+        path: "./dist",
+        filename: "[name].[contenthash:8].js",
+        chunkFilename: "[name].[contenthash:8].js",
+        clean: true
+      },
+      sourceMaps: true
+    }
   });
 }
 
@@ -58,20 +61,23 @@ const { dev } = require('@utoo/pack');
 
 async function startDev() {
   const server = await dev({
-    mode: "development",
-    entry: [
-      {
-        import: "./src/index.ts",
-        html: { template: "./index.html" }
-      }
-    ],
-    output: {
-      path: "./dist",
-      filename: "[name].[contenthash:8].js",
-      chunkFilename: "[name].[contenthash:8].js",
-      clean: true
-    },
-    sourceMaps: true
+    config: {
+      entry: [
+        {
+          import: "./src/index.ts",
+          html: {
+            template: "./index.html"
+          }
+        }
+      ],
+      output: {
+        path: "./dist",
+        filename: "[name].[contenthash:8].js",
+        chunkFilename: "[name].[contenthash:8].js",
+        clean: true
+      },
+      sourceMaps: true
+    }
   });
 }
 
