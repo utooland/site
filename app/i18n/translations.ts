@@ -4,7 +4,7 @@ export const translations = {
     hero: {
       badge: "Written in Rust, Native & WASM Supported",
       title: "Utoo",
-      subtitle: "An Unified Toolchain For Web Development",
+      subtitle: "A Unified Toolchain For Web Development",
       description:
         "A complete suite of tools for modern frontend development. Lightning fast package management, bundling, and browser-native builds.",
       explorePackages: "Explore Packages",
