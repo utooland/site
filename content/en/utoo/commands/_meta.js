@@ -9,5 +9,10 @@ export default {
   deps: 'deps',
   update: 'update',
   rebuild: 'rebuild',
-  clean: 'clean'
+  clean: 'clean',
+  'pm-pack': 'pm-pack',
+  ping: 'ping',
+  login: 'login',
+  logout: 'logout',
+  whoami: 'whoami'
 }

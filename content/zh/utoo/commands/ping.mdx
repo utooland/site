@@ -1,0 +1,63 @@
+# ping
+
+检测 npm 镜像源的连通性和响应延迟。
+
+**别名:** `pg`
+
+## 用法
+
+```bash filename="Terminal"
+ut ping [REGISTRY]
+```
+
+## 参数
+
+| 参数 | 描述 |
+|------|------|
+| `[REGISTRY]` | 要检测的镜像源 URL（默认使用已配置的镜像源） |
+
+## 示例
+
+```bash filename="Terminal" copy
+# 检测默认镜像源
+ut ping
+ut pg
+
+# 检测指定镜像源
+ut ping https://registry.npmjs.org
+ut ping https://registry.npmmirror.com
+```
+
+## 输出
+
+- 成功: `PONG {延迟}ms (supports-semver: yes/no)`
+- 失败: `FAIL registry did not respond ({延迟}ms)`
+
+其中 `supports-semver` 表示该镜像源是否支持语义化版本查询，即直接通过 URL 进行范围解析，例如：
+
+```
+https://registry.npmmirror.com/lodash/^4
+```
+
+目前 cnpm 相关镜像（如 npmmirror）支持此特性，npm 官方源不支持。
+
+utoo 会自动探测镜像源的 semver 支持情况，并将结果缓存到全局配置文件 `~/.utoo/config.toml` 中，避免重复探测：
+
+```toml filename="~/.utoo/config.toml"
+[arrays]
+supports-semver = [
+  "https://registry.npmmirror.com",
+  "!https://some-private.registry",
+]
+```
+
+- 无前缀表示支持（如 `"https://registry.npmmirror.com"`）
+- `!` 前缀表示不支持（如 `"!https://some-private.registry"`）
+
+多个镜像源的探测结果会同时缓存，切换镜像源时不会重复探测。
+
+## 使用场景
+
+- 检查镜像源是否可用
+- 对比不同镜像源的响应速度
+- 排查网络或镜像源问题

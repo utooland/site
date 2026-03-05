@@ -1,0 +1,39 @@
+# login
+
+登录到 npm 镜像源。
+
+**别名:** `lg`
+
+## 用法
+
+```bash filename="Terminal"
+ut login [OPTIONS]
+```
+
+## 示例
+
+```bash filename="Terminal" copy
+# 登录默认镜像源
+ut login
+ut lg
+
+# 登录指定镜像源
+ut login --registry https://registry.npmjs.org
+```
+
+## 选项
+
+| 选项 | 描述 |
+|------|------|
+| `--registry <url>` | 指定要登录的镜像源 |
+
+## 工作原理
+
+1. 打开浏览器进行 Web 登录验证
+2. 验证成功后自动保存认证令牌
+3. 令牌存储在本地配置中，供后续操作使用
+
+## 相关命令
+
+- [`logout`](/zh/docs/utoo/commands/logout) - 注销登录
+- [`whoami`](/zh/docs/utoo/commands/whoami) - 查看当前登录用户
