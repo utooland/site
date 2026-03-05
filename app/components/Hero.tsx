@@ -168,7 +168,7 @@ export function Hero() {
             >
               <Button
                 size="lg"
-                className="group relative px-8 py-8 rounded-2xl bg-white text-black hover:bg-white/90 transition-all duration-300 overflow-hidden h-14 text-base font-bold shadow-[0_0_40px_rgba(255,255,255,0.1)] hover:shadow-[0_0_60px_rgba(255,255,255,0.2)]"
+                className="group relative px-8 rounded-2xl bg-white text-black hover:bg-white/90 transition-all duration-300 overflow-hidden h-14 text-base font-bold shadow-[0_0_40px_rgba(255,255,255,0.1)] hover:shadow-[0_0_60px_rgba(255,255,255,0.2)]"
                 onClick={() => {
                   document
                     .getElementById("packages")
