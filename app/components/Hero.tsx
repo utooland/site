@@ -34,7 +34,7 @@ function GitHubButton() {
     <Button
       size="lg"
       variant="outline"
-      className="glass dark:border-white/20 light:border-black/10 dark:hover:bg-white/10 light:hover:bg-black/5 transition-colors"
+      className="h-14 glass dark:border-white/20 light:border-black/10 dark:hover:bg-white/10 light:hover:bg-black/5 transition-colors"
       onClick={() =>
         window.open("https://github.com/utooland/utoo", "_blank")
       }
@@ -180,11 +180,7 @@ export function Hero() {
                   <ArrowRight className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-1" />
                 </span>
               </Button>
-              <div className="scale-100">
-                <div className="h-14">
-                  <GitHubButton />
-                </div>
-              </div>
+              <GitHubButton />
             </motion.div>
           </div>
 
