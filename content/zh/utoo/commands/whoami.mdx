@@ -1,0 +1,33 @@
+# whoami
+
+显示当前登录的 npm 用户名。
+
+**别名:** `who`
+
+## 用法
+
+```bash filename="Terminal"
+ut whoami [OPTIONS]
+```
+
+## 示例
+
+```bash filename="Terminal" copy
+# 查看当前用户
+ut whoami
+ut who
+
+# 查看指定镜像源的登录用户
+ut whoami --registry https://registry.npmjs.org
+```
+
+## 选项
+
+| 选项 | 描述 |
+|------|------|
+| `--registry <url>` | 指定镜像源 |
+
+## 相关命令
+
+- [`login`](/zh/docs/utoo/commands/login) - 登录镜像源
+- [`logout`](/zh/docs/utoo/commands/logout) - 注销登录

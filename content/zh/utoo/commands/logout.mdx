@@ -1,0 +1,39 @@
+# logout
+
+从 npm 镜像源注销登录。
+
+**别名:** `lo`
+
+## 用法
+
+```bash filename="Terminal"
+ut logout [OPTIONS]
+```
+
+## 示例
+
+```bash filename="Terminal" copy
+# 从默认镜像源注销
+ut logout
+ut lo
+
+# 从指定镜像源注销
+ut logout --registry https://registry.npmjs.org
+```
+
+## 选项
+
+| 选项 | 描述 |
+|------|------|
+| `--registry <url>` | 指定要注销的镜像源 |
+
+## 工作原理
+
+1. 读取已保存的认证令牌
+2. 向镜像源发送注销请求撤销令牌
+3. 从本地存储中移除令牌
+
+## 相关命令
+
+- [`login`](/zh/docs/utoo/commands/login) - 登录镜像源
+- [`whoami`](/zh/docs/utoo/commands/whoami) - 查看当前登录用户

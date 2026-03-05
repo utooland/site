@@ -155,8 +155,8 @@ function getPackages(t: Translations) {
     ],
     commands: [
       { cmd: "ut install", desc: t.packages.utoo.commands.install },
-      { cmd: "ut add <pkg>", desc: t.packages.utoo.commands.add },
-      { cmd: "ut remove <pkg>", desc: t.packages.utoo.commands.remove },
+      { cmd: "ut install <pkg>", desc: t.packages.utoo.commands.add },
+      { cmd: "ut uninstall <pkg>", desc: t.packages.utoo.commands.remove },
       { cmd: "ut deps", desc: t.packages.utoo.commands.deps },
       { cmd: "ut list <pkg>", desc: t.packages.utoo.commands.list },
       { cmd: "ut view <pkg>", desc: t.packages.utoo.commands.view },

@@ -1,0 +1,39 @@
+# login
+
+Login to npm registry.
+
+**Alias:** `lg`
+
+## Usage
+
+```bash filename="Terminal"
+ut login [OPTIONS]
+```
+
+## Examples
+
+```bash filename="Terminal" copy
+# Login to default registry
+ut login
+ut lg
+
+# Login to a specific registry
+ut login --registry https://registry.npmjs.org
+```
+
+## Options
+
+| Option | Description |
+|--------|-------------|
+| `--registry <url>` | Specify the registry to login to |
+
+## How It Works
+
+1. Opens a browser for web-based authentication
+2. Saves the authentication token locally on success
+3. Token is used for subsequent authenticated operations
+
+## Related Commands
+
+- [`logout`](/en/docs/utoo/commands/logout) - Logout from registry
+- [`whoami`](/en/docs/utoo/commands/whoami) - Display current logged-in user

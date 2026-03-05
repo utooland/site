@@ -1,0 +1,43 @@
+# pm-pack
+
+Create a tarball from a package.
+
+**Alias:** `pk`
+
+## Usage
+
+```bash filename="Terminal"
+ut pm-pack [OPTIONS] [PATH]
+```
+
+## Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `[PATH]` | Path to the package directory (defaults to current directory) |
+
+## Examples
+
+```bash filename="Terminal" copy
+# Pack the current directory
+ut pm-pack
+ut pk
+
+# Pack a specific directory
+ut pm-pack ./packages/my-lib
+
+# Preview pack contents without creating a tarball
+ut pm-pack --dry-run
+```
+
+## Options
+
+| Option | Description |
+|--------|-------------|
+| `--dry-run` | Perform a dry run without creating a tarball |
+
+## Use Cases
+
+- Inspect package contents and size before publishing
+- Create `.tgz` packages for local testing
+- Use `--dry-run` to verify which files will be included
