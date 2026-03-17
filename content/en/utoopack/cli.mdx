@@ -1,0 +1,113 @@
+# @utoo/pack-cli
+
+import { Callout, Tabs } from 'nextra/components'
+
+Command-line interface for `@utoo/pack`, the high-performance bundler powered by [Turbopack](https://turbo.build/pack).
+
+<Callout type="info">
+  `@utoo/pack-cli` provides the `up` CLI binary for building and serving projects using `@utoo/pack`. It reads configuration from `utoopack.json`, `utoopack.config.mjs`, or `utoopack.config.js`.
+</Callout>
+
+## Installation
+
+```bash filename="Terminal" copy
+ut install @utoo/pack-cli --save-dev
+```
+
+## Usage
+
+<Tabs items={['Development', 'Production', 'Webpack Compat']}>
+  <Tabs.Tab>
+Start the development server with HMR:
+
+```bash filename="Terminal" copy
+utx up dev
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+Build your project for production:
+
+```bash filename="Terminal" copy
+utx up build
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+Use an existing `webpack.config.js` in compatibility mode:
+
+```bash filename="Terminal" copy
+utx up build --webpack
+utx up dev --webpack
+```
+  </Tabs.Tab>
+</Tabs>
+
+## Commands
+
+### `up build`
+
+Build the project for production.
+
+| Option | Description |
+|--------|-------------|
+| `-p, --project <path>` | Set the project path |
+| `-r, --root <path>` | Set the root path |
+| `--webpack` | Enable webpack compatibility mode |
+
+### `up dev`
+
+Start the development server with HMR on port 3000.
+
+| Option | Description |
+|--------|-------------|
+| `-p, --project <path>` | Set the project path |
+| `-r, --root <path>` | Set the root path |
+| `--webpack` | Enable webpack compatibility mode |
+
+## Configuration
+
+The CLI looks for configuration files in the following order:
+
+1. `utoopack.json`
+2. `utoopack.config.mjs`
+3. `utoopack.config.js`
+
+See [@utoo/pack Configuration](/en/docs/utoopack/config) for full configuration options.
+
+### Example
+
+```json filename="utoopack.json"
+{
+  "$schema": "@utoo/pack/config_schema.json",
+  "entry": [
+    {
+      "import": "./src/index.ts",
+      "html": {
+        "template": "./index.html"
+      }
+    }
+  ],
+  "output": {
+    "path": "./dist",
+    "filename": "[name].[contenthash:8].js",
+    "chunkFilename": "[name].[contenthash:8].js",
+    "clean": true
+  },
+  "sourceMaps": true
+}
+```
+
+## package.json Scripts
+
+```json filename="package.json"
+{
+  "scripts": {
+    "dev": "up dev",
+    "build": "up build"
+  }
+}
+```
+
+```bash filename="Terminal" copy
+ut dev
+ut build
+```

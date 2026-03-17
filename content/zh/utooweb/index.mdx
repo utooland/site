@@ -194,18 +194,22 @@ Reads the content of a file.
 * `path` (string): The path to the file.
 * `encoding` (string, optional): The encoding of the file (e.g., `'utf8'`). If not provided, it returns a Buffer.
 
-#### `project.readDir(path)`
+#### `project.readdir(path, options?)`
 
 Reads the contents of a directory.
 
 * `path` (string): The path to the directory.
-* Returns: `Promise<string[]>` - An array of file and directory names.
+* `options` (object, optional):
+  * `recursive` (boolean): If `true`, reads recursively.
+* Returns: `Promise<Dirent[]>` - An array of `Dirent` objects with `name`, `isDirectory()`, and `isFile()` methods.
 
-#### `project.mkdir(path)`
+#### `project.mkdir(path, options?)`
 
 Creates a new directory.
 
 * `path` (string): The path to the directory to be created.
+* `options` (object, optional):
+  * `recursive` (boolean): If `true`, creates parent directories as needed.
 
 #### `project.rm(path, options)`
 
@@ -220,6 +224,20 @@ Removes a file or directory.
 Removes a directory.
 
 * `path` (string): The path to the directory to be removed.
+
+#### `project.copyFile(src, dst)`
+
+Copies a file from source to destination.
+
+* `src` (string): Source file path.
+* `dst` (string): Destination file path.
+
+#### `project.stat(path)`
+
+Gets file/directory stats.
+
+* `path` (string): The path to the file or directory.
+* Returns: `Promise<Stats>` - Stats object with `size`, `isDirectory()`, `isFile()`, timestamps.
 
 ### Dependency Management
 
@@ -252,12 +270,14 @@ const lockFile = await project.deps({
 });
 ```
 
-#### `project.install(packageLockJsonString, maxConcurrentDownloads?)`
+#### `project.install(packageLockJsonString, options?)`
 
 Populates the `node_modules` directory based on a lock file string.
 
 * `packageLockJsonString` (string): A JSON string of the dependency lock file (from `deps()` or a `package-lock.json` file).
-* `maxConcurrentDownloads` (number, optional): Maximum concurrent package downloads.
+* `options` (object, optional):
+  * `maxConcurrentDownloads` (number): Maximum concurrent package downloads.
+  * `omit` (string[]): Dependency types to omit. Possible values: `"dev"`, `"optional"`.
 
 ### Preview Functionality
 
@@ -269,7 +289,7 @@ Registers and activates the service worker defined in the constructor. This is e
 
 Triggers the build process in the thread worker. It reads the build configuration from `utoopack.json` in the project's root and runs the bundler based on that configuration.
 
-* Returns: `Promise<void>` - The promise resolves when the build is complete. It will reject if the build fails.
+* Returns: `Promise<BuildOutput>` - Object with an `issues` array containing any build warnings or errors.
 
 ### Development Mode & HMR
 

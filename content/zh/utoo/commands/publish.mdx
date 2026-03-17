@@ -1,0 +1,47 @@
+# publish
+
+发布包到 npm 镜像源。
+
+**别名：** `pub`
+
+## 用法
+
+```bash filename="Terminal"
+ut publish [OPTIONS]
+```
+
+## 示例
+
+```bash filename="Terminal" copy
+# 发布到默认镜像源
+ut publish
+
+# 预览发布（不实际发布）
+ut publish --dry-run
+
+# 使用指定标签发布
+ut publish --tag beta
+
+# 使用 OTP 进行双因素认证
+ut publish --otp 123456
+```
+
+## 选项
+
+| 选项 | 描述 |
+|------|------|
+| `--tag <tag>` | 发布标签（默认：`latest`，或 package.json 中的 `publishConfig.tag`） |
+| `--dry-run` | 预览模式，不实际发布 |
+| `--otp <code>` | 双因素认证一次性密码 |
+
+## 工作原理
+
+1. 读取当前目录的 `package.json`
+2. 验证包的元数据（名称、版本）
+3. 从 `publishConfig.registry` 或全局配置解析镜像源
+4. 创建 tarball 并发布到镜像源
+
+## 相关命令
+
+- [`pm-pack`](/zh/docs/utoo/commands/pm-pack) - 创建 tarball 但不发布
+- [`login`](/zh/docs/utoo/commands/login) - 发布前登录镜像源

@@ -57,10 +57,10 @@ runBuild();
   </Tabs.Tab>
   <Tabs.Tab>
 ```javascript filename="dev.js"
-const { dev } = require('@utoo/pack');
+const { serve } = require('@utoo/pack');
 
 async function startDev() {
-  const server = await dev({
+  await serve({
     config: {
       entry: [
         {
@@ -129,5 +129,11 @@ run();
 | `define` | 构建时变量替换 |
 | `externals` | 从打包中排除特定依赖 |
 | `mode` | `development` 或 `production` |
+| `resolve` | 模块解析（`alias`、`extensions`） |
+| `module` | 自定义 loader 规则 |
+| `optimization` | 压缩、tree shaking、chunk 分割等 |
+| `styles` | Less、Sass、CSS Modules、Emotion、styled-components |
+| `devServer` | 开发服务器（`hot`、`port`、`host`、`https`） |
+| `stats` | 启用构建统计输出 |
 
 详见 [配置](/zh/docs/utoopack/config)。

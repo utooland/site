@@ -163,8 +163,8 @@ The user clicks a "Build" button, which calls `project.build()`.
 ```typescript filename="useBuild.ts"
 setIsBuilding(true);
 try {
-    await project.build();
-    // Build succeeded
+    const result = await project.build();
+    // Build succeeded — result.issues contains any warnings
 } catch (e) {
     // Build failed
 } finally {

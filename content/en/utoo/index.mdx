@@ -83,7 +83,7 @@ utx create-react-app my-app
 | [`uninstall`](/en/docs/utoo/commands/uninstall) | `un` | Remove dependencies |
 | [`run`](/en/docs/utoo/commands/run) | `r` | Run package.json scripts |
 | [`execute`](/en/docs/utoo/commands/execute) | `x` | Execute npm package binaries |
-| [`view`](/en/docs/utoo/commands/view) | `v`, `info` | View package information |
+| [`view`](/en/docs/utoo/commands/view) | `v`, `info`, `show` | View package information |
 | [`list`](/en/docs/utoo/commands/list) | `ls` | List dependency tree |
 | [`link`](/en/docs/utoo/commands/link) | `ln` | Link local packages |
 | [`deps`](/en/docs/utoo/commands/deps) | `d` | Generate package-lock.json |
@@ -96,6 +96,9 @@ utx create-react-app my-app
 | [`logout`](/en/docs/utoo/commands/logout) | `lo` | Logout from npm registry |
 | [`whoami`](/en/docs/utoo/commands/whoami) | `who` | Display npm username |
 | [`config`](/en/docs/utoo/config) | `cfg` | Manage configuration |
+| [`init`](/en/docs/utoo/commands/init) | `create` | Create a package.json file |
+| [`publish`](/en/docs/utoo/commands/publish) | `pub` | Publish a package to the registry |
+| [`completions`](/en/docs/utoo/commands/completions) | `cmp` | Generate shell completion scripts |
 
 ## Global Options
 
@@ -105,6 +108,7 @@ utx create-react-app my-app
 | `--registry <url>` | Override npm registry |
 | `--cache-dir <path>` | Specify cache directory |
 | `--legacy-peer-deps` | Legacy peer dependency handling |
+| `--manifests-concurrency-limit <n>` | Max concurrent manifest fetches (default: 64) |
 | `-h, --help` | Show help |
 | `-v, --version` | Show version |
 

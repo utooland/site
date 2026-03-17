@@ -163,8 +163,8 @@ await project.writeFile(selectedFilePath, newContent);
 ```typescript filename="useBuild.ts"
 setIsBuilding(true);
 try {
-    await project.build();
-    // 构建成功
+    const result = await project.build();
+    // 构建成功 — result.issues 包含任何警告
 } catch (e) {
     // 构建失败
 } finally {

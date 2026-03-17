@@ -1,0 +1,113 @@
+# @utoo/pack-cli
+
+import { Callout, Tabs } from 'nextra/components'
+
+`@utoo/pack` 的命令行工具，基于 [Turbopack](https://turbo.build/pack) 构建的高性能打包器。
+
+<Callout type="info">
+  `@utoo/pack-cli` 提供 `up` CLI 命令来使用 `@utoo/pack` 构建和启动开发服务器。它从 `utoopack.json`、`utoopack.config.mjs` 或 `utoopack.config.js` 读取配置。
+</Callout>
+
+## 安装
+
+```bash filename="Terminal" copy
+ut install @utoo/pack-cli --save-dev
+```
+
+## 用法
+
+<Tabs items={['开发模式', '生产构建', 'Webpack 兼容']}>
+  <Tabs.Tab>
+启动带有 HMR 的开发服务器：
+
+```bash filename="Terminal" copy
+utx up dev
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+构建生产环境项目：
+
+```bash filename="Terminal" copy
+utx up build
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+使用已有的 `webpack.config.js` 兼容模式：
+
+```bash filename="Terminal" copy
+utx up build --webpack
+utx up dev --webpack
+```
+  </Tabs.Tab>
+</Tabs>
+
+## 命令
+
+### `up build`
+
+构建生产环境项目。
+
+| 选项 | 描述 |
+|------|------|
+| `-p, --project <path>` | 设置项目路径 |
+| `-r, --root <path>` | 设置根路径 |
+| `--webpack` | 启用 webpack 兼容模式 |
+
+### `up dev`
+
+启动 HMR 开发服务器（端口 3000）。
+
+| 选项 | 描述 |
+|------|------|
+| `-p, --project <path>` | 设置项目路径 |
+| `-r, --root <path>` | 设置根路径 |
+| `--webpack` | 启用 webpack 兼容模式 |
+
+## 配置
+
+CLI 按以下顺序查找配置文件：
+
+1. `utoopack.json`
+2. `utoopack.config.mjs`
+3. `utoopack.config.js`
+
+详见 [@utoo/pack 配置](/zh/docs/utoopack/config)。
+
+### 示例
+
+```json filename="utoopack.json"
+{
+  "$schema": "@utoo/pack/config_schema.json",
+  "entry": [
+    {
+      "import": "./src/index.ts",
+      "html": {
+        "template": "./index.html"
+      }
+    }
+  ],
+  "output": {
+    "path": "./dist",
+    "filename": "[name].[contenthash:8].js",
+    "chunkFilename": "[name].[contenthash:8].js",
+    "clean": true
+  },
+  "sourceMaps": true
+}
+```
+
+## package.json 脚本
+
+```json filename="package.json"
+{
+  "scripts": {
+    "dev": "up dev",
+    "build": "up build"
+  }
+}
+```
+
+```bash filename="Terminal" copy
+ut dev
+ut build
+```
