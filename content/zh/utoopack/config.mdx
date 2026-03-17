@@ -115,6 +115,9 @@ export default defineConfig({
 | `path` | 输出目录 |
 | `filename` | 入口 chunk 文件名模板 |
 | `chunkFilename` | 非入口 chunk 文件名模板 |
+| `cssFilename` | CSS 文件名模板 |
+| `cssChunkFilename` | 非入口 CSS chunk 文件名模板 |
+| `assetModuleFilename` | 资源模块文件名模板 |
 | `publicPath` | 资源的公共 URL 路径 |
 | `clean` | 构建前清理输出目录 |
 | `copy` | 复制静态文件（字符串路径或 `{ from, to }` 对象） |
@@ -172,7 +175,7 @@ export default defineConfig({
 
 ### module
 
-自定义 loader 的模块规则。
+自定义 loader 的模块规则和条件。
 
 ```json
 {
@@ -182,10 +185,20 @@ export default defineConfig({
       "*.mdx": [
         { "loader": "mdx-loader", "options": {} }
       ]
+    },
+    "conditions": {
+      "*.js": {
+        "path": { "type": "glob", "value": "**/node_modules/**" }
+      }
     }
   }
 }
 ```
+
+| 选项 | 描述 |
+|------|------|
+| `rules` | 将 glob 模式映射到 loader |
+| `conditions` | 按路径（glob 或 regex）配置 loader 条件 |
 
 ### provider
 
@@ -258,6 +271,7 @@ export default defineConfig({
     "autoCssModules": true,
     "emotion": true,
     "styledComponents": true,
+    "styledJsx": true,
     "less": { "implementation": "less" },
     "sass": { "implementation": "sass" },
     "inlineCss": {
@@ -271,10 +285,11 @@ export default defineConfig({
 |------|------|
 | `autoCssModules` | 自动检测并应用 CSS Modules |
 | `emotion` | 启用 @emotion/react 转换 |
-| `styledComponents` | 启用 styled-components 转换 |
-| `less` | Less 预处理器配置 |
-| `sass` | Sass/SCSS 预处理器配置 |
-| `inlineCss` | 通过 style 标签注入 CSS |
+| `styledComponents` | 启用 styled-components 转换（`true` 或配置对象） |
+| `styledJsx` | 启用 styled-jsx 转换（`true` 或 `{ useLightningcss: true }`） |
+| `less` | Less 预处理器配置（`implementation` 及 Less 选项） |
+| `sass` | Sass/SCSS 预处理器配置（`implementation` 及 Sass 选项） |
+| `inlineCss` | 通过 style 标签注入 CSS（`insert`、`injectType`） |
 
 ## 图片
 
@@ -310,6 +325,75 @@ export default defineConfig({
 | `host` | 绑定主机 |
 | `https` | 使用 HTTPS |
 
+## React
+
+```json
+{
+  "react": {
+    "runtime": "automatic",
+    "importSource": "react"
+  }
+}
+```
+
+| 选项 | 描述 |
+|------|------|
+| `runtime` | JSX 运行时：`automatic` 或 `classic` |
+| `importSource` | JSX 导入来源（默认：`react`） |
+
+## defineEnv
+
+按目标环境注入环境变量（用于 Next.js 集成）。
+
+```json
+{
+  "defineEnv": {
+    "client": [
+      { "name": "API_URL", "value": "https://api.example.com" }
+    ],
+    "nodejs": [
+      { "name": "DB_HOST", "value": "localhost" }
+    ],
+    "edge": []
+  }
+}
+```
+
+| 目标 | 描述 |
+|------|------|
+| `client` | 浏览器构建中可用的变量 |
+| `nodejs` | Node.js 服务端构建中可用的变量 |
+| `edge` | Edge 运行时构建中可用的变量 |
+
+## 实验性功能
+
+实验性功能（可能在未通知的情况下更改）。
+
+```json
+{
+  "experimental": {
+    "swcPlugins": [["@swc/plugin-emotion", {}]],
+    "reactCompiler": true,
+    "esmExternals": true,
+    "viewTransition": true
+  }
+}
+```
+
+| 选项 | 类型 | 描述 |
+|------|------|------|
+| `swcPlugins` | `[string, any][]` | SWC 转换插件 |
+| `reactCompiler` | `boolean \| object` | 启用 React Compiler |
+| `esmExternals` | `boolean \| "loose"` | ESM externals 处理 |
+| `dynamicIO` | `boolean` | Dynamic IO 支持 |
+| `useCache` | `boolean` | 启用缓存 |
+| `cacheHandlers` | `Record<string, string>` | 自定义缓存处理器 |
+| `ppr` | `boolean \| "incremental"` | 部分预渲染 |
+| `taint` | `boolean` | Taint 追踪 |
+| `viewTransition` | `boolean` | View Transitions API |
+| `serverActions` | `boolean \| object` | Server Actions 支持 |
+| `mdxRs` | `object` | MDX-RS 选项 |
+
 ## 高级选项
 
 | 选项 | 类型 | 描述 |
@@ -318,7 +402,8 @@ export default defineConfig({
 | `stats` | `boolean` | 启用构建统计输出 |
 | `nodePolyfill` | `boolean` | 为浏览器 polyfill Node.js 内置模块 |
 | `persistentCaching` | `boolean` | 启用持久化构建缓存 |
-| `react` | `object` | React 转换（`runtime`、`importSource`） |
+| `cacheHandler` | `string` | 自定义缓存处理器模块路径 |
+| `pluginRuntimeStrategy` | `string` | 插件执行方式：`workerThreads` 或 `childProcesses` |
 
 ## 运行时选项
 

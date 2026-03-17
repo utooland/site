@@ -115,6 +115,9 @@ Configure output settings.
 | `path` | Output directory |
 | `filename` | Entry chunk filename template |
 | `chunkFilename` | Non-entry chunk filename template |
+| `cssFilename` | CSS filename template |
+| `cssChunkFilename` | Non-entry CSS chunk filename template |
+| `assetModuleFilename` | Asset module filename template |
 | `publicPath` | Public URL path for assets |
 | `clean` | Clean output directory before build |
 | `copy` | Copy static files (string paths or `{ from, to }` objects) |
@@ -172,7 +175,7 @@ Module resolution configuration.
 
 ### module
 
-Module rules for custom loaders.
+Module rules and conditions for custom loaders.
 
 ```json
 {
@@ -182,10 +185,20 @@ Module rules for custom loaders.
       "*.mdx": [
         { "loader": "mdx-loader", "options": {} }
       ]
+    },
+    "conditions": {
+      "*.js": {
+        "path": { "type": "glob", "value": "**/node_modules/**" }
+      }
     }
   }
 }
 ```
+
+| Option | Description |
+|--------|-------------|
+| `rules` | Map glob patterns to loaders |
+| `conditions` | Configure loader conditions by path (glob or regex) |
 
 ### provider
 
@@ -258,6 +271,7 @@ Auto-provide modules (similar to webpack ProvidePlugin).
     "autoCssModules": true,
     "emotion": true,
     "styledComponents": true,
+    "styledJsx": true,
     "less": { "implementation": "less" },
     "sass": { "implementation": "sass" },
     "inlineCss": {
@@ -271,10 +285,11 @@ Auto-provide modules (similar to webpack ProvidePlugin).
 |--------|-------------|
 | `autoCssModules` | Auto-detect and apply CSS Modules |
 | `emotion` | Enable @emotion/react transform |
-| `styledComponents` | Enable styled-components transform |
-| `less` | Less preprocessor config |
-| `sass` | Sass/SCSS preprocessor config |
-| `inlineCss` | CSS injection via style tags |
+| `styledComponents` | Enable styled-components transform (`true` or [config object](https://styled-components.com/docs/tooling#babel-plugin)) |
+| `styledJsx` | Enable styled-jsx transform (`true` or `{ useLightningcss: true }`) |
+| `less` | Less preprocessor config (`implementation`, plus Less options) |
+| `sass` | Sass/SCSS preprocessor config (`implementation`, plus Sass options) |
+| `inlineCss` | CSS injection via style tags (`insert`, `injectType`) |
 
 ## Images
 
@@ -310,6 +325,75 @@ Auto-provide modules (similar to webpack ProvidePlugin).
 | `host` | Host to bind |
 | `https` | Use HTTPS |
 
+## React
+
+```json
+{
+  "react": {
+    "runtime": "automatic",
+    "importSource": "react"
+  }
+}
+```
+
+| Option | Description |
+|--------|-------------|
+| `runtime` | JSX runtime: `automatic` or `classic` |
+| `importSource` | Source for JSX imports (default: `react`) |
+
+## defineEnv
+
+Inject environment variables by target environment (used by Next.js integration).
+
+```json
+{
+  "defineEnv": {
+    "client": [
+      { "name": "API_URL", "value": "https://api.example.com" }
+    ],
+    "nodejs": [
+      { "name": "DB_HOST", "value": "localhost" }
+    ],
+    "edge": []
+  }
+}
+```
+
+| Target | Description |
+|--------|-------------|
+| `client` | Variables available in browser bundles |
+| `nodejs` | Variables available in Node.js server bundles |
+| `edge` | Variables available in edge runtime bundles |
+
+## Experimental
+
+Experimental features (may change without notice).
+
+```json
+{
+  "experimental": {
+    "swcPlugins": [["@swc/plugin-emotion", {}]],
+    "reactCompiler": true,
+    "esmExternals": true,
+    "viewTransition": true
+  }
+}
+```
+
+| Option | Type | Description |
+|--------|------|-------------|
+| `swcPlugins` | `[string, any][]` | SWC transform plugins |
+| `reactCompiler` | `boolean \| object` | Enable React Compiler |
+| `esmExternals` | `boolean \| "loose"` | ESM externals handling |
+| `dynamicIO` | `boolean` | Dynamic IO support |
+| `useCache` | `boolean` | Enable caching |
+| `cacheHandlers` | `Record<string, string>` | Custom cache handlers |
+| `ppr` | `boolean \| "incremental"` | Partial prerendering |
+| `taint` | `boolean` | Taint tracking |
+| `viewTransition` | `boolean` | View Transitions API |
+| `serverActions` | `boolean \| object` | Server actions support |
+| `mdxRs` | `object` | MDX-RS options |
+
 ## Advanced Options
 
 | Option | Type | Description |
@@ -318,7 +402,8 @@ Auto-provide modules (similar to webpack ProvidePlugin).
 | `stats` | `boolean` | Enable build statistics output |
 | `nodePolyfill` | `boolean` | Polyfill Node.js built-ins for browser |
 | `persistentCaching` | `boolean` | Enable persistent build cache |
-| `react` | `object` | React transform (`runtime`, `importSource`) |
+| `cacheHandler` | `string` | Custom cache handler module path |
+| `pluginRuntimeStrategy` | `string` | Plugin execution: `workerThreads` or `childProcesses` |
 
 ## Runtime Options
 
