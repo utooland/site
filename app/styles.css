@@ -271,7 +271,7 @@
 
 /* Nextra docs layout - content width */
 :root {
-  --nextra-content-width: 90rem;
+  --nextra-content-width: 100rem;
 }
 
 .nextra-content pre {

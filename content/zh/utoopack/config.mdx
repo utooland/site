@@ -2,14 +2,15 @@
 
 import { Callout, Tabs } from 'nextra/components'
 
-`@utoo/pack` 可通过 `utoopack.json` 文件或编程 API 配置。
+`@utoo/pack` 可通过 `utoopack.json`、`utoopack.config.mjs` 或编程 API 配置。
 
 ## 配置文件
 
-在项目根目录创建 `utoopack.json`：
-
+<Tabs items={['utoopack.json', 'utoopack.config.mjs']}>
+  <Tabs.Tab>
 ```json filename="utoopack.json"
 {
+  "$schema": "@utoo/pack/config_schema.json",
   "mode": "production",
   "entry": [
     {
@@ -28,18 +29,35 @@ import { Callout, Tabs } from 'nextra/components'
   "sourceMaps": true
 }
 ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```javascript filename="utoopack.config.mjs"
+import { defineConfig } from '@utoo/pack';
+
+export default defineConfig({
+  mode: "production",
+  entry: [
+    {
+      import: "./src/index.ts",
+      html: { template: "./index.html" }
+    }
+  ],
+  output: {
+    path: "./dist",
+    filename: "[name].[contenthash:8].js",
+    clean: true
+  },
+  sourceMaps: true
+});
+```
+  </Tabs.Tab>
+</Tabs>
 
 ## 核心选项
 
 ### mode
 
 构建模式，影响优化和默认值。
-
-```json
-{
-  "mode": "production" // 或 "development"
-}
-```
 
 | 值 | 描述 |
 |----|------|
@@ -58,7 +76,14 @@ import { Callout, Tabs } from 'nextra/components'
       "import": "./src/index.ts",
       "html": {
         "template": "./index.html",
-        "filename": "index.html"
+        "filename": "index.html",
+        "title": "My App",
+        "inject": "body",
+        "scriptLoading": "defer"
+      },
+      "library": {
+        "name": "MyLib",
+        "export": ["default"]
       }
     }
   ]
@@ -76,7 +101,11 @@ import { Callout, Tabs } from 'nextra/components'
     "filename": "[name].[contenthash:8].js",
     "chunkFilename": "[name].[contenthash:8].js",
     "publicPath": "/",
-    "clean": true
+    "clean": true,
+    "copy": ["public"],
+    "type": "standalone",
+    "chunkLoadingGlobal": "TURBOPACK",
+    "entryRootExport": "MyApp"
   }
 }
 ```
@@ -88,6 +117,14 @@ import { Callout, Tabs } from 'nextra/components'
 | `chunkFilename` | 非入口 chunk 文件名模板 |
 | `publicPath` | 资源的公共 URL 路径 |
 | `clean` | 构建前清理输出目录 |
+| `copy` | 复制静态文件（字符串路径或 `{ from, to }` 对象） |
+| `type` | 输出类型：`standalone` 或 `export` |
+| `chunkLoadingGlobal` | 加载 chunk 的全局变量名 |
+| `entryRootExport` | 将入口导出暴露到全局作用域 |
+
+### target
+
+目标环境字符串（如 `"web"`、`"node"`）。
 
 ### define
 
@@ -115,6 +152,8 @@ import { Callout, Tabs } from 'nextra/components'
 }
 ```
 
+支持简单字符串全局变量、UMD 配置和高级子路径配置。
+
 ### resolve
 
 模块解析配置。
@@ -131,31 +170,205 @@ import { Callout, Tabs } from 'nextra/components'
 }
 ```
 
+### module
+
+自定义 loader 的模块规则。
+
+```json
+{
+  "module": {
+    "rules": {
+      "*.svg": "svgr-loader",
+      "*.mdx": [
+        { "loader": "mdx-loader", "options": {} }
+      ]
+    }
+  }
+}
+```
+
+### provider
+
+自动提供模块（类似 webpack ProvidePlugin）。
+
+```json
+{
+  "provider": {
+    "$": "jquery",
+    "Buffer": ["buffer", "Buffer"]
+  }
+}
+```
+
+## 优化
+
+```json
+{
+  "optimization": {
+    "minify": true,
+    "treeShaking": true,
+    "concatenateModules": true,
+    "moduleIds": "deterministic",
+    "removeConsole": true,
+    "removeUnusedExports": true,
+    "removeUnusedImports": true,
+    "splitChunks": {
+      "js": {
+        "minChunkSize": 50000,
+        "maxChunkCountPerGroup": 40,
+        "maxMergeChunkSize": 200000
+      }
+    },
+    "modularizeImports": {
+      "lodash": {
+        "transform": "lodash/{{member}}",
+        "preventFullImport": true
+      }
+    },
+    "packageImports": ["antd", "lodash-es"],
+    "transpilePackages": ["my-local-package"],
+    "nestedAsyncChunking": true,
+    "wasmAsAsset": false
+  }
+}
+```
+
+| 选项 | 描述 |
+|------|------|
+| `minify` | 启用代码压缩 |
+| `treeShaking` | 移除未使用代码 |
+| `concatenateModules` | 模块合并（scope hoisting） |
+| `moduleIds` | ID 策略：`named` 或 `deterministic` |
+| `noMangling` | 禁用名称混淆 |
+| `removeConsole` | 移除 console 语句（`true` 或 `{ exclude: ["error"] }`） |
+| `removeUnusedExports` | 移除未使用的导出 |
+| `removeUnusedImports` | 移除未使用的导入 |
+| `splitChunks` | Chunk 分割配置 |
+| `modularizeImports` | 转换 barrel 导入（类似 `babel-plugin-import`） |
+| `packageImports` | 要优化导入的包 |
+| `transpilePackages` | 转译指定包 |
+| `nestedAsyncChunking` | 启用嵌套异步 chunking |
+| `wasmAsAsset` | 将 WASM 打包为资源 |
+
+## 样式
+
+```json
+{
+  "styles": {
+    "autoCssModules": true,
+    "emotion": true,
+    "styledComponents": true,
+    "less": { "implementation": "less" },
+    "sass": { "implementation": "sass" },
+    "inlineCss": {
+      "injectType": "styleTag"
+    }
+  }
+}
+```
+
+| 选项 | 描述 |
+|------|------|
+| `autoCssModules` | 自动检测并应用 CSS Modules |
+| `emotion` | 启用 @emotion/react 转换 |
+| `styledComponents` | 启用 styled-components 转换 |
+| `less` | Less 预处理器配置 |
+| `sass` | Sass/SCSS 预处理器配置 |
+| `inlineCss` | 通过 style 标签注入 CSS |
+
+## 图片
+
+```json
+{
+  "images": {
+    "inlineLimit": 10000
+  }
+}
+```
+
+| 选项 | 描述 |
+|------|------|
+| `inlineLimit` | 小于此大小（字节）的图片内联为 base64 |
+
+## 开发服务器
+
+```json
+{
+  "devServer": {
+    "hot": true,
+    "port": 3000,
+    "host": "localhost",
+    "https": false
+  }
+}
+```
+
+| 选项 | 描述 |
+|------|------|
+| `hot` | 启用热模块替换 |
+| `port` | 监听端口 |
+| `host` | 绑定主机 |
+| `https` | 使用 HTTPS |
+
+## 高级选项
+
+| 选项 | 类型 | 描述 |
+|------|------|------|
+| `sourceMaps` | `boolean` | 启用 source maps |
+| `stats` | `boolean` | 启用构建统计输出 |
+| `nodePolyfill` | `boolean` | 为浏览器 polyfill Node.js 内置模块 |
+| `persistentCaching` | `boolean` | 启用持久化构建缓存 |
+| `react` | `object` | React 转换（`runtime`、`importSource`） |
+
+## 运行时选项
+
+这些选项可在 `utoopack.config.mjs` 中或通过编程 API 设置：
+
+| 选项 | 描述 |
+|------|------|
+| `processEnv` | 编译时环境变量 |
+| `watch` | 文件监听（`{ enable, pollIntervalMs }`） |
+| `dev` | 是否以开发模式运行 |
+| `buildId` | 构建标识符 |
+| `packPath` | `@utoo/pack` 的绝对路径 |
+| `rootPath` | 文件嵌套的根路径 |
+| `projectPath` | 根路径内的项目路径 |
+
 ## 编程 API
 
-<Tabs items={['build()', 'dev()']}>
+<Tabs items={['build()', 'serve()', 'defineConfig()']}>
   <Tabs.Tab>
 ```javascript
 const { build } = require('@utoo/pack');
 
 await build({
-  mode: "production",
-  entry: [{ import: "./src/index.ts" }],
-  output: { path: "./dist" }
+  config: {
+    mode: "production",
+    entry: [{ import: "./src/index.ts" }],
+    output: { path: "./dist" }
+  }
 });
 ```
   </Tabs.Tab>
   <Tabs.Tab>
 ```javascript
-const { dev } = require('@utoo/pack');
+const { serve } = require('@utoo/pack');
 
-const server = await dev({
-  mode: "development",
-  entry: [{ import: "./src/index.ts" }],
-  output: { path: "./dist" }
+await serve(bundleOptions, projectPath, rootPath, {
+  logServerInfo: true,
+  port: 3000
 });
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```javascript
+// utoopack.config.mjs
+import { defineConfig } from '@utoo/pack';
 
-// server.close() 停止服务
+export default defineConfig({
+  entry: [{ import: './src/index.ts' }],
+  output: { path: './dist', clean: true },
+});
 ```
   </Tabs.Tab>
 </Tabs>
