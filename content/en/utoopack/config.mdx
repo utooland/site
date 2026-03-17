@@ -365,34 +365,7 @@ Inject environment variables by target environment (used by Next.js integration)
 | `nodejs` | Variables available in Node.js server bundles |
 | `edge` | Variables available in edge runtime bundles |
 
-## Experimental
 
-Experimental features (may change without notice).
-
-```json
-{
-  "experimental": {
-    "swcPlugins": [["@swc/plugin-emotion", {}]],
-    "reactCompiler": true,
-    "esmExternals": true,
-    "viewTransition": true
-  }
-}
-```
-
-| Option | Type | Description |
-|--------|------|-------------|
-| `swcPlugins` | `[string, any][]` | SWC transform plugins |
-| `reactCompiler` | `boolean \| object` | Enable React Compiler |
-| `esmExternals` | `boolean \| "loose"` | ESM externals handling |
-| `dynamicIO` | `boolean` | Dynamic IO support |
-| `useCache` | `boolean` | Enable caching |
-| `cacheHandlers` | `Record<string, string>` | Custom cache handlers |
-| `ppr` | `boolean \| "incremental"` | Partial prerendering |
-| `taint` | `boolean` | Taint tracking |
-| `viewTransition` | `boolean` | View Transitions API |
-| `serverActions` | `boolean \| object` | Server actions support |
-| `mdxRs` | `object` | MDX-RS options |
 
 ## Advanced Options
 

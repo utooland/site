@@ -365,34 +365,8 @@ export default defineConfig({
 | `nodejs` | Node.js 服务端构建中可用的变量 |
 | `edge` | Edge 运行时构建中可用的变量 |
 
-## 实验性功能
 
-实验性功能（可能在未通知的情况下更改）。
 
-```json
-{
-  "experimental": {
-    "swcPlugins": [["@swc/plugin-emotion", {}]],
-    "reactCompiler": true,
-    "esmExternals": true,
-    "viewTransition": true
-  }
-}
-```
-
-| 选项 | 类型 | 描述 |
-|------|------|------|
-| `swcPlugins` | `[string, any][]` | SWC 转换插件 |
-| `reactCompiler` | `boolean \| object` | 启用 React Compiler |
-| `esmExternals` | `boolean \| "loose"` | ESM externals 处理 |
-| `dynamicIO` | `boolean` | Dynamic IO 支持 |
-| `useCache` | `boolean` | 启用缓存 |
-| `cacheHandlers` | `Record<string, string>` | 自定义缓存处理器 |
-| `ppr` | `boolean \| "incremental"` | 部分预渲染 |
-| `taint` | `boolean` | Taint 追踪 |
-| `viewTransition` | `boolean` | View Transitions API |
-| `serverActions` | `boolean \| object` | Server Actions 支持 |
-| `mdxRs` | `object` | MDX-RS 选项 |
 
 ## 高级选项
 
