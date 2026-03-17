@@ -341,30 +341,6 @@ export default defineConfig({
 | `runtime` | JSX 运行时：`automatic` 或 `classic` |
 | `importSource` | JSX 导入来源（默认：`react`） |
 
-## defineEnv
-
-按目标环境注入环境变量（用于 Next.js 集成）。
-
-```json
-{
-  "defineEnv": {
-    "client": [
-      { "name": "API_URL", "value": "https://api.example.com" }
-    ],
-    "nodejs": [
-      { "name": "DB_HOST", "value": "localhost" }
-    ],
-    "edge": []
-  }
-}
-```
-
-| 目标 | 描述 |
-|------|------|
-| `client` | 浏览器构建中可用的变量 |
-| `nodejs` | Node.js 服务端构建中可用的变量 |
-| `edge` | Edge 运行时构建中可用的变量 |
-
 
 
 
@@ -376,22 +352,10 @@ export default defineConfig({
 | `stats` | `boolean` | 启用构建统计输出 |
 | `nodePolyfill` | `boolean` | 为浏览器 polyfill Node.js 内置模块 |
 | `persistentCaching` | `boolean` | 启用持久化构建缓存 |
-| `cacheHandler` | `string` | 自定义缓存处理器模块路径 |
 | `pluginRuntimeStrategy` | `string` | 插件执行方式：`workerThreads` 或 `childProcesses` |
 
-## 运行时选项
 
-这些选项可在 `utoopack.config.mjs` 中或通过编程 API 设置：
 
-| 选项 | 描述 |
-|------|------|
-| `processEnv` | 编译时环境变量 |
-| `watch` | 文件监听（`{ enable, pollIntervalMs }`） |
-| `dev` | 是否以开发模式运行 |
-| `buildId` | 构建标识符 |
-| `packPath` | `@utoo/pack` 的绝对路径 |
-| `rootPath` | 文件嵌套的根路径 |
-| `projectPath` | 根路径内的项目路径 |
 
 ## 编程 API
 

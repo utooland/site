@@ -341,30 +341,6 @@ Auto-provide modules (similar to webpack ProvidePlugin).
 | `runtime` | JSX runtime: `automatic` or `classic` |
 | `importSource` | Source for JSX imports (default: `react`) |
 
-## defineEnv
-
-Inject environment variables by target environment (used by Next.js integration).
-
-```json
-{
-  "defineEnv": {
-    "client": [
-      { "name": "API_URL", "value": "https://api.example.com" }
-    ],
-    "nodejs": [
-      { "name": "DB_HOST", "value": "localhost" }
-    ],
-    "edge": []
-  }
-}
-```
-
-| Target | Description |
-|--------|-------------|
-| `client` | Variables available in browser bundles |
-| `nodejs` | Variables available in Node.js server bundles |
-| `edge` | Variables available in edge runtime bundles |
-
 
 
 ## Advanced Options
@@ -375,22 +351,9 @@ Inject environment variables by target environment (used by Next.js integration)
 | `stats` | `boolean` | Enable build statistics output |
 | `nodePolyfill` | `boolean` | Polyfill Node.js built-ins for browser |
 | `persistentCaching` | `boolean` | Enable persistent build cache |
-| `cacheHandler` | `string` | Custom cache handler module path |
 | `pluginRuntimeStrategy` | `string` | Plugin execution: `workerThreads` or `childProcesses` |
 
-## Runtime Options
 
-These options can be set in `utoopack.config.mjs` or via the programmatic API:
-
-| Option | Description |
-|--------|-------------|
-| `processEnv` | Environment variables for compilation |
-| `watch` | File watching (`{ enable, pollIntervalMs }`) |
-| `dev` | Whether to run in development mode |
-| `buildId` | Build identifier |
-| `packPath` | Absolute path for `@utoo/pack` |
-| `rootPath` | Root path for file nesting |
-| `projectPath` | Project path within root |
 
 ## Programmatic API
 
