@@ -1,6 +1,6 @@
 export default {
   index: '概述',
-  cli: 'CLI',
   features: '功能特性',
-  config: '配置'
+  config: '配置',
+  cli: 'CLI'
 }
