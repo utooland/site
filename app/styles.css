@@ -269,9 +269,9 @@
   transform: translateX(100%);
 }
 
-/* Nextra docs layout - narrower content width */
+/* Nextra docs layout - content width */
 :root {
-  --nextra-content-width: 70rem;
+  --nextra-content-width: 90rem;
 }
 
 .nextra-content pre {

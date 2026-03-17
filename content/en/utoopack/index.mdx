@@ -57,10 +57,10 @@ runBuild();
   </Tabs.Tab>
   <Tabs.Tab>
 ```javascript filename="dev.js"
-const { dev } = require('@utoo/pack');
+const { serve } = require('@utoo/pack');
 
 async function startDev() {
-  const server = await dev({
+  await serve({
     config: {
       entry: [
         {
@@ -129,5 +129,11 @@ The bundler can be configured via `utoopack.json` or through the programmatic AP
 | `define` | Build-time variable replacement |
 | `externals` | Exclude specific dependencies from the bundle |
 | `mode` | `development` or `production` |
+| `resolve` | Module resolution (`alias`, `extensions`) |
+| `module` | Custom loader rules |
+| `optimization` | Minification, tree shaking, split chunks, and more |
+| `styles` | Less, Sass, CSS Modules, Emotion, styled-components |
+| `devServer` | Dev server (`hot`, `port`, `host`, `https`) |
+| `stats` | Enable build statistics output |
 
 See [Configuration](/en/docs/utoopack/config) for full details.

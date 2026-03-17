@@ -83,7 +83,7 @@ utx create-react-app my-app
 | [`uninstall`](/zh/docs/utoo/commands/uninstall) | `un` | 卸载依赖 |
 | [`run`](/zh/docs/utoo/commands/run) | `r` | 运行 package.json 脚本 |
 | [`execute`](/zh/docs/utoo/commands/execute) | `x` | 执行 npm 包命令 |
-| [`view`](/zh/docs/utoo/commands/view) | `v`, `info` | 查看包信息 |
+| [`view`](/zh/docs/utoo/commands/view) | `v`, `info`, `show` | 查看包信息 |
 | [`list`](/zh/docs/utoo/commands/list) | `ls` | 列出依赖树 |
 | [`link`](/zh/docs/utoo/commands/link) | `ln` | 链接本地包 |
 | [`deps`](/zh/docs/utoo/commands/deps) | `d` | 生成 package-lock.json |
@@ -96,6 +96,9 @@ utx create-react-app my-app
 | [`logout`](/zh/docs/utoo/commands/logout) | `lo` | 注销登录 |
 | [`whoami`](/zh/docs/utoo/commands/whoami) | `who` | 显示当前用户名 |
 | [`config`](/zh/docs/utoo/config) | `cfg` | 管理配置 |
+| [`init`](/zh/docs/utoo/commands/init) | `create` | 创建 package.json 文件 |
+| [`publish`](/zh/docs/utoo/commands/publish) | `pub` | 发布包到镜像源 |
+| [`completions`](/zh/docs/utoo/commands/completions) | `cmp` | 生成 shell 自动补全脚本 |
 
 ## 全局选项
 
@@ -105,6 +108,7 @@ utx create-react-app my-app
 | `--registry <url>` | 覆盖 npm 镜像源 |
 | `--cache-dir <path>` | 指定缓存目录 |
 | `--legacy-peer-deps` | 传统 peer 依赖处理 |
+| `--manifests-concurrency-limit <n>` | 最大并发 manifest 请求数（默认：64） |
 | `-h, --help` | 显示帮助 |
 | `-v, --version` | 显示版本 |
 
