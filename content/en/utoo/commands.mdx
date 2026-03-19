@@ -8,13 +8,13 @@ Install project dependencies or add new packages.
 
 **Alias:** `i`
 
-### Usage
+**Usage**
 
 ```bash filename="Terminal"
 ut install [OPTIONS] [PACKAGES...]
 ```
 
-### Examples
+**Examples**
 
 ```bash filename="Terminal" copy
 # Install all dependencies from package.json
@@ -43,7 +43,7 @@ ut install -O fsevents
 ut install -g utoo
 ```
 
-### Options
+**Options**
 
 | Option | Description |
 |--------|-------------|
@@ -58,7 +58,7 @@ ut install -g utoo
 | `--ignore-scripts` | Skip running dependency scripts |
 | `--legacy-peer-deps` | Legacy peer dependency handling |
 
-### Version Specification
+**Version Specification**
 
 When adding packages, utoo normalizes versions:
 
@@ -74,13 +74,13 @@ Remove packages from dependencies.
 
 **Alias:** `un`
 
-### Usage
+**Usage**
 
 ```bash filename="Terminal"
 ut uninstall [OPTIONS] <PACKAGES...>
 ```
 
-### Examples
+**Examples**
 
 ```bash filename="Terminal" copy
 # Remove a package
@@ -94,7 +94,7 @@ ut uninstall lodash moment
 ut uninstall lodash -w my-app
 ```
 
-### Options
+**Options**
 
 | Option | Description |
 |--------|-------------|
@@ -107,13 +107,13 @@ Run scripts defined in package.json.
 
 **Alias:** `r`
 
-### Usage
+**Usage**
 
 ```bash filename="Terminal"
 ut run [OPTIONS] [SCRIPT] [ARGS...]
 ```
 
-### Examples
+**Examples**
 
 ```bash filename="Terminal" copy
 # Run a script
@@ -136,7 +136,7 @@ ut run
 # → Prompts to select workspace and script
 ```
 
-### Shortcut
+**Shortcut**
 
 You can run scripts directly without `run`:
 
@@ -146,14 +146,14 @@ ut dev        # same as: ut run dev
 ut test       # same as: ut run test
 ```
 
-### Options
+**Options**
 
 | Option | Description |
 |--------|-------------|
 | `-w, --workspace <name>` | Run in specific workspace |
 | `--workspaces` | Run in all workspaces with topological ordering |
 
-### Workspace Execution Order
+**Workspace Execution Order**
 
 When using `--workspaces`, scripts are executed in topological order based on dependency relationships, ensuring dependencies are built before dependents.
 
@@ -165,14 +165,14 @@ Run a command from a local or remote npm package.
 
 See also: [utx Alias](/en/docs/utoo/utx)
 
-### Usage
+**Usage**
 
 ```bash filename="Terminal"
 ut execute [OPTIONS] <COMMAND> [ARGS...]
 utx <COMMAND> [ARGS...]
 ```
 
-### Examples
+**Examples**
 
 ```bash filename="Terminal" copy
 # Execute a package command
@@ -189,14 +189,14 @@ utx prettier --write .
 utx eslint --fix src/
 ```
 
-### Options
+**Options**
 
 | Option | Description |
 |--------|-------------|
 | `--registry <url>` | Override npm registry |
 | `--cache-dir <path>` | Specify cache directory |
 
-### How It Works
+**How It Works**
 
 1. Checks if the command exists in local `node_modules/.bin`
 2. If not found, downloads the package from registry
@@ -208,13 +208,13 @@ View package information from the registry.
 
 **Aliases:** `v`, `info`, `show`
 
-### Usage
+**Usage**
 
 ```bash filename="Terminal"
 ut view [OPTIONS] <PACKAGE>
 ```
 
-### Examples
+**Examples**
 
 ```bash filename="Terminal" copy
 # View package info
@@ -226,13 +226,13 @@ ut info typescript
 ut view react@18.0.0
 ```
 
-### Options
+**Options**
 
 | Option | Description |
 |--------|-------------|
 | `--registry <url>` | Override npm registry |
 
-### Output
+**Output**
 
 Displays package metadata including:
 - Package name and description
@@ -248,19 +248,19 @@ List installed dependencies.
 
 **Alias:** `ls`
 
-### Usage
+**Usage**
 
 ```bash filename="Terminal"
 ut list <PACKAGE>
 ```
 
-### Arguments
+**Arguments**
 
 | Argument | Description |
 |----------|-------------|
 | `<PACKAGE>` | Package name to show dependencies for (required) |
 
-### Examples
+**Examples**
 
 ```bash filename="Terminal" copy
 # List specific package and its dependencies
@@ -274,13 +274,13 @@ Link a local package for development.
 
 **Alias:** `ln`
 
-### Usage
+**Usage**
 
 ```bash filename="Terminal"
 ut link [OPTIONS] [PACKAGE]
 ```
 
-### Examples
+**Examples**
 
 ```bash filename="Terminal" copy
 # In the package you want to link (e.g., my-lib/)
@@ -292,18 +292,18 @@ cd my-app
 ut link my-lib
 ```
 
-### Options
+**Options**
 
 | Option | Description |
 |--------|-------------|
 | `-p, --prefix <path>` | Prefix for global package path |
 
-### How It Works
+**How It Works**
 
 1. `ut link` (without arguments) creates a global symlink to the current package
 2. `ut link <package>` creates a symlink from local `node_modules/<package>` to the global link
 
-### Use Cases
+**Use Cases**
 
 - Developing a library and testing it in another project
 - Working on monorepo packages without publishing
@@ -315,13 +315,13 @@ Generate package-lock.json without installing packages.
 
 **Alias:** `d`
 
-### Usage
+**Usage**
 
 ```bash filename="Terminal"
 ut deps [OPTIONS]
 ```
 
-### Examples
+**Examples**
 
 ```bash filename="Terminal" copy
 # Generate lock file
@@ -332,7 +332,7 @@ ut d
 ut deps --registry https://registry.npmmirror.com
 ```
 
-### Options
+**Options**
 
 | Option | Description |
 |--------|-------------|
@@ -340,7 +340,7 @@ ut deps --registry https://registry.npmmirror.com
 | `--registry <url>` | Override npm registry |
 | `--legacy-peer-deps` | Legacy peer dependency handling |
 
-### Use Cases
+**Use Cases**
 
 - Generate lock file for CI/CD without full installation
 - Update dependency resolution without modifying node_modules
@@ -352,13 +352,13 @@ Remove node_modules and reinstall all dependencies.
 
 **Alias:** `u`
 
-### Usage
+**Usage**
 
 ```bash filename="Terminal"
 ut update
 ```
 
-### Examples
+**Examples**
 
 ```bash filename="Terminal" copy
 # Clean reinstall
@@ -366,13 +366,13 @@ ut update
 ut u
 ```
 
-### What It Does
+**What It Does**
 
 1. Removes `node_modules` directory
 2. Reinstalls all dependencies from package.json
 3. Regenerates package-lock.json
 
-### Use Cases
+**Use Cases**
 
 - Fix corrupted node_modules
 - Clean slate after major dependency changes
@@ -384,13 +384,13 @@ Rebuild script hooks in all packages.
 
 **Alias:** `rb`
 
-### Usage
+**Usage**
 
 ```bash filename="Terminal"
 ut rebuild [OPTIONS]
 ```
 
-### Examples
+**Examples**
 
 ```bash filename="Terminal" copy
 # Rebuild all packages
@@ -398,20 +398,20 @@ ut rebuild
 ut rb
 ```
 
-### Options
+**Options**
 
 | Option | Description |
 |--------|-------------|
 | `--verbose` | Enable debug logging |
 
-### What It Does
+**What It Does**
 
 Re-runs install scripts for all packages in node_modules, including:
 - `preinstall`
 - `install`
 - `postinstall`
 
-### Use Cases
+**Use Cases**
 
 - After native module compilation fails
 - When switching Node.js versions
@@ -423,13 +423,13 @@ Clean package cache in global storage.
 
 **Alias:** `c`
 
-### Usage
+**Usage**
 
 ```bash filename="Terminal"
 ut clean [OPTIONS] [PATTERN]
 ```
 
-### Examples
+**Examples**
 
 ```bash filename="Terminal" copy
 # Clean all cache
@@ -441,19 +441,19 @@ ut clean lodash
 ut clean react*
 ```
 
-### Options
+**Options**
 
 | Option | Description |
 |--------|-------------|
 | `--cache-dir <path>` | Specify cache directory |
 
-### Cache Location
+**Cache Location**
 
 Default cache directory: `~/.cache/nm`
 
 See [Storage Paths](/en/docs/utoo/stores) for more details.
 
-### Use Cases
+**Use Cases**
 
 - Free up disk space
 - Force re-download of corrupted packages
@@ -465,19 +465,19 @@ Create a tarball from a package.
 
 **Alias:** `pk`
 
-### Usage
+**Usage**
 
 ```bash filename="Terminal"
 ut pm-pack [OPTIONS] [PATH]
 ```
 
-### Arguments
+**Arguments**
 
 | Argument | Description |
 |----------|-------------|
 | `[PATH]` | Path to the package directory (defaults to current directory) |
 
-### Examples
+**Examples**
 
 ```bash filename="Terminal" copy
 # Pack the current directory
@@ -491,13 +491,13 @@ ut pm-pack ./packages/my-lib
 ut pm-pack --dry-run
 ```
 
-### Options
+**Options**
 
 | Option | Description |
 |--------|-------------|
 | `--dry-run` | Perform a dry run without creating a tarball |
 
-### Use Cases
+**Use Cases**
 
 - Inspect package contents and size before publishing
 - Create `.tgz` packages for local testing
@@ -509,19 +509,19 @@ Ping npm registry to check connectivity and latency.
 
 **Alias:** `pg`
 
-### Usage
+**Usage**
 
 ```bash filename="Terminal"
 ut ping [REGISTRY]
 ```
 
-### Arguments
+**Arguments**
 
 | Argument | Description |
 |----------|-------------|
 | `[REGISTRY]` | Registry URL to ping (defaults to configured registry) |
 
-### Examples
+**Examples**
 
 ```bash filename="Terminal" copy
 # Ping the default registry
@@ -533,7 +533,7 @@ ut ping https://registry.npmjs.org
 ut ping https://registry.npmmirror.com
 ```
 
-### Output
+**Output**
 
 - Success: `PONG {latency}ms (supports-semver: yes/no)`
 - Failure: `FAIL registry did not respond ({latency}ms)`
@@ -561,7 +561,7 @@ supports-semver = [
 
 Probe results for multiple registries are cached simultaneously, so switching registries (e.g. `ut install --registry=xxx`) won't trigger a re-probe.
 
-### Use Cases
+**Use Cases**
 
 - Check if a registry is reachable
 - Compare latency between different registries
@@ -573,13 +573,13 @@ Login to npm registry.
 
 **Alias:** `lg`
 
-### Usage
+**Usage**
 
 ```bash filename="Terminal"
 ut login [OPTIONS]
 ```
 
-### Examples
+**Examples**
 
 ```bash filename="Terminal" copy
 # Login to default registry
@@ -590,19 +590,19 @@ ut lg
 ut login --registry https://registry.npmjs.org
 ```
 
-### Options
+**Options**
 
 | Option | Description |
 |--------|-------------|
 | `--registry <url>` | Specify the registry to login to |
 
-### How It Works
+**How It Works**
 
 1. Opens a browser for web-based authentication
 2. Saves the authentication token locally on success
 3. Token is used for subsequent authenticated operations
 
-### Related Commands
+**Related Commands**
 
 - [logout](#logout) - Logout from registry
 - [whoami](#whoami) - Display current logged-in user
@@ -613,13 +613,13 @@ Logout from npm registry.
 
 **Alias:** `lo`
 
-### Usage
+**Usage**
 
 ```bash filename="Terminal"
 ut logout [OPTIONS]
 ```
 
-### Examples
+**Examples**
 
 ```bash filename="Terminal" copy
 # Logout from default registry
@@ -630,19 +630,19 @@ ut lo
 ut logout --registry https://registry.npmjs.org
 ```
 
-### Options
+**Options**
 
 | Option | Description |
 |--------|-------------|
 | `--registry <url>` | Specify the registry to logout from |
 
-### How It Works
+**How It Works**
 
 1. Reads the saved authentication token
 2. Sends a logout request to revoke the token
 3. Removes the token from local storage
 
-### Related Commands
+**Related Commands**
 
 - [login](#login) - Login to registry
 - [whoami](#whoami) - Display current logged-in user
@@ -653,13 +653,13 @@ Display npm username for the current logged-in user.
 
 **Alias:** `who`
 
-### Usage
+**Usage**
 
 ```bash filename="Terminal"
 ut whoami [OPTIONS]
 ```
 
-### Examples
+**Examples**
 
 ```bash filename="Terminal" copy
 # Show current user
@@ -670,13 +670,13 @@ ut who
 ut whoami --registry https://registry.npmjs.org
 ```
 
-### Options
+**Options**
 
 | Option | Description |
 |--------|-------------|
 | `--registry <url>` | Specify the registry |
 
-### Related Commands
+**Related Commands**
 
 - [login](#login) - Login to registry
 - [logout](#logout) - Logout from registry
@@ -687,13 +687,13 @@ Create a package.json file.
 
 **Alias:** `create`
 
-### Usage
+**Usage**
 
 ```bash filename="Terminal"
 ut init [OPTIONS]
 ```
 
-### Examples
+**Examples**
 
 ```bash filename="Terminal" copy
 # Interactive mode (prompts for name, version, etc.)
@@ -704,7 +704,7 @@ ut init --yes
 ut init -y
 ```
 
-### Options
+**Options**
 
 | Option | Description |
 |--------|-------------|
@@ -716,13 +716,13 @@ Publish a package to the npm registry.
 
 **Alias:** `pub`
 
-### Usage
+**Usage**
 
 ```bash filename="Terminal"
 ut publish [OPTIONS]
 ```
 
-### Examples
+**Examples**
 
 ```bash filename="Terminal" copy
 # Publish to default registry
@@ -738,7 +738,7 @@ ut publish --tag beta
 ut publish --otp 123456
 ```
 
-### Options
+**Options**
 
 | Option | Description |
 |--------|-------------|
@@ -746,14 +746,14 @@ ut publish --otp 123456
 | `--dry-run` | Preview without actually publishing |
 | `--otp <code>` | One-time password for two-factor authentication |
 
-### How It Works
+**How It Works**
 
 1. Reads `package.json` from the current directory
 2. Validates package metadata (name, version)
 3. Resolves the registry from `publishConfig.registry` or global config
 4. Creates a tarball and publishes to the registry
 
-### Related Commands
+**Related Commands**
 
 - [pm-pack](#pm-pack) - Create a tarball without publishing
 - [login](#login) - Login to registry before publishing
@@ -764,13 +764,13 @@ Generate shell completion scripts for utoo.
 
 **Alias:** `cmp`
 
-### Usage
+**Usage**
 
 ```bash filename="Terminal"
 ut completions [SHELL]
 ```
 
-### Arguments
+**Arguments**
 
 | Argument | Description |
 |----------|-------------|
@@ -778,7 +778,7 @@ ut completions [SHELL]
 
 Supported shells: `bash`, `zsh`, `fish`, `powershell`, `elvish`
 
-### Examples
+**Examples**
 
 ```bash filename="Terminal" copy
 # Auto-detect shell and output completions
@@ -790,7 +790,7 @@ ut completions zsh
 ut completions fish
 ```
 
-### Setup
+**Setup**
 
 Add to your shell config for persistent completions:
 

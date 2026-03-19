@@ -55,7 +55,7 @@ export default defineConfig({
 
 ## Core Options
 
-### mode
+**mode**
 
 Build mode, affects optimizations and defaults.
 
@@ -64,7 +64,7 @@ Build mode, affects optimizations and defaults.
 | `development` | Faster builds, better debugging, HMR enabled |
 | `production` | Optimized output, minification, tree shaking |
 
-### entry
+**entry**
 
 Define application entry points.
 
@@ -90,7 +90,7 @@ Define application entry points.
 }
 ```
 
-### output
+**output**
 
 Configure output settings.
 
@@ -125,11 +125,11 @@ Configure output settings.
 | `chunkLoadingGlobal` | Global variable name for loading chunks |
 | `entryRootExport` | Expose entry exports to global scope |
 
-### target
+**target**
 
 Target environment string (e.g., `"web"`, `"node"`).
 
-### define
+**define**
 
 Build-time variable replacement.
 
@@ -142,7 +142,7 @@ Build-time variable replacement.
 }
 ```
 
-### externals
+**externals**
 
 Exclude dependencies from the bundle.
 
@@ -157,7 +157,7 @@ Exclude dependencies from the bundle.
 
 Externals support simple string globals, UMD configuration, and advanced subpath configuration.
 
-### resolve
+**resolve**
 
 Module resolution configuration.
 
@@ -173,7 +173,7 @@ Module resolution configuration.
 }
 ```
 
-### module
+**module**
 
 Module rules and conditions for custom loaders.
 
@@ -200,7 +200,7 @@ Module rules and conditions for custom loaders.
 | `rules` | Map glob patterns to loaders |
 | `conditions` | Configure loader conditions by path (glob or regex) |
 
-### provider
+**provider**
 
 Auto-provide modules (similar to webpack ProvidePlugin).
 

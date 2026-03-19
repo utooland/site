@@ -6,7 +6,7 @@ import { Callout, Steps, Tabs } from 'nextra/components'
 
 <Steps>
 
-### 实例化项目
+**实例化项目**
 
 创建 `Project` 实例，配置 Worker 和 Service Worker。
 
@@ -39,7 +39,7 @@ const project = new UtooProject({
 });
 ```
 
-### 安装 Service Worker
+**安装 Service Worker**
 
 要启用预览功能，您必须注册并安装 Service Worker。
 
@@ -47,7 +47,7 @@ const project = new UtooProject({
 await project.installServiceWorker();
 ```
 
-### 解析和安装依赖
+**解析和安装依赖**
 
 `@utoo/web` 提供两种依赖管理方式：
 
@@ -88,7 +88,7 @@ await project.install(JSON.stringify(packageLock));
 - **减少网络流量**：常用依赖包只需下载一次，后续项目即可直接使用，大幅降低网络开销
 - **跨标签页复用**：即使开启新的浏览器标签页，只要处于同一域名下，依赖均可以直接复用
 
-### 写入项目文件
+**写入项目文件**
 
 环境设置好后，您现在可以将源文件写入真实文件系统。
 
@@ -104,7 +104,7 @@ for (const filePath in demoFiles) {
 }
 ```
 
-### 创建构建配置
+**创建构建配置**
 
 在构建项目之前，您需要在项目的根目录中提供一个名为 `utoopack.json` 的构建配置文件。
 
@@ -146,7 +146,7 @@ await project.writeFile('utoopack.json', JSON.stringify(utoopackConfig, null, 2)
 
 `utooweb-demo` 展示了一个完整的编辑、构建和预览的工作流。
 
-### 1. 编辑
+**1. 编辑**
 
 使用 `project.readFile()` 读取文件并显示在编辑器中。当内容更改时，调用 `project.writeFile()`（通常带有防抖动）将更改保存回 OPFS。
 
@@ -156,7 +156,7 @@ const content = await project.readFile(filePath, "utf8");
 await project.writeFile(selectedFilePath, newContent);
 ```
 
-### 2. 构建
+**2. 构建**
 
 用户点击"构建"按钮，调用 `project.build()`。
 
@@ -172,7 +172,7 @@ try {
 }
 ```
 
-### 3. 处理构建输出
+**3. 处理构建输出**
 
 构建成功后，应用程序读取构建输出（例如 `dist/stats.json`）以查找生成的资源文件（`.js`、`.css`）。然后它会生成一个包含这些资源的 `index.html`。
 
@@ -183,7 +183,7 @@ const stats = JSON.parse(statsContent);
 await project.writeFile("dist/index.html", generatedHtml);
 ```
 
-### 4. 预览
+**4. 预览**
 
 `Preview` 组件包含一个 `iframe`，其 `src` 指向 Service Worker 范围内的入口点（例如 `/preview/dist/index.html`）。构建完成后，`iframe` 会重新从 Service Worker 加载 OPFS 中新生成的产物文件。
 

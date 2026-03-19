@@ -26,7 +26,7 @@ This architecture ensures that `@utoo/web` delivers a responsive development exp
 
 Getting a project up and running involves four main steps. See `examples/utooweb-demo` or try [`utoo-repl`](https://utoo-repl.vercel.app).
 
-### 1. Instantiate the Project
+**1. Instantiate the Project**
 
 Create a `Project` instance with configuration for workers and the service worker.
 
@@ -59,7 +59,7 @@ const project = new UtooProject({
 });
 ```
 
-### 2. Install the Service Worker
+**2. Install the Service Worker**
 
 To enable the preview functionality, you must register and install the service worker.
 
@@ -67,11 +67,11 @@ To enable the preview functionality, you must register and install the service w
 await project.installServiceWorker();
 ```
 
-### 3. Resolve and Install Dependencies
+**3. Resolve and Install Dependencies**
 
 `@utoo/web` provides two approaches for dependency management:
 
-#### Option A: Generate lock file from package.json (Recommended)
+**Option A: Generate lock file from package.json (Recommended)**
 
 Use the `deps()` method to resolve dependencies directly from your `package.json`. This generates a `package-lock.json` compatible lock file without needing one beforehand.
 
@@ -86,7 +86,7 @@ const packageLock = await project.deps({
 await project.install(packageLock);
 ```
 
-#### Option B: Use existing package-lock.json
+**Option B: Use existing package-lock.json**
 
 If you already have a `package-lock.json`, you can use it directly:
 
@@ -105,7 +105,7 @@ import { packageLock } from "../packageLock";
 await project.install(JSON.stringify(packageLock));
 ```
 
-### 4. Write Project Files
+**4. Write Project Files**
 
 With the environment set up, you can now write your source files to the real file system.
 
@@ -121,7 +121,7 @@ for (const filePath in demoFiles) {
 }
 ```
 
-### 5. Create Build Configuration
+**5. Create Build Configuration**
 
 Before you can build the project, you need to provide a build configuration file named `utoopack.json` in the project's root directory. This file tells `@utoo/web` how to bundle your application, specifying entry points and other build options.
 
@@ -161,94 +161,118 @@ After these steps, your project is fully initialized and ready for interaction.
 
 ## API Reference
 
-### `new UtooProject(options)`
+**`new UtooProject(options)`**
 
 Creates a new project instance.
 
 **Options:**
 
-* `cwd` (string, required): The absolute path that will serve as the root of the project in the real file system (e.g., `/my-app`).
-* `workerUrl` (string, optional): Specifies the URL of the Worker thread where the `Project` instance's core logic actually runs. The `Project` object you interact with in the main thread is a proxy that delegates all core tasks (like file system operations) to this Worker. This architecture is key to keeping the UI responsive.
-* `threadWorkerUrl` (string, required): Specifies the URL of a separate Worker thread dedicated to handling CPU-intensive tasks like bundling and compiling. This isolates the heavy build process from the `Project`'s main logic worker.
-* `loaderWorkerUrl` (string, required): Specifies the URL of a separate Worker thread dedicated to handling webpack loaders.
-* `serviceWorker` (object, optional):
-  * `url` (string, required): The URL to the service worker script.
-  * `scope` (string, required): The URL scope that the service worker will intercept requests for. This is the base path for your preview environment.
-* `loadersImportMap` (object, optional): A map for configuring Webpack loader imports. This is an optional advanced configuration. Typically, you can simply declare loader dependencies in `package.json` to install and use them. Configuring `loadersImportMap` allows you to provide pre-bundled, single files that adhere to the CommonJS specification (as a URL string or content string). This avoids file system I/O overhead caused by `require` operations during loader execution, thereby significantly improving build performance. The key is the loader's name, and the value is the URL or content string of the UMD/CommonJS module. Loaders will be executed in parallel in a web worker pool.
+| Option | Type | Description |
+|--------|------|-------------|
+| `cwd` | string | **Required.** The absolute path that will serve as the root of the project in the real file system (e.g., `/my-app`). |
+| `workerUrl` | string | Specifies the URL of the Worker thread where the `Project` instance's core logic actually runs. The `Project` object you interact with in the main thread is a proxy that delegates all core tasks (like file system operations) to this Worker. |
+| `threadWorkerUrl` | string | **Required.** Specifies the URL of a separate Worker thread dedicated to handling CPU-intensive tasks like bundling and compiling. |
+| `loaderWorkerUrl` | string | **Required.** Specifies the URL of a separate Worker thread dedicated to handling webpack loaders. |
+| `serviceWorker` | object | Service worker configuration. See sub-options below. |
+| `loadersImportMap` | object | A map for configuring Webpack loader imports. Keys are loader names, values are UMD/CommonJS module URLs or content strings. Loaders will be executed in parallel in a web worker pool. |
 
-### File System Methods
+**`serviceWorker` sub-options:**
+
+| Option | Type | Description |
+|--------|------|-------------|
+| `url` | string | **Required.** The URL to the service worker script. |
+| `scope` | string | **Required.** The URL scope that the service worker will intercept requests for. |
+
+**File System Methods**
 
 These methods are asynchronous and mimic the Node.js `fs` API.
 
-#### `project.writeFile(path, content)`
+**`project.writeFile(path, content)`**
 
 Writes content to a file in the real file system. If the file doesn't exist, it will be created.
 
-* `path` (string): The absolute path to the file (e.g., `/src/index.js`).
-* `content` (string | Buffer): The content to write.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `path` | string | The absolute path to the file (e.g., `/src/index.js`). |
+| `content` | string \| Buffer | The content to write. |
 
-#### `project.readFile(path, encoding)`
+**`project.readFile(path, encoding)`**
 
 Reads the content of a file.
 
-* `path` (string): The path to the file.
-* `encoding` (string, optional): The encoding of the file (e.g., `'utf8'`). If not provided, it returns a Buffer.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `path` | string | The path to the file. |
+| `encoding` | string | The encoding of the file (e.g., `'utf8'`). If not provided, it returns a Buffer. |
 
-#### `project.readdir(path, options?)`
+**`project.readdir(path, options?)`**
 
 Reads the contents of a directory.
 
-* `path` (string): The path to the directory.
-* `options` (object, optional):
-  * `recursive` (boolean): If `true`, reads recursively.
-* Returns: `Promise<Dirent[]>` - An array of `Dirent` objects with `name`, `isDirectory()`, and `isFile()` methods.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `path` | string | The path to the directory. |
+| `options.recursive` | boolean | If `true`, reads recursively. |
 
-#### `project.mkdir(path, options?)`
+**Returns:** `Promise<Dirent[]>` - An array of `Dirent` objects with `name`, `isDirectory()`, and `isFile()` methods.
+
+**`project.mkdir(path, options?)`**
 
 Creates a new directory.
 
-* `path` (string): The path to the directory to be created.
-* `options` (object, optional):
-  * `recursive` (boolean): If `true`, creates parent directories as needed.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `path` | string | The path to the directory to be created. |
+| `options.recursive` | boolean | If `true`, creates parent directories as needed. |
 
-#### `project.rm(path, options)`
+**`project.rm(path, options)`**
 
 Removes a file or directory.
 
-* `path` (string): The path to the file or directory to be removed.
-* `options` (object, optional):
-  * `recursive` (boolean): If `true`, performs a recursive directory removal. Defaults to `false`.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `path` | string | The path to the file or directory to be removed. |
+| `options.recursive` | boolean | If `true`, performs a recursive directory removal. Defaults to `false`. |
 
-#### `project.rmdir(path)`
+**`project.rmdir(path)`**
 
 Removes a directory.
 
-* `path` (string): The path to the directory to be removed.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `path` | string | The path to the directory to be removed. |
 
-#### `project.copyFile(src, dst)`
+**`project.copyFile(src, dst)`**
 
 Copies a file from source to destination.
 
-* `src` (string): Source file path.
-* `dst` (string): Destination file path.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `src` | string | Source file path. |
+| `dst` | string | Destination file path. |
 
-#### `project.stat(path)`
+**`project.stat(path)`**
 
 Gets file/directory stats.
 
-* `path` (string): The path to the file or directory.
-* Returns: `Promise<Stats>` - Stats object with `size`, `isDirectory()`, `isFile()`, timestamps.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `path` | string | The path to the file or directory. |
 
-### Dependency Management
+**Returns:** `Promise<Stats>` - Stats object with `size`, `isDirectory()`, `isFile()`, timestamps.
 
-#### `project.deps(options?)`
+**Dependency Management**
+
+**`project.deps(options?)`**
 
 Resolves dependencies from the project's `package.json` and generates a lock file string. This enables dependency resolution directly in the browser without requiring a pre-existing `package-lock.json`.
 
 **Options:**
 
-* `registry` (string, optional): The npm registry URL to use for fetching package metadata. Defaults to `https://registry.npmmirror.com`. You can use any npm-compatible registry, including private registries.
-* `concurrency` (number, optional): Maximum number of concurrent network requests for fetching package metadata. Defaults to `20`.
+| Option | Type | Description |
+|--------|------|-------------|
+| `registry` | string | The npm registry URL. Defaults to `https://registry.npmmirror.com`. |
+| `concurrency` | number | Maximum concurrent network requests. Defaults to `20`. |
 
 **Returns:** `Promise<string>` - A JSON string representing the resolved dependency lock file, compatible with `package-lock.json` format.
 
@@ -270,36 +294,37 @@ const lockFile = await project.deps({
 });
 ```
 
-#### `project.install(packageLockJsonString, options?)`
+**`project.install(packageLockJsonString, options?)`**
 
 Populates the `node_modules` directory based on a lock file string.
 
-* `packageLockJsonString` (string): A JSON string of the dependency lock file (from `deps()` or a `package-lock.json` file).
-* `options` (object, optional):
-  * `maxConcurrentDownloads` (number): Maximum concurrent package downloads.
-  * `omit` (string[]): Dependency types to omit. Possible values: `"dev"`, `"optional"`.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `packageLockJsonString` | string | A JSON string of the dependency lock file (from `deps()` or a `package-lock.json` file). |
+| `options.maxConcurrentDownloads` | number | Maximum concurrent package downloads. |
+| `options.omit` | string[] | Dependency types to omit. Possible values: `"dev"`, `"optional"`. |
 
-### Preview Functionality
+**Preview Functionality**
 
-#### `project.installServiceWorker()`
+**`project.installServiceWorker()`**
 
 Registers and activates the service worker defined in the constructor. This is essential for the preview functionality.
 
-#### `project.build()`
+**`project.build()`**
 
 Triggers the build process in the thread worker. It reads the build configuration from `utoopack.json` in the project's root and runs the bundler based on that configuration.
 
 * Returns: `Promise<BuildOutput>` - Object with an `issues` array containing any build warnings or errors.
 
-### Development Mode & HMR
+**Development Mode & HMR**
 
-#### `project.dev(onUpdate?)`
+**`project.dev(onUpdate?)`**
 
 Starts development mode with file watching and Hot Module Replacement (HMR). Unlike `build()`, `dev()` continuously watches for file changes and automatically triggers incremental builds.
 
-**Arguments:**
-
-* `onUpdate` (function, optional): Callback when a build completes, receives the build result (including issues and diagnostics).
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `onUpdate` | function | Callback when a build completes, receives the build result. Optional. |
 
 **Example:**
 
@@ -309,14 +334,14 @@ project.dev((result) => {
 });
 ```
 
-#### `project.updateInfoSubscribe(aggregationMs, callback)`
+**`project.updateInfoSubscribe(aggregationMs, callback)`**
 
 Subscribe to compilation lifecycle events. This replaces the old `onUpdateStart` and `onUpdateEnd` hooks.
 
-**Arguments:**
-
-* `aggregationMs` (number): Aggregation time in milliseconds.
-* `callback` (function): Receives an `UpdateMessage` object.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `aggregationMs` | number | Aggregation time in milliseconds. |
+| `callback` | function | Receives an `UpdateMessage` object. |
 
 **Example:**
 
@@ -331,13 +356,16 @@ project.updateInfoSubscribe(100, (message) => {
 });
 ```
 
-#### `project.connectHmrIframe(iframe, origin?)`
+**`project.connectHmrIframe(iframe, origin?)`**
 
 Connects a preview iframe to the HMR server. Returns an `HmrClient` instance.
 
-* `iframe` (HTMLIFrameElement): The preview page's iframe element.
-* `origin` (string, optional): The origin of the preview page (defaults to `*`).
-* Returns: `HmrClient | null` - The HMR client instance, or `null` if `dev()` has not been called. Call `client.close()` to disconnect.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `iframe` | HTMLIFrameElement | The preview page's iframe element. |
+| `origin` | string | The origin of the preview page (defaults to `*`). Optional. |
+
+**Returns:** `HmrClient | null` - The HMR client instance, or `null` if `dev()` has not been called. Call `client.close()` to disconnect.
 
 **Example:**
 
@@ -355,7 +383,7 @@ useEffect(() => {
 }, [project]);
 ```
 
-#### How HMR Works
+**How HMR Works**
 
 HMR uses MessagePort for communication between the main thread and the preview iframe:
 
@@ -422,7 +450,7 @@ Cross-Origin-Opener-Policy: same-origin
 Cross-Origin-Embedder-Policy: require-corp
 ```
 
-#### Example: `webpack-dev-server`
+**Example: `webpack-dev-server`**
 
 If you are using `webpack-dev-server`, you can add these headers in your `webpack.config.js` file as shown in the `utooweb-demo`:
 
@@ -450,7 +478,7 @@ A key part of setting up a `@utoo/web` project is creating the worker scripts th
 
 You will need to create three files in your project's source, which will then be compiled by your bundler (e.g., Webpack, Vite) into the final URLs passed to the constructor.
 
-#### 1. Project Main Worker (`worker.ts`)
+**1. Project Main Worker (`worker.ts`)**
 
 This file provides the logic for the main project worker, which handles file system operations and other core tasks.
 
@@ -459,7 +487,7 @@ This file provides the logic for the main project worker, which handles file sys
 import "@utoo/web/esm/worker";
 ```
 
-#### 2. Thread Worker (`threadWorker.ts`)
+**2. Thread Worker (`threadWorker.ts`)**
 
 This file provides the logic for the build worker, which handles CPU-intensive tasks like bundling.
 
@@ -468,7 +496,7 @@ This file provides the logic for the build worker, which handles CPU-intensive t
 import "@utoo/web/esm/threadWorker";
 ```
 
-#### 3. Service Worker (`serviceWorker.ts`)
+**3. Service Worker (`serviceWorker.ts`)**
 
 This file provides the logic for the service worker, which serves the preview from the real file system.
 
@@ -477,7 +505,7 @@ This file provides the logic for the service worker, which serves the preview fr
 import "@utoo/web/esm/serviceWorker";
 ```
 
-#### 4. Loader Worker (`loaderWorker.ts`)
+**4. Loader Worker (`loaderWorker.ts`)**
 
 This file provides the logic for the loader worker, which handles webpack loaders.
 

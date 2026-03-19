@@ -55,7 +55,7 @@ export default defineConfig({
 
 ## 核心选项
 
-### mode
+**mode**
 
 构建模式，影响优化和默认值。
 
@@ -64,7 +64,7 @@ export default defineConfig({
 | `development` | 更快构建，更好调试，启用 HMR |
 | `production` | 优化输出，压缩，tree shaking |
 
-### entry
+**entry**
 
 定义应用入口。
 
@@ -90,7 +90,7 @@ export default defineConfig({
 }
 ```
 
-### output
+**output**
 
 配置输出设置。
 
@@ -125,11 +125,11 @@ export default defineConfig({
 | `chunkLoadingGlobal` | 加载 chunk 的全局变量名 |
 | `entryRootExport` | 将入口导出暴露到全局作用域 |
 
-### target
+**target**
 
 目标环境字符串（如 `"web"`、`"node"`）。
 
-### define
+**define**
 
 构建时变量替换。
 
@@ -142,7 +142,7 @@ export default defineConfig({
 }
 ```
 
-### externals
+**externals**
 
 从打包中排除依赖。
 
@@ -157,7 +157,7 @@ export default defineConfig({
 
 支持简单字符串全局变量、UMD 配置和高级子路径配置。
 
-### resolve
+**resolve**
 
 模块解析配置。
 
@@ -173,7 +173,7 @@ export default defineConfig({
 }
 ```
 
-### module
+**module**
 
 自定义 loader 的模块规则和条件。
 
@@ -200,7 +200,7 @@ export default defineConfig({
 | `rules` | 将 glob 模式映射到 loader |
 | `conditions` | 按路径（glob 或 regex）配置 loader 条件 |
 
-### provider
+**provider**
 
 自动提供模块（类似 webpack ProvidePlugin）。
 

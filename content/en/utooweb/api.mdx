@@ -6,34 +6,26 @@ import { Callout } from 'nextra/components'
 
 Creates a new project instance.
 
-### Options
+**Options**
 
-#### `cwd` (string, required)
-The absolute path that will serve as the root of the project in the real file system (e.g., `/my-app`).
+| Option | Type | Description |
+|--------|------|-------------|
+| `cwd` | string | **Required.** The absolute path that will serve as the root of the project in the real file system (e.g., `/my-app`). |
+| `workerUrl` | string | **Required.** URL of the Worker thread where the `Project` instance's core logic runs. The main thread `Project` object is a proxy that delegates tasks to this Worker. |
+| `threadWorkerUrl` | string | **Required.** URL of a separate Worker thread for CPU-intensive tasks like bundling and compiling. |
+| `loaderWorkerUrl` | string | URL of a separate Worker thread for handling webpack loaders. |
+| `wasmUrl` | string | URL to the WASM binary. Defaults to the bundled binary. |
+| `serviceWorker` | object | Service worker configuration for preview functionality. See sub-options below. |
+| `logFilter` | string | Filter string for tracing logs. |
+| `loadersImportMap` | object | A map for configuring Webpack loader imports. Keys are loader names, values are UMD/CommonJS module URLs or content strings. |
 
-#### `workerUrl` (string, required)
-URL of the Worker thread where the `Project` instance's core logic runs. The main thread `Project` object is a proxy that delegates tasks to this Worker.
+**`serviceWorker` sub-options:**
 
-#### `threadWorkerUrl` (string, required)
-URL of a separate Worker thread for CPU-intensive tasks like bundling and compiling.
-
-#### `loaderWorkerUrl` (string)
-URL of a separate Worker thread for handling webpack loaders. Optional.
-
-#### `wasmUrl` (string)
-URL to the WASM binary. Optional — defaults to the bundled binary.
-
-#### `serviceWorker` (object)
-Service worker configuration for preview functionality.
-- `url` (string, required): The URL to the service worker script.
-- `scope` (string, required): The URL scope that the service worker will intercept requests for.
-- `targetDirToCwd` (string): Path from the target directory to the project root. Optional.
-
-#### `logFilter` (string)
-Filter string for tracing logs. Optional.
-
-#### `loadersImportMap` (object)
-A map for configuring Webpack loader imports. Keys are loader names, values are UMD/CommonJS module URLs or content strings.
+| Option | Type | Description |
+|--------|------|-------------|
+| `url` | string | **Required.** The URL to the service worker script. |
+| `scope` | string | **Required.** The URL scope that the service worker will intercept requests for. |
+| `targetDirToCwd` | string | Path from the target directory to the project root. |
 
 ---
 
@@ -41,77 +33,81 @@ A map for configuring Webpack loader imports. Keys are loader names, values are 
 
 These methods are asynchronous and mimic the Node.js `fs` API.
 
-### `project.writeFile(path, content, encoding?)`
+**`project.writeFile(path, content, encoding?)`**
 
 Writes content to a file in the real file system. If the file doesn't exist, it will be created.
 
-**Parameters:**
-- `path` (string): The absolute path to the file (e.g., `/src/index.js`).
-- `content` (string | Uint8Array): The content to write.
-- `encoding` (string, optional): The encoding (e.g., `'utf8'`).
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `path` | string | The absolute path to the file (e.g., `/src/index.js`). |
+| `content` | string \| Uint8Array | The content to write. |
+| `encoding` | string | The encoding (e.g., `'utf8'`). Optional. |
 
-### `project.readFile(path, encoding?)`
+**`project.readFile(path, encoding?)`**
 
 Reads the content of a file.
 
-**Parameters:**
-- `path` (string): The path to the file.
-- `encoding` (string, optional): The encoding of the file (e.g., `'utf8'`). If not provided, returns `Uint8Array`.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `path` | string | The path to the file. |
+| `encoding` | string | The encoding of the file (e.g., `'utf8'`). If not provided, returns `Uint8Array`. |
 
 **Returns:** `Promise<string>` (with encoding) or `Promise<Uint8Array>` (without encoding).
 
-### `project.readdir(path, options?)`
+**`project.readdir(path, options?)`**
 
 Reads the contents of a directory.
 
-**Parameters:**
-- `path` (string): The path to the directory.
-- `options` (object, optional):
-  - `recursive` (boolean): If `true`, reads recursively.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `path` | string | The path to the directory. |
+| `options.recursive` | boolean | If `true`, reads recursively. |
 
 **Returns:** `Promise<Dirent[]>` — An array of `Dirent` objects with `name`, `isDirectory()`, and `isFile()` methods.
 
-### `project.mkdir(path, options?)`
+**`project.mkdir(path, options?)`**
 
 Creates a new directory.
 
-**Parameters:**
-- `path` (string): The path to the directory to be created.
-- `options` (object, optional):
-  - `recursive` (boolean): If `true`, creates parent directories as needed.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `path` | string | The path to the directory to be created. |
+| `options.recursive` | boolean | If `true`, creates parent directories as needed. |
 
-### `project.rm(path, options?)`
+**`project.rm(path, options?)`**
 
 Removes a file or directory.
 
-**Parameters:**
-- `path` (string): The path to the file or directory to be removed.
-- `options` (object, optional):
-  - `recursive` (boolean): If `true`, performs a recursive directory removal.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `path` | string | The path to the file or directory to be removed. |
+| `options.recursive` | boolean | If `true`, performs a recursive directory removal. |
 
-### `project.rmdir(path, options?)`
+**`project.rmdir(path, options?)`**
 
 Removes a directory.
 
-**Parameters:**
-- `path` (string): The path to the directory to be removed.
-- `options` (object, optional):
-  - `recursive` (boolean): If `true`, removes recursively.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `path` | string | The path to the directory to be removed. |
+| `options.recursive` | boolean | If `true`, removes recursively. |
 
-### `project.copyFile(src, dst)`
+**`project.copyFile(src, dst)`**
 
 Copies a file from source to destination.
 
-**Parameters:**
-- `src` (string): Source file path.
-- `dst` (string): Destination file path.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `src` | string | Source file path. |
+| `dst` | string | Destination file path. |
 
-### `project.stat(path)`
+**`project.stat(path)`**
 
 Gets file/directory stats.
 
-**Parameters:**
-- `path` (string): The path to the file or directory.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `path` | string | The path to the file or directory. |
 
 **Returns:** `Promise<Stats>` — Stats object with `size`, `isDirectory()`, `isFile()`, timestamps (`atime`, `mtime`, `ctime`, `birthtime`), etc.
 
@@ -119,13 +115,14 @@ Gets file/directory stats.
 
 ## Dependency Management
 
-### `project.deps(options?)`
+**`project.deps(options?)`**
 
 Resolves dependencies from the project's `package.json` and generates a lock file string. This enables dependency resolution directly in the browser without requiring a pre-existing `package-lock.json`.
 
-**Options:**
-- `registry` (string): The npm registry URL. Default: `https://registry.npmmirror.com`
-- `concurrency` (number): Maximum concurrent network requests. Default: `20`
+| Option | Type | Description |
+|--------|------|-------------|
+| `registry` | string | The npm registry URL. Default: `https://registry.npmmirror.com` |
+| `concurrency` | number | Maximum concurrent network requests. Default: `20` |
 
 **Returns:** `Promise<string>` — A JSON string representing the resolved dependency lock file, compatible with `package-lock.json` format.
 
@@ -147,15 +144,15 @@ const lockFile = await project.deps({
 });
 ```
 
-### `project.install(packageLockJsonString, options?)`
+**`project.install(packageLockJsonString, options?)`**
 
 Populates the `node_modules` directory based on a lock file string.
 
-**Parameters:**
-- `packageLockJsonString` (string): A JSON string of the dependency lock file (from `deps()` or a `package-lock.json` file).
-- `options` (object, optional):
-  - `maxConcurrentDownloads` (number): Maximum concurrent package downloads.
-  - `omit` (string[]): Dependency types to omit. Possible values: `"dev"`, `"optional"`.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `packageLockJsonString` | string | A JSON string of the dependency lock file (from `deps()` or a `package-lock.json` file). |
+| `options.maxConcurrentDownloads` | number | Maximum concurrent package downloads. |
+| `options.omit` | string[] | Dependency types to omit. Possible values: `"dev"`, `"optional"`. |
 
 **Examples:**
 
@@ -174,7 +171,7 @@ await project.install(lockFile, { omit: ["dev"] });
 
 ## Build & Development
 
-### `project.build()`
+**`project.build()`**
 
 Triggers the build process in the thread worker. It reads the build configuration from `utoopack.json` in the project's root and runs the bundler based on that configuration.
 
@@ -187,12 +184,13 @@ if (result.issues.length > 0) {
 }
 ```
 
-### `project.dev(onUpdate?)`
+**`project.dev(onUpdate?)`**
 
 Start dev mode with file watching. Triggers incremental rebuilds on file changes.
 
-**Parameters:**
-- `onUpdate` (function, optional): Callback called on each rebuild with `BuildOutput`.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `onUpdate` | function | Callback called on each rebuild with `BuildOutput`. Optional. |
 
 ```typescript filename="app.ts"
 project.dev((result) => {
@@ -200,27 +198,29 @@ project.dev((result) => {
 });
 ```
 
-### `project.hmrSubscribe(identifier, callback)`
+**`project.hmrSubscribe(identifier, callback)`**
 
 Subscribe to HMR (Hot Module Replacement) events for a specific identifier.
 
-**Parameters:**
-- `identifier` (string): The module identifier to subscribe to.
-- `callback` (function): Called with update instructions when the module changes.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `identifier` | string | The module identifier to subscribe to. |
+| `callback` | function | Called with update instructions when the module changes. |
 
-### `project.updateInfoSubscribe(aggregationMs, callback)`
+**`project.updateInfoSubscribe(aggregationMs, callback)`**
 
 Subscribe to compilation lifecycle events (start/end).
 
-**Parameters:**
-- `aggregationMs` (number): Aggregation interval in milliseconds.
-- `callback` (function): Called with `UpdateMessage` on compilation events.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `aggregationMs` | number | Aggregation interval in milliseconds. |
+| `callback` | function | Called with `UpdateMessage` on compilation events. |
 
 ---
 
 ## Preview Functionality
 
-### `project.installServiceWorker()`
+**`project.installServiceWorker()`**
 
 Registers and activates the service worker defined in the constructor. This is essential for the preview functionality.
 
@@ -228,7 +228,7 @@ Registers and activates the service worker defined in the constructor. This is e
 
 ## Types
 
-### `BuildOutput`
+**`BuildOutput`**
 
 ```typescript
 interface BuildOutput {
@@ -236,7 +236,7 @@ interface BuildOutput {
 }
 ```
 
-### `InstallOptions`
+**`InstallOptions`**
 
 ```typescript
 interface InstallOptions {
@@ -245,7 +245,7 @@ interface InstallOptions {
 }
 ```
 
-### `DepsOptions`
+**`DepsOptions`**
 
 ```typescript
 interface DepsOptions {
@@ -254,7 +254,7 @@ interface DepsOptions {
 }
 ```
 
-### `Dirent`
+**`Dirent`**
 
 ```typescript
 class Dirent {
@@ -264,7 +264,7 @@ class Dirent {
 }
 ```
 
-### `Stats`
+**`Stats`**
 
 ```typescript
 class Stats {
