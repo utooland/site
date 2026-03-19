@@ -1,0 +1,807 @@
+# Commands
+
+All available utoo CLI commands.
+
+## install
+
+Install project dependencies or add new packages.
+
+**Alias:** `i`
+
+### Usage
+
+```bash filename="Terminal"
+ut install [OPTIONS] [PACKAGES...]
+```
+
+### Examples
+
+```bash filename="Terminal" copy
+# Install all dependencies from package.json
+ut install
+ut i
+
+# Install specific packages
+ut install lodash
+ut install react react-dom
+
+# Install with version
+ut install lodash@4.17.21
+ut install react@^18.0.0
+
+# Install as dev dependency
+ut install -D typescript
+ut install --save-dev @types/node
+
+# Install as peer dependency
+ut install --save-peer react
+
+# Install as optional dependency
+ut install -O fsevents
+
+# Install globally
+ut install -g utoo
+```
+
+### Options
+
+| Option | Description |
+|--------|-------------|
+| `-D, --save-dev` | Save as dev dependency |
+| `--save-peer` | Save as peer dependency |
+| `-O, --save-optional` | Save as optional dependency |
+| `-g, --global` | Install package globally |
+| `-p, --prefix <path>` | Prefix for global package path |
+| `-w, --workspace <name>` | Install in specific workspace |
+| `--production` | Only install production dependencies |
+| `--omit <type>` | Omit dependency types: `dev`, `optional`, `peer` |
+| `--ignore-scripts` | Skip running dependency scripts |
+| `--legacy-peer-deps` | Legacy peer dependency handling |
+
+### Version Specification
+
+When adding packages, utoo normalizes versions:
+
+| Input | Result in package.json |
+|-------|------------------------|
+| `lodash` | `"^4.17.21"` (latest) |
+| `lodash@^4.17.0` | `"^4.17.0"` (range preserved) |
+| `lodash@4.17.21` | `"4.17.21"` (exact version) |
+
+## uninstall
+
+Remove packages from dependencies.
+
+**Alias:** `un`
+
+### Usage
+
+```bash filename="Terminal"
+ut uninstall [OPTIONS] <PACKAGES...>
+```
+
+### Examples
+
+```bash filename="Terminal" copy
+# Remove a package
+ut uninstall lodash
+ut un lodash
+
+# Remove multiple packages
+ut uninstall lodash moment
+
+# Remove from specific workspace
+ut uninstall lodash -w my-app
+```
+
+### Options
+
+| Option | Description |
+|--------|-------------|
+| `-w, --workspace <name>` | Remove from specific workspace |
+| `--ignore-scripts` | Skip running dependency scripts |
+
+## run
+
+Run scripts defined in package.json.
+
+**Alias:** `r`
+
+### Usage
+
+```bash filename="Terminal"
+ut run [OPTIONS] [SCRIPT] [ARGS...]
+```
+
+### Examples
+
+```bash filename="Terminal" copy
+# Run a script
+ut run build
+ut run dev
+ut r test
+
+# Pass arguments to script
+ut run test -- --watch
+ut run build -- --mode production
+
+# Run in specific workspace
+ut run build -w my-app
+
+# Run in all workspaces (topological order)
+ut run build --workspaces
+
+# Interactive mode (no script specified)
+ut run
+# → Prompts to select workspace and script
+```
+
+### Shortcut
+
+You can run scripts directly without `run`:
+
+```bash filename="Terminal" copy
+ut build      # same as: ut run build
+ut dev        # same as: ut run dev
+ut test       # same as: ut run test
+```
+
+### Options
+
+| Option | Description |
+|--------|-------------|
+| `-w, --workspace <name>` | Run in specific workspace |
+| `--workspaces` | Run in all workspaces with topological ordering |
+
+### Workspace Execution Order
+
+When using `--workspaces`, scripts are executed in topological order based on dependency relationships, ensuring dependencies are built before dependents.
+
+## execute
+
+Run a command from a local or remote npm package.
+
+**Alias:** `x`
+
+See also: [utx Alias](/en/docs/utoo/utx)
+
+### Usage
+
+```bash filename="Terminal"
+ut execute [OPTIONS] <COMMAND> [ARGS...]
+utx <COMMAND> [ARGS...]
+```
+
+### Examples
+
+```bash filename="Terminal" copy
+# Execute a package command
+ut execute create-react-app my-app
+ut x vite create my-app
+
+# Using utx alias (recommended)
+utx create-react-app my-app
+utx cowsay "Hello World"
+utx tsc --init
+
+# With arguments
+utx prettier --write .
+utx eslint --fix src/
+```
+
+### Options
+
+| Option | Description |
+|--------|-------------|
+| `--registry <url>` | Override npm registry |
+| `--cache-dir <path>` | Specify cache directory |
+
+### How It Works
+
+1. Checks if the command exists in local `node_modules/.bin`
+2. If not found, downloads the package from registry
+3. Executes the package binary with provided arguments
+
+## view
+
+View package information from the registry.
+
+**Aliases:** `v`, `info`, `show`
+
+### Usage
+
+```bash filename="Terminal"
+ut view [OPTIONS] <PACKAGE>
+```
+
+### Examples
+
+```bash filename="Terminal" copy
+# View package info
+ut view react
+ut v lodash
+ut info typescript
+
+# View specific version
+ut view react@18.0.0
+```
+
+### Options
+
+| Option | Description |
+|--------|-------------|
+| `--registry <url>` | Override npm registry |
+
+### Output
+
+Displays package metadata including:
+- Package name and description
+- Latest version
+- License
+- Dependencies
+- Repository URL
+- Maintainers
+
+## list
+
+List installed dependencies.
+
+**Alias:** `ls`
+
+### Usage
+
+```bash filename="Terminal"
+ut list <PACKAGE>
+```
+
+### Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `<PACKAGE>` | Package name to show dependencies for (required) |
+
+### Examples
+
+```bash filename="Terminal" copy
+# List specific package and its dependencies
+ut list react
+ut ls lodash
+```
+
+## link
+
+Link a local package for development.
+
+**Alias:** `ln`
+
+### Usage
+
+```bash filename="Terminal"
+ut link [OPTIONS] [PACKAGE]
+```
+
+### Examples
+
+```bash filename="Terminal" copy
+# In the package you want to link (e.g., my-lib/)
+cd my-lib
+ut link
+
+# In the project that uses the package
+cd my-app
+ut link my-lib
+```
+
+### Options
+
+| Option | Description |
+|--------|-------------|
+| `-p, --prefix <path>` | Prefix for global package path |
+
+### How It Works
+
+1. `ut link` (without arguments) creates a global symlink to the current package
+2. `ut link <package>` creates a symlink from local `node_modules/<package>` to the global link
+
+### Use Cases
+
+- Developing a library and testing it in another project
+- Working on monorepo packages without publishing
+- Debugging npm packages locally
+
+## deps
+
+Generate package-lock.json without installing packages.
+
+**Alias:** `d`
+
+### Usage
+
+```bash filename="Terminal"
+ut deps [OPTIONS]
+```
+
+### Examples
+
+```bash filename="Terminal" copy
+# Generate lock file
+ut deps
+ut d
+
+# With specific registry
+ut deps --registry https://registry.npmmirror.com
+```
+
+### Options
+
+| Option | Description |
+|--------|-------------|
+| `--workspace-only` | Only resolve workspace dependencies |
+| `--registry <url>` | Override npm registry |
+| `--legacy-peer-deps` | Legacy peer dependency handling |
+
+### Use Cases
+
+- Generate lock file for CI/CD without full installation
+- Update dependency resolution without modifying node_modules
+- Pre-compute dependency tree before installation
+
+## update
+
+Remove node_modules and reinstall all dependencies.
+
+**Alias:** `u`
+
+### Usage
+
+```bash filename="Terminal"
+ut update
+```
+
+### Examples
+
+```bash filename="Terminal" copy
+# Clean reinstall
+ut update
+ut u
+```
+
+### What It Does
+
+1. Removes `node_modules` directory
+2. Reinstalls all dependencies from package.json
+3. Regenerates package-lock.json
+
+### Use Cases
+
+- Fix corrupted node_modules
+- Clean slate after major dependency changes
+- Resolve phantom dependency issues
+
+## rebuild
+
+Rebuild script hooks in all packages.
+
+**Alias:** `rb`
+
+### Usage
+
+```bash filename="Terminal"
+ut rebuild [OPTIONS]
+```
+
+### Examples
+
+```bash filename="Terminal" copy
+# Rebuild all packages
+ut rebuild
+ut rb
+```
+
+### Options
+
+| Option | Description |
+|--------|-------------|
+| `--verbose` | Enable debug logging |
+
+### What It Does
+
+Re-runs install scripts for all packages in node_modules, including:
+- `preinstall`
+- `install`
+- `postinstall`
+
+### Use Cases
+
+- After native module compilation fails
+- When switching Node.js versions
+- Fixing broken binary dependencies (e.g., `esbuild`, `swc`)
+
+## clean
+
+Clean package cache in global storage.
+
+**Alias:** `c`
+
+### Usage
+
+```bash filename="Terminal"
+ut clean [OPTIONS] [PATTERN]
+```
+
+### Examples
+
+```bash filename="Terminal" copy
+# Clean all cache
+ut clean
+ut c
+
+# Clean specific package cache
+ut clean lodash
+ut clean react*
+```
+
+### Options
+
+| Option | Description |
+|--------|-------------|
+| `--cache-dir <path>` | Specify cache directory |
+
+### Cache Location
+
+Default cache directory: `~/.cache/nm`
+
+See [Storage Paths](/en/docs/utoo/stores) for more details.
+
+### Use Cases
+
+- Free up disk space
+- Force re-download of corrupted packages
+- Clear outdated package versions
+
+## pm-pack
+
+Create a tarball from a package.
+
+**Alias:** `pk`
+
+### Usage
+
+```bash filename="Terminal"
+ut pm-pack [OPTIONS] [PATH]
+```
+
+### Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `[PATH]` | Path to the package directory (defaults to current directory) |
+
+### Examples
+
+```bash filename="Terminal" copy
+# Pack the current directory
+ut pm-pack
+ut pk
+
+# Pack a specific directory
+ut pm-pack ./packages/my-lib
+
+# Preview pack contents without creating a tarball
+ut pm-pack --dry-run
+```
+
+### Options
+
+| Option | Description |
+|--------|-------------|
+| `--dry-run` | Perform a dry run without creating a tarball |
+
+### Use Cases
+
+- Inspect package contents and size before publishing
+- Create `.tgz` packages for local testing
+- Use `--dry-run` to verify which files will be included
+
+## ping
+
+Ping npm registry to check connectivity and latency.
+
+**Alias:** `pg`
+
+### Usage
+
+```bash filename="Terminal"
+ut ping [REGISTRY]
+```
+
+### Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `[REGISTRY]` | Registry URL to ping (defaults to configured registry) |
+
+### Examples
+
+```bash filename="Terminal" copy
+# Ping the default registry
+ut ping
+ut pg
+
+# Ping a specific registry
+ut ping https://registry.npmjs.org
+ut ping https://registry.npmmirror.com
+```
+
+### Output
+
+- Success: `PONG {latency}ms (supports-semver: yes/no)`
+- Failure: `FAIL registry did not respond ({latency}ms)`
+
+The `supports-semver` field indicates whether the registry supports semantic versioning queries, i.e. resolving version ranges directly via URL, for example:
+
+```
+https://registry.npmmirror.com/lodash/^4
+```
+
+Currently cnpm-based registries (e.g. npmmirror) support this feature, while the official npm registry does not.
+
+utoo automatically probes semver support for each registry and caches the result in the global config file `~/.utoo/config.toml` to avoid repeated probing:
+
+```toml filename="~/.utoo/config.toml"
+[arrays]
+supports-semver = [
+  "https://registry.npmmirror.com",
+  "!https://some-private.registry",
+]
+```
+
+- No prefix means supported (e.g. `"https://registry.npmmirror.com"`)
+- `!` prefix means not supported (e.g. `"!https://some-private.registry"`)
+
+Probe results for multiple registries are cached simultaneously, so switching registries (e.g. `ut install --registry=xxx`) won't trigger a re-probe.
+
+### Use Cases
+
+- Check if a registry is reachable
+- Compare latency between different registries
+- Troubleshoot network or registry issues
+
+## login
+
+Login to npm registry.
+
+**Alias:** `lg`
+
+### Usage
+
+```bash filename="Terminal"
+ut login [OPTIONS]
+```
+
+### Examples
+
+```bash filename="Terminal" copy
+# Login to default registry
+ut login
+ut lg
+
+# Login to a specific registry
+ut login --registry https://registry.npmjs.org
+```
+
+### Options
+
+| Option | Description |
+|--------|-------------|
+| `--registry <url>` | Specify the registry to login to |
+
+### How It Works
+
+1. Opens a browser for web-based authentication
+2. Saves the authentication token locally on success
+3. Token is used for subsequent authenticated operations
+
+### Related Commands
+
+- [logout](#logout) - Logout from registry
+- [whoami](#whoami) - Display current logged-in user
+
+## logout
+
+Logout from npm registry.
+
+**Alias:** `lo`
+
+### Usage
+
+```bash filename="Terminal"
+ut logout [OPTIONS]
+```
+
+### Examples
+
+```bash filename="Terminal" copy
+# Logout from default registry
+ut logout
+ut lo
+
+# Logout from a specific registry
+ut logout --registry https://registry.npmjs.org
+```
+
+### Options
+
+| Option | Description |
+|--------|-------------|
+| `--registry <url>` | Specify the registry to logout from |
+
+### How It Works
+
+1. Reads the saved authentication token
+2. Sends a logout request to revoke the token
+3. Removes the token from local storage
+
+### Related Commands
+
+- [login](#login) - Login to registry
+- [whoami](#whoami) - Display current logged-in user
+
+## whoami
+
+Display npm username for the current logged-in user.
+
+**Alias:** `who`
+
+### Usage
+
+```bash filename="Terminal"
+ut whoami [OPTIONS]
+```
+
+### Examples
+
+```bash filename="Terminal" copy
+# Show current user
+ut whoami
+ut who
+
+# Show user for a specific registry
+ut whoami --registry https://registry.npmjs.org
+```
+
+### Options
+
+| Option | Description |
+|--------|-------------|
+| `--registry <url>` | Specify the registry |
+
+### Related Commands
+
+- [login](#login) - Login to registry
+- [logout](#logout) - Logout from registry
+
+## init
+
+Create a package.json file.
+
+**Alias:** `create`
+
+### Usage
+
+```bash filename="Terminal"
+ut init [OPTIONS]
+```
+
+### Examples
+
+```bash filename="Terminal" copy
+# Interactive mode (prompts for name, version, etc.)
+ut init
+
+# Skip prompts and use defaults
+ut init --yes
+ut init -y
+```
+
+### Options
+
+| Option | Description |
+|--------|-------------|
+| `-y, --yes` | Skip prompts and use defaults |
+
+## publish
+
+Publish a package to the npm registry.
+
+**Alias:** `pub`
+
+### Usage
+
+```bash filename="Terminal"
+ut publish [OPTIONS]
+```
+
+### Examples
+
+```bash filename="Terminal" copy
+# Publish to default registry
+ut publish
+
+# Dry run (preview without publishing)
+ut publish --dry-run
+
+# Publish with a specific tag
+ut publish --tag beta
+
+# Publish with OTP for 2FA
+ut publish --otp 123456
+```
+
+### Options
+
+| Option | Description |
+|--------|-------------|
+| `--tag <tag>` | Distribution tag (default: `latest`, or `publishConfig.tag` from package.json) |
+| `--dry-run` | Preview without actually publishing |
+| `--otp <code>` | One-time password for two-factor authentication |
+
+### How It Works
+
+1. Reads `package.json` from the current directory
+2. Validates package metadata (name, version)
+3. Resolves the registry from `publishConfig.registry` or global config
+4. Creates a tarball and publishes to the registry
+
+### Related Commands
+
+- [pm-pack](#pm-pack) - Create a tarball without publishing
+- [login](#login) - Login to registry before publishing
+
+## completions
+
+Generate shell completion scripts for utoo.
+
+**Alias:** `cmp`
+
+### Usage
+
+```bash filename="Terminal"
+ut completions [SHELL]
+```
+
+### Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `[SHELL]` | Shell to generate completions for (auto-detected if omitted) |
+
+Supported shells: `bash`, `zsh`, `fish`, `powershell`, `elvish`
+
+### Examples
+
+```bash filename="Terminal" copy
+# Auto-detect shell and output completions
+ut completions
+
+# Generate for a specific shell
+ut completions bash
+ut completions zsh
+ut completions fish
+```
+
+### Setup
+
+Add to your shell config for persistent completions:
+
+```bash filename="~/.bashrc" copy
+eval "$(utoo completions bash)"
+```
+
+```bash filename="~/.zshrc" copy
+eval "$(utoo completions zsh)"
+```
+
+```bash filename="~/.config/fish/completions/utoo.fish" copy
+utoo completions fish > ~/.config/fish/completions/utoo.fish
+```

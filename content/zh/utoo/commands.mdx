@@ -1,0 +1,807 @@
+# 命令
+
+所有可用的 utoo CLI 命令。
+
+## install
+
+安装项目依赖或添加新包。
+
+**别名:** `i`
+
+### 用法
+
+```bash filename="Terminal"
+ut install [OPTIONS] [PACKAGES...]
+```
+
+### 示例
+
+```bash filename="Terminal" copy
+# 从 package.json 安装所有依赖
+ut install
+ut i
+
+# 安装指定包
+ut install lodash
+ut install react react-dom
+
+# 安装指定版本
+ut install lodash@4.17.21
+ut install react@^18.0.0
+
+# 安装为开发依赖
+ut install -D typescript
+ut install --save-dev @types/node
+
+# 安装为 peer 依赖
+ut install --save-peer react
+
+# 安装为可选依赖
+ut install -O fsevents
+
+# 全局安装
+ut install -g utoo
+```
+
+### 选项
+
+| 选项 | 描述 |
+|------|------|
+| `-D, --save-dev` | 保存为开发依赖 |
+| `--save-peer` | 保存为 peer 依赖 |
+| `-O, --save-optional` | 保存为可选依赖 |
+| `-g, --global` | 全局安装包 |
+| `-p, --prefix <path>` | 全局包路径前缀 |
+| `-w, --workspace <name>` | 在指定工作区安装 |
+| `--production` | 仅安装生产依赖 |
+| `--omit <type>` | 忽略依赖类型: `dev`, `optional`, `peer` |
+| `--ignore-scripts` | 跳过运行依赖脚本 |
+| `--legacy-peer-deps` | 传统 peer 依赖处理 |
+
+### 版本规范
+
+添加包时，utoo 会规范化版本：
+
+| 输入 | package.json 中的结果 |
+|------|----------------------|
+| `lodash` | `"^4.17.21"` (最新版) |
+| `lodash@^4.17.0` | `"^4.17.0"` (保留范围) |
+| `lodash@4.17.21` | `"4.17.21"` (精确版本) |
+
+## uninstall
+
+移除依赖包。
+
+**别名:** `un`
+
+### 用法
+
+```bash filename="Terminal"
+ut uninstall [OPTIONS] <PACKAGES...>
+```
+
+### 示例
+
+```bash filename="Terminal" copy
+# 移除一个包
+ut uninstall lodash
+ut un lodash
+
+# 移除多个包
+ut uninstall lodash moment
+
+# 从指定工作区移除
+ut uninstall lodash -w my-app
+```
+
+### 选项
+
+| 选项 | 描述 |
+|------|------|
+| `-w, --workspace <name>` | 从指定工作区移除 |
+| `--ignore-scripts` | 跳过运行依赖脚本 |
+
+## run
+
+运行 package.json 中定义的脚本。
+
+**别名:** `r`
+
+### 用法
+
+```bash filename="Terminal"
+ut run [OPTIONS] [SCRIPT] [ARGS...]
+```
+
+### 示例
+
+```bash filename="Terminal" copy
+# 运行脚本
+ut run build
+ut run dev
+ut r test
+
+# 向脚本传递参数
+ut run test -- --watch
+ut run build -- --mode production
+
+# 在指定工作区运行
+ut run build -w my-app
+
+# 在所有工作区运行（拓扑排序）
+ut run build --workspaces
+
+# 交互模式（不指定脚本）
+ut run
+# → 提示选择工作区和脚本
+```
+
+### 快捷方式
+
+可以直接运行脚本，无需 `run`：
+
+```bash filename="Terminal" copy
+ut build      # 等同于: ut run build
+ut dev        # 等同于: ut run dev
+ut test       # 等同于: ut run test
+```
+
+### 选项
+
+| 选项 | 描述 |
+|------|------|
+| `-w, --workspace <name>` | 在指定工作区运行 |
+| `--workspaces` | 在所有工作区按拓扑排序运行 |
+
+### 工作区执行顺序
+
+使用 `--workspaces` 时，脚本按拓扑排序执行，确保依赖项在被依赖项之前构建。
+
+## execute
+
+从本地或远程 npm 包中运行命令。
+
+**别名:** `x`
+
+另见：[utx 别名](/zh/docs/utoo/utx)
+
+### 用法
+
+```bash filename="Terminal"
+ut execute [OPTIONS] <COMMAND> [ARGS...]
+utx <COMMAND> [ARGS...]
+```
+
+### 示例
+
+```bash filename="Terminal" copy
+# 执行包命令
+ut execute create-react-app my-app
+ut x vite create my-app
+
+# 使用 utx 别名（推荐）
+utx create-react-app my-app
+utx cowsay "Hello World"
+utx tsc --init
+
+# 带参数
+utx prettier --write .
+utx eslint --fix src/
+```
+
+### 选项
+
+| 选项 | 描述 |
+|------|------|
+| `--registry <url>` | 覆盖 npm 镜像源 |
+| `--cache-dir <path>` | 指定缓存目录 |
+
+### 工作原理
+
+1. 检查命令是否存在于本地 `node_modules/.bin`
+2. 如未找到，从镜像源下载包
+3. 使用提供的参数执行包的二进制文件
+
+## view
+
+查看镜像源中的包信息。
+
+**别名:** `v`, `info`, `show`
+
+### 用法
+
+```bash filename="Terminal"
+ut view [OPTIONS] <PACKAGE>
+```
+
+### 示例
+
+```bash filename="Terminal" copy
+# 查看包信息
+ut view react
+ut v lodash
+ut info typescript
+
+# 查看指定版本
+ut view react@18.0.0
+```
+
+### 选项
+
+| 选项 | 描述 |
+|------|------|
+| `--registry <url>` | 覆盖 npm 镜像源 |
+
+### 输出
+
+显示包的元数据，包括：
+- 包名和描述
+- 最新版本
+- 许可证
+- 依赖项
+- 仓库 URL
+- 维护者
+
+## list
+
+列出已安装的依赖。
+
+**别名:** `ls`
+
+### 用法
+
+```bash filename="Terminal"
+ut list <PACKAGE>
+```
+
+### 参数
+
+| 参数 | 描述 |
+|------|------|
+| `<PACKAGE>` | 要显示依赖的包名（必填） |
+
+### 示例
+
+```bash filename="Terminal" copy
+# 列出指定包及其依赖
+ut list react
+ut ls lodash
+```
+
+## link
+
+链接本地包用于开发。
+
+**别名:** `ln`
+
+### 用法
+
+```bash filename="Terminal"
+ut link [OPTIONS] [PACKAGE]
+```
+
+### 示例
+
+```bash filename="Terminal" copy
+# 在要链接的包中（如 my-lib/）
+cd my-lib
+ut link
+
+# 在使用该包的项目中
+cd my-app
+ut link my-lib
+```
+
+### 选项
+
+| 选项 | 描述 |
+|------|------|
+| `-p, --prefix <path>` | 全局包路径前缀 |
+
+### 工作原理
+
+1. `ut link`（不带参数）创建当前包的全局符号链接
+2. `ut link <package>` 从本地 `node_modules/<package>` 创建到全局链接的符号链接
+
+### 使用场景
+
+- 开发库并在另一个项目中测试
+- 在 monorepo 中无需发布即可使用包
+- 在本地调试 npm 包
+
+## deps
+
+生成 package-lock.json 而不安装包。
+
+**别名:** `d`
+
+### 用法
+
+```bash filename="Terminal"
+ut deps [OPTIONS]
+```
+
+### 示例
+
+```bash filename="Terminal" copy
+# 生成锁定文件
+ut deps
+ut d
+
+# 使用指定镜像源
+ut deps --registry https://registry.npmmirror.com
+```
+
+### 选项
+
+| 选项 | 描述 |
+|------|------|
+| `--workspace-only` | 仅解析工作区依赖 |
+| `--registry <url>` | 覆盖 npm 镜像源 |
+| `--legacy-peer-deps` | 传统 peer 依赖处理 |
+
+### 使用场景
+
+- CI/CD 中生成锁定文件而不完整安装
+- 更新依赖解析而不修改 node_modules
+- 安装前预计算依赖树
+
+## update
+
+删除 node_modules 并重新安装所有依赖。
+
+**别名:** `u`
+
+### 用法
+
+```bash filename="Terminal"
+ut update
+```
+
+### 示例
+
+```bash filename="Terminal" copy
+# 清洁重装
+ut update
+ut u
+```
+
+### 执行操作
+
+1. 删除 `node_modules` 目录
+2. 从 package.json 重新安装所有依赖
+3. 重新生成 package-lock.json
+
+### 使用场景
+
+- 修复损坏的 node_modules
+- 重大依赖变更后从头开始
+- 解决幽灵依赖问题
+
+## rebuild
+
+重建所有包的脚本钩子。
+
+**别名:** `rb`
+
+### 用法
+
+```bash filename="Terminal"
+ut rebuild [OPTIONS]
+```
+
+### 示例
+
+```bash filename="Terminal" copy
+# 重建所有包
+ut rebuild
+ut rb
+```
+
+### 选项
+
+| 选项 | 描述 |
+|------|------|
+| `--verbose` | 启用调试日志 |
+
+### 执行操作
+
+重新运行 node_modules 中所有包的安装脚本，包括：
+- `preinstall`
+- `install`
+- `postinstall`
+
+### 使用场景
+
+- 原生模块编译失败后
+- 切换 Node.js 版本时
+- 修复损坏的二进制依赖（如 `esbuild`、`swc`）
+
+## clean
+
+清理全局存储中的包缓存。
+
+**别名:** `c`
+
+### 用法
+
+```bash filename="Terminal"
+ut clean [OPTIONS] [PATTERN]
+```
+
+### 示例
+
+```bash filename="Terminal" copy
+# 清理所有缓存
+ut clean
+ut c
+
+# 清理指定包的缓存
+ut clean lodash
+ut clean react*
+```
+
+### 选项
+
+| 选项 | 描述 |
+|------|------|
+| `--cache-dir <path>` | 指定缓存目录 |
+
+### 缓存位置
+
+默认缓存目录: `~/.cache/nm`
+
+详见 [存储路径](/zh/docs/utoo/stores)。
+
+### 使用场景
+
+- 释放磁盘空间
+- 强制重新下载损坏的包
+- 清除过时的包版本
+
+## pm-pack
+
+从包目录创建一个 tarball 压缩包。
+
+**别名:** `pk`
+
+### 用法
+
+```bash filename="Terminal"
+ut pm-pack [OPTIONS] [PATH]
+```
+
+### 参数
+
+| 参数 | 描述 |
+|------|------|
+| `[PATH]` | 包目录路径（默认为当前目录） |
+
+### 示例
+
+```bash filename="Terminal" copy
+# 打包当前目录
+ut pm-pack
+ut pk
+
+# 打包指定目录
+ut pm-pack ./packages/my-lib
+
+# 预览打包内容（不生成文件）
+ut pm-pack --dry-run
+```
+
+### 选项
+
+| 选项 | 描述 |
+|------|------|
+| `--dry-run` | 预览模式，不实际生成 tarball |
+
+### 使用场景
+
+- 发布前检查包的内容和大小
+- 手动创建 `.tgz` 包用于本地测试
+- 配合 `--dry-run` 确认哪些文件会被包含
+
+## ping
+
+检测 npm 镜像源的连通性和响应延迟。
+
+**别名:** `pg`
+
+### 用法
+
+```bash filename="Terminal"
+ut ping [REGISTRY]
+```
+
+### 参数
+
+| 参数 | 描述 |
+|------|------|
+| `[REGISTRY]` | 要检测的镜像源 URL（默认使用已配置的镜像源） |
+
+### 示例
+
+```bash filename="Terminal" copy
+# 检测默认镜像源
+ut ping
+ut pg
+
+# 检测指定镜像源
+ut ping https://registry.npmjs.org
+ut ping https://registry.npmmirror.com
+```
+
+### 输出
+
+- 成功: `PONG {延迟}ms (supports-semver: yes/no)`
+- 失败: `FAIL registry did not respond ({延迟}ms)`
+
+其中 `supports-semver` 表示该镜像源是否支持语义化版本查询，即直接通过 URL 进行范围解析，例如：
+
+```
+https://registry.npmmirror.com/lodash/^4
+```
+
+目前 cnpm 相关镜像（如 npmmirror）支持此特性，npm 官方源不支持。
+
+utoo 会自动探测镜像源的 semver 支持情况，并将结果缓存到全局配置文件 `~/.utoo/config.toml` 中，避免重复探测：
+
+```toml filename="~/.utoo/config.toml"
+[arrays]
+supports-semver = [
+  "https://registry.npmmirror.com",
+  "!https://some-private.registry",
+]
+```
+
+- 无前缀表示支持（如 `"https://registry.npmmirror.com"`）
+- `!` 前缀表示不支持（如 `"!https://some-private.registry"`）
+
+多个镜像源的探测结果会同时缓存，切换镜像源时不会重复探测。
+
+### 使用场景
+
+- 检查镜像源是否可用
+- 对比不同镜像源的响应速度
+- 排查网络或镜像源问题
+
+## login
+
+登录到 npm 镜像源。
+
+**别名:** `lg`
+
+### 用法
+
+```bash filename="Terminal"
+ut login [OPTIONS]
+```
+
+### 示例
+
+```bash filename="Terminal" copy
+# 登录默认镜像源
+ut login
+ut lg
+
+# 登录指定镜像源
+ut login --registry https://registry.npmjs.org
+```
+
+### 选项
+
+| 选项 | 描述 |
+|------|------|
+| `--registry <url>` | 指定要登录的镜像源 |
+
+### 工作原理
+
+1. 打开浏览器进行 Web 登录验证
+2. 验证成功后自动保存认证令牌
+3. 令牌存储在本地配置中，供后续操作使用
+
+### 相关命令
+
+- [logout](#logout) - 注销登录
+- [whoami](#whoami) - 查看当前登录用户
+
+## logout
+
+从 npm 镜像源注销登录。
+
+**别名:** `lo`
+
+### 用法
+
+```bash filename="Terminal"
+ut logout [OPTIONS]
+```
+
+### 示例
+
+```bash filename="Terminal" copy
+# 从默认镜像源注销
+ut logout
+ut lo
+
+# 从指定镜像源注销
+ut logout --registry https://registry.npmjs.org
+```
+
+### 选项
+
+| 选项 | 描述 |
+|------|------|
+| `--registry <url>` | 指定要注销的镜像源 |
+
+### 工作原理
+
+1. 读取已保存的认证令牌
+2. 向镜像源发送注销请求撤销令牌
+3. 从本地存储中移除令牌
+
+### 相关命令
+
+- [login](#login) - 登录镜像源
+- [whoami](#whoami) - 查看当前登录用户
+
+## whoami
+
+显示当前登录的 npm 用户名。
+
+**别名:** `who`
+
+### 用法
+
+```bash filename="Terminal"
+ut whoami [OPTIONS]
+```
+
+### 示例
+
+```bash filename="Terminal" copy
+# 查看当前用户
+ut whoami
+ut who
+
+# 查看指定镜像源的登录用户
+ut whoami --registry https://registry.npmjs.org
+```
+
+### 选项
+
+| 选项 | 描述 |
+|------|------|
+| `--registry <url>` | 指定镜像源 |
+
+### 相关命令
+
+- [login](#login) - 登录镜像源
+- [logout](#logout) - 注销登录
+
+## init
+
+创建 package.json 文件。
+
+**别名：** `create`
+
+### 用法
+
+```bash filename="Terminal"
+ut init [OPTIONS]
+```
+
+### 示例
+
+```bash filename="Terminal" copy
+# 交互模式（提示输入名称、版本等）
+ut init
+
+# 跳过提示，使用默认值
+ut init --yes
+ut init -y
+```
+
+### 选项
+
+| 选项 | 描述 |
+|------|------|
+| `-y, --yes` | 跳过提示，使用默认值 |
+
+## publish
+
+发布包到 npm 镜像源。
+
+**别名：** `pub`
+
+### 用法
+
+```bash filename="Terminal"
+ut publish [OPTIONS]
+```
+
+### 示例
+
+```bash filename="Terminal" copy
+# 发布到默认镜像源
+ut publish
+
+# 预览发布（不实际发布）
+ut publish --dry-run
+
+# 使用指定标签发布
+ut publish --tag beta
+
+# 使用 OTP 进行双因素认证
+ut publish --otp 123456
+```
+
+### 选项
+
+| 选项 | 描述 |
+|------|------|
+| `--tag <tag>` | 发布标签（默认：`latest`，或 package.json 中的 `publishConfig.tag`） |
+| `--dry-run` | 预览模式，不实际发布 |
+| `--otp <code>` | 双因素认证一次性密码 |
+
+### 工作原理
+
+1. 读取当前目录的 `package.json`
+2. 验证包的元数据（名称、版本）
+3. 从 `publishConfig.registry` 或全局配置解析镜像源
+4. 创建 tarball 并发布到镜像源
+
+### 相关命令
+
+- [pm-pack](#pm-pack) - 创建 tarball 但不发布
+- [login](#login) - 发布前登录镜像源
+
+## completions
+
+为 utoo 生成 shell 自动补全脚本。
+
+**别名：** `cmp`
+
+### 用法
+
+```bash filename="Terminal"
+ut completions [SHELL]
+```
+
+### 参数
+
+| 参数 | 描述 |
+|------|------|
+| `[SHELL]` | 要生成补全的 shell（省略时自动检测） |
+
+支持的 shell：`bash`、`zsh`、`fish`、`powershell`、`elvish`
+
+### 示例
+
+```bash filename="Terminal" copy
+# 自动检测 shell 并输出补全脚本
+ut completions
+
+# 为指定 shell 生成
+ut completions bash
+ut completions zsh
+ut completions fish
+```
+
+### 配置
+
+添加到 shell 配置文件以持久化补全功能：
+
+```bash filename="~/.bashrc" copy
+eval "$(utoo completions bash)"
+```
+
+```bash filename="~/.zshrc" copy
+eval "$(utoo completions zsh)"
+```
+
+```bash filename="~/.config/fish/completions/utoo.fish" copy
+utoo completions fish > ~/.config/fish/completions/utoo.fish
+```
