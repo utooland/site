@@ -6,7 +6,7 @@ import { Callout, Steps, Tabs } from 'nextra/components'
 
 <Steps>
 
-**实例化项目**
+### 实例化项目
 
 创建 `Project` 实例，配置 Worker 和 Service Worker。
 
@@ -39,7 +39,7 @@ const project = new UtooProject({
 });
 ```
 
-**安装 Service Worker**
+### 安装 Service Worker
 
 要启用预览功能，您必须注册并安装 Service Worker。
 
@@ -47,7 +47,7 @@ const project = new UtooProject({
 await project.installServiceWorker();
 ```
 
-**解析和安装依赖**
+### 解析和安装依赖
 
 `@utoo/web` 提供两种依赖管理方式：
 
@@ -88,7 +88,7 @@ await project.install(JSON.stringify(packageLock));
 - **减少网络流量**：常用依赖包只需下载一次，后续项目即可直接使用，大幅降低网络开销
 - **跨标签页复用**：即使开启新的浏览器标签页，只要处于同一域名下，依赖均可以直接复用
 
-**写入项目文件**
+### 写入项目文件
 
 环境设置好后，您现在可以将源文件写入真实文件系统。
 
@@ -104,7 +104,7 @@ for (const filePath in demoFiles) {
 }
 ```
 
-**创建构建配置**
+### 创建构建配置
 
 在构建项目之前，您需要在项目的根目录中提供一个名为 `utoopack.json` 的构建配置文件。
 

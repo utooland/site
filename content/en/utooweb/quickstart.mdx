@@ -6,7 +6,7 @@ Getting a project up and running involves five main steps. See `examples/utooweb
 
 <Steps>
 
-**Instantiate the Project**
+### Instantiate the Project
 
 Create a `Project` instance with configuration for workers and the service worker.
 
@@ -39,7 +39,7 @@ const project = new UtooProject({
 });
 ```
 
-**Install the Service Worker**
+### Install the Service Worker
 
 To enable the preview functionality, you must register and install the service worker.
 
@@ -47,7 +47,7 @@ To enable the preview functionality, you must register and install the service w
 await project.installServiceWorker();
 ```
 
-**Resolve and Install Dependencies**
+### Resolve and Install Dependencies
 
 `@utoo/web` provides two approaches for dependency management:
 
@@ -88,7 +88,7 @@ await project.install(JSON.stringify(packageLock));
 - **Reduce Network Traffic**: Frequently used packages only need to be downloaded once
 - **Cross-Tab Reuse**: Dependencies can be directly reused across browser tabs under the same domain
 
-**Write Project Files**
+### Write Project Files
 
 With the environment set up, you can now write your source files to the real file system.
 
@@ -104,7 +104,7 @@ for (const filePath in demoFiles) {
 }
 ```
 
-**Create Build Configuration**
+### Create Build Configuration
 
 Before you can build the project, you need to provide a build configuration file named `utoopack.json` in the project's root directory.
 
