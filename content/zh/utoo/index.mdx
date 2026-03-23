@@ -1,6 +1,6 @@
 # utoo
 
-import { Callout, Cards, Steps, Tabs } from 'nextra/components'
+import { Callout, Cards, Tabs } from 'nextra/components'
 
 utoo (`ut`) 是一个快速、现代的 JavaScript 包管理器，提供与 npm 兼容的包管理功能，并具有性能优化。
 
@@ -36,35 +36,31 @@ utoo (`ut`) 是一个快速、现代的 JavaScript 包管理器，提供与 npm 
 
 ## 快速开始
 
-<Steps>
-
-### 安装依赖
+### 1. 安装依赖
 
 ```bash filename="Terminal" copy
 ut install
 ```
 
-### 添加包
+### 2. 添加包
 
 ```bash filename="Terminal" copy
 ut install lodash
 ut install -D typescript
 ```
 
-### 运行脚本
+### 3. 运行脚本
 
 ```bash filename="Terminal" copy
 ut build
 ut dev
 ```
 
-### 执行远程包
+### 4. 执行远程包
 
 ```bash filename="Terminal" copy
 utx create-react-app my-app
 ```
-
-</Steps>
 
 ## 命令
 

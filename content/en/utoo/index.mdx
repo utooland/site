@@ -1,6 +1,6 @@
 # utoo
 
-import { Callout, Cards, Steps, Tabs } from 'nextra/components'
+import { Callout, Cards, Tabs } from 'nextra/components'
 
 utoo (`ut`) is a fast, modern package manager for JavaScript projects, providing npm-compatible package management with performance optimizations.
 
@@ -36,35 +36,31 @@ utoo (`ut`) is a fast, modern package manager for JavaScript projects, providing
 
 ## Quick Start
 
-<Steps>
-
-### Install dependencies
+### 1. Install dependencies
 
 ```bash filename="Terminal" copy
 ut install
 ```
 
-### Add a package
+### 2. Add a package
 
 ```bash filename="Terminal" copy
 ut install lodash
 ut install -D typescript
 ```
 
-### Run scripts
+### 3. Run scripts
 
 ```bash filename="Terminal" copy
 ut build
 ut dev
 ```
 
-### Execute remote packages
+### 4. Execute remote packages
 
 ```bash filename="Terminal" copy
 utx create-react-app my-app
 ```
-
-</Steps>
 
 ## Commands
 

@@ -1,34 +1,30 @@
 # Configuration
 
-import { Callout, Steps, Tabs } from 'nextra/components'
+import { Callout, Tabs } from 'nextra/components'
 
 utoo supports multiple configuration methods with hierarchical priority.
 
 ## Priority Order
 
-<Steps>
-
-### CLI flags (highest)
+### 1. CLI flags (highest)
 
 ```bash filename="Terminal"
 ut install --registry https://registry.npmmirror.com
 ```
 
-### Environment variables
+### 2. Environment variables
 
 ```bash filename="Terminal"
 export UTOO_REGISTRY=https://registry.npmmirror.com
 ```
 
-### Project config
+### 3. Project config
 
 `.utoo.toml` in project root
 
-### Global config (lowest)
+### 4. Global config (lowest)
 
 `~/.utoo/config.toml`
-
-</Steps>
 
 ## CLI Configuration
 

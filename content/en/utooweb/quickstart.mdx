@@ -1,12 +1,10 @@
 # Quick Start
 
-import { Callout, Steps, Tabs } from 'nextra/components'
+import { Callout, Tabs } from 'nextra/components'
 
 Getting a project up and running involves five main steps. See `examples/utooweb-demo` or try [`utoo-repl`](https://utoo-repl.vercel.app).
 
-<Steps>
-
-### Instantiate the Project
+### 1. Instantiate the Project
 
 Create a `Project` instance with configuration for workers and the service worker.
 
@@ -39,7 +37,7 @@ const project = new UtooProject({
 });
 ```
 
-### Install the Service Worker
+### 2. Install the Service Worker
 
 To enable the preview functionality, you must register and install the service worker.
 
@@ -47,7 +45,7 @@ To enable the preview functionality, you must register and install the service w
 await project.installServiceWorker();
 ```
 
-### Resolve and Install Dependencies
+### 3. Resolve and Install Dependencies
 
 `@utoo/web` provides two approaches for dependency management:
 
@@ -88,7 +86,7 @@ await project.install(JSON.stringify(packageLock));
 - **Reduce Network Traffic**: Frequently used packages only need to be downloaded once
 - **Cross-Tab Reuse**: Dependencies can be directly reused across browser tabs under the same domain
 
-### Write Project Files
+### 4. Write Project Files
 
 With the environment set up, you can now write your source files to the real file system.
 
@@ -104,7 +102,7 @@ for (const filePath in demoFiles) {
 }
 ```
 
-### Create Build Configuration
+### 5. Create Build Configuration
 
 Before you can build the project, you need to provide a build configuration file named `utoopack.json` in the project's root directory.
 
@@ -137,8 +135,6 @@ Write this file to the real file system:
 ```typescript filename="app.ts"
 await project.writeFile('utoopack.json', JSON.stringify(utoopackConfig, null, 2));
 ```
-
-</Steps>
 
 After these steps, your project is fully initialized and ready for interaction.
 
