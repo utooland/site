@@ -1,293 +1,143 @@
-# [`@utoo/web`](https://www.npmjs.com/package/@utoo/web) API Documentation
+# API 参考
 
-`@utoo/web` enables a complete web development environment in the browser, including a file system, dependency management, and build process. It integrates [`utoopack`](https://github.com/utooland/utoo) (Rust + Turbopack), targeting `wasm32-unknown-unknown`. It does not rely on Web Containers, avoiding the runtime overhead (such as startup latency and memory usage) associated with Node.js environment emulation. It also uses Web Workers, Service Workers, and OPFS for a seamless experience.
+import { Callout } from 'nextra/components'
 
-## Core Concepts
+## `new UtooProject(options)`
 
-1. **Real File System**: The project lives in the browser's [Origin Private File System (OPFS)](https://developer.mozilla.org/en-US/docs/Web/API/File_System_API/Origin_private_file_system). `Project` provides a Node.js-like `fs` interface.
-2. **Project Main Worker**: The `Project` instance runs in a Web Worker. The main thread object is a proxy, keeping the UI responsive.
-3. **Thread Worker**: Heavy tasks (bundling, compilation) run in a dedicated Web Worker powered by a ported `tokio` runtime.
-4. **Loader Worker**: Executes Webpack loaders in a dedicated worker with Node.js polyfills.
-5. **Service Worker**: Acts as a local server to intercept requests and serve built files for preview.
+创建一个新的项目实例。
 
-## File Watching & Incremental Builds
+**选项**
 
-`@utoo/web` leverages the modern [FileSystemObserver API](https://github.com/whatwg/fs/blob/main/proposals/FileSystemObserver.md) to implement efficient file system watching directly in the browser. This is crucial for supporting Turbopack's incremental build capabilities.
+| 选项 | 类型 | 描述 |
+|--------|------|------|
+| `cwd` | string | **必填。** 作为项目根目录在真实文件系统中的绝对路径（例如 `/my-app`）。 |
+| `workerUrl` | string | **必填。** `Project` 实例核心逻辑实际运行的 Worker 线程 URL。主线程的 `Project` 对象是一个代理，将任务委托给该 Worker。 |
+| `threadWorkerUrl` | string | **必填。** 用于处理打包和编译等 CPU 密集型任务的独立 Worker 线程 URL。 |
+| `loaderWorkerUrl` | string | 用于处理 webpack loader 的独立 Worker 线程 URL。 |
+| `wasmUrl` | string | WASM 二进制文件的 URL。默认使用捆绑的二进制文件。 |
+| `serviceWorker` | object | 用于预览功能的 Service Worker 配置。参见下方子选项。 |
+| `logFilter` | string | 追踪日志的过滤字符串。 |
+| `loadersImportMap` | object | 用于配置 Webpack loader 导入的映射表。键为 loader 名称，值为 UMD/CommonJS 模块 URL 或内容字符串。 |
 
-1.  **FileSystemObserver Integration**: The `tokio-fs-ext` crate (used by `utoo-wasm`) provides a `watch` module that wraps the `FileSystemObserver` API. This allows the Rust code to receive notifications about file changes in the Origin Private File System (OPFS).
-2.  **OpfsOffload Layer**: The [implementation of OpfsOffload](https://github.com/utooland/tokio-fs-ext/tree/master/src/fs/wasm/offload) not only solves the thread safety issue of JS objects in Rust (allowing multiple Rust threads to call OPFS concurrently) but also extends the `turbo-tasks-fs` file system with minimal intrusiveness. When a file change is detected, the event is also propagated through this layer to the Turbopack engine running in the WASM environment.
-3.  **Incremental Compilation**: Turbopack's architecture is built on a reactive graph. When it receives a file change event, it invalidates only the affected parts of the dependency graph. This triggers a re-computation (rebuild) of only the changed modules and their dependents, resulting in extremely fast updates.
+**`serviceWorker` 子选项：**
 
-This architecture ensures that `@utoo/web` delivers a responsive development experience even for large projects running entirely within the browser.
-
----
-
-## Quick Start Guide
-
-Getting a project up and running involves four main steps. See `examples/utooweb-demo` or try [`utoo-repl`](https://utoo-repl.vercel.app).
-
-**1. Instantiate the Project**
-
-Create a `Project` instance with configuration for workers and the service worker.
-
-```typescript
-import { Project as UtooProject } from "@utoo/web";
-
-const project = new UtooProject({
-    // Project root directory in the file system.
-    cwd: "/utooweb-demo",
-
-    // Worker script URL for file system and core functionality.
-    workerUrl: `${location.origin}/worker.js`,
-
-    // Worker script URL for heavy tasks.
-    threadWorkerUrl: `${location.origin}/threadWorker.js`,
-    
-    // Worker script URL for webpack loaders.
-    loaderWorkerUrl: `${location.origin}/loaderWorker.js`,
-
-    // Preview service worker configuration.
-    serviceWorker: {
-        url: `${location.origin}/serviceWorker.js`,
-        scope: "/preview", // Path controlled by the service worker.
-    },
-    // ImportMap for running webpack loaders
-    loadersImportMap: {
-      // accept an umd script url or a script content string
-      "xyzLoader": "https://x.y.z.js"
-    }
-});
-```
-
-**2. Install the Service Worker**
-
-To enable the preview functionality, you must register and install the service worker.
-
-```typescript
-await project.installServiceWorker();
-```
-
-**3. Resolve and Install Dependencies**
-
-`@utoo/web` provides two approaches for dependency management:
-
-**Option A: Generate lock file from package.json (Recommended)**
-
-Use the `deps()` method to resolve dependencies directly from your `package.json`. This generates a `package-lock.json` compatible lock file without needing one beforehand.
-
-```typescript
-// Resolve dependencies from package.json
-const packageLock = await project.deps({
-    registry: "https://registry.npmmirror.com", // Optional: custom registry
-    concurrency: 20, // Optional: concurrent requests (default: 20)
-});
-
-// Install the resolved dependencies
-await project.install(packageLock);
-```
-
-**Option B: Use existing package-lock.json**
-
-If you already have a `package-lock.json`, you can use it directly:
-
-The dependency packages in the project's `node_modules` are actually logical links pointing to a global shared storage. This means that different projects under the same browser domain can share dependencies with the same name and version without repeated downloads. This mechanism is similar to `pnpm`'s storage strategy.
-
-This design has the following advantages:
-1. **Save Storage Space**: Identical versions of dependency packages are stored only once in OPFS, avoiding redundant usage.
-2. **Accelerate Project Initialization**: When creating a new project or switching projects, if the dependency packages already exist in the global storage, they can be reused directly, achieving second-level installation.
-3. **Reduce Network Traffic**: Frequently used dependency packages only need to be downloaded once, and subsequent projects can use them directly, significantly reducing network overhead.
-4. **Cross-Tab Reuse**: Even if a new browser tab is opened, as long as it is under the same domain, dependencies can be directly reused.
-
-```typescript
-// Import your package-lock.json as a JSON object.
-import { packageLock } from "../packageLock";
-
-await project.install(JSON.stringify(packageLock));
-```
-
-**4. Write Project Files**
-
-With the environment set up, you can now write your source files to the real file system.
-
-```typescript
-// An object containing file paths and their content.
-import { demoFiles } from "../demoFiles";
-
-await project.mkdir("src");
-
-for (const filePath in demoFiles) {
-    const content = demoFiles[filePath];
-    await project.writeFile(filePath, content);
-}
-```
-
-**5. Create Build Configuration**
-
-Before you can build the project, you need to provide a build configuration file named `utoopack.json` in the project's root directory. This file tells `@utoo/web` how to bundle your application, specifying entry points and other build options.
-
-A typical configuration looks like this:
-
-```json
-{
-  "entry": [
-    {
-      "import": "./src/index.tsx",
-      "name": "main" 
-    }
-  ],
-  "output": {
-    "path": "dist"
-  },
-  "module": {
-    "rules": {
-      "*.tsx": [ "xyzLoader" ]
-    }
-  },
-  "stats": true
-}
-```
-
-To use loaders, you must add them to the `devDependencies` in your `package.json` and install them, just as you would in a standard Webpack project. Additionally, you must install `loader-runner`, as `@utoo/web` relies on the `loader-runner` mechanism and context to execute loaders.
-
-You would write this file to the real file system just like any other source file:
-
-```typescript
-await project.writeFile('utoopack.json', JSON.stringify(utoopackConfig, null, 2));
-```
-
-After these steps, your project is fully initialized and ready for interaction.
+| 选项 | 类型 | 描述 |
+|--------|------|------|
+| `url` | string | **必填。** Service Worker 脚本的 URL。 |
+| `scope` | string | **必填。** Service Worker 拦截请求的 URL 范围。 |
+| `targetDirToCwd` | string | 从目标目录到项目根目录的路径。 |
 
 ---
 
-## API Reference
+## 文件系统方法
 
-**`new UtooProject(options)`**
+这些方法是异步的，模拟 Node.js `fs` API。
 
-Creates a new project instance.
+**`project.writeFile(path, content, encoding?)`**
 
-**Options:**
+将内容写入真实文件系统中的文件。如果文件不存在，将会创建。
 
-| Option | Type | Description |
-|--------|------|-------------|
-| `cwd` | string | **Required.** The absolute path that will serve as the root of the project in the real file system (e.g., `/my-app`). |
-| `workerUrl` | string | Specifies the URL of the Worker thread where the `Project` instance's core logic actually runs. The `Project` object you interact with in the main thread is a proxy that delegates all core tasks (like file system operations) to this Worker. |
-| `threadWorkerUrl` | string | **Required.** Specifies the URL of a separate Worker thread dedicated to handling CPU-intensive tasks like bundling and compiling. |
-| `loaderWorkerUrl` | string | **Required.** Specifies the URL of a separate Worker thread dedicated to handling webpack loaders. |
-| `serviceWorker` | object | Service worker configuration. See sub-options below. |
-| `loadersImportMap` | object | A map for configuring Webpack loader imports. Keys are loader names, values are UMD/CommonJS module URLs or content strings. Loaders will be executed in parallel in a web worker pool. |
+| 参数 | 类型 | 描述 |
+|-----------|------|------|
+| `path` | string | 文件的绝对路径（例如 `/src/index.js`）。 |
+| `content` | string \| Uint8Array | 要写入的内容。 |
+| `encoding` | string | 编码格式（例如 `'utf8'`）。可选。 |
 
-**`serviceWorker` sub-options:**
+**`project.readFile(path, encoding?)`**
 
-| Option | Type | Description |
-|--------|------|-------------|
-| `url` | string | **Required.** The URL to the service worker script. |
-| `scope` | string | **Required.** The URL scope that the service worker will intercept requests for. |
+读取文件的内容。
 
-**File System Methods**
+| 参数 | 类型 | 描述 |
+|-----------|------|------|
+| `path` | string | 文件的路径。 |
+| `encoding` | string | 文件的编码格式（例如 `'utf8'`）。如果未提供，返回 `Uint8Array`。 |
 
-These methods are asynchronous and mimic the Node.js `fs` API.
-
-**`project.writeFile(path, content)`**
-
-Writes content to a file in the real file system. If the file doesn't exist, it will be created.
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `path` | string | The absolute path to the file (e.g., `/src/index.js`). |
-| `content` | string \| Buffer | The content to write. |
-
-**`project.readFile(path, encoding)`**
-
-Reads the content of a file.
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `path` | string | The path to the file. |
-| `encoding` | string | The encoding of the file (e.g., `'utf8'`). If not provided, it returns a Buffer. |
+**返回值：** `Promise<string>`（带编码）或 `Promise<Uint8Array>`（不带编码）。
 
 **`project.readdir(path, options?)`**
 
-Reads the contents of a directory.
+读取目录的内容。
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `path` | string | The path to the directory. |
-| `options.recursive` | boolean | If `true`, reads recursively. |
+| 参数 | 类型 | 描述 |
+|-----------|------|------|
+| `path` | string | 目录的路径。 |
+| `options.recursive` | boolean | 如果为 `true`，递归读取。 |
 
-**Returns:** `Promise<Dirent[]>` - An array of `Dirent` objects with `name`, `isDirectory()`, and `isFile()` methods.
+**返回值：** `Promise<Dirent[]>` — 一个 `Dirent` 对象数组，包含 `name`、`isDirectory()` 和 `isFile()` 方法。
 
 **`project.mkdir(path, options?)`**
 
-Creates a new directory.
+创建新目录。
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `path` | string | The path to the directory to be created. |
-| `options.recursive` | boolean | If `true`, creates parent directories as needed. |
+| 参数 | 类型 | 描述 |
+|-----------|------|------|
+| `path` | string | 要创建的目录路径。 |
+| `options.recursive` | boolean | 如果为 `true`，按需创建父目录。 |
 
-**`project.rm(path, options)`**
+**`project.rm(path, options?)`**
 
-Removes a file or directory.
+删除文件或目录。
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `path` | string | The path to the file or directory to be removed. |
-| `options.recursive` | boolean | If `true`, performs a recursive directory removal. Defaults to `false`. |
+| 参数 | 类型 | 描述 |
+|-----------|------|------|
+| `path` | string | 要删除的文件或目录路径。 |
+| `options.recursive` | boolean | 如果为 `true`，执行递归删除。 |
 
-**`project.rmdir(path)`**
+**`project.rmdir(path, options?)`**
 
-Removes a directory.
+删除目录。
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `path` | string | The path to the directory to be removed. |
+| 参数 | 类型 | 描述 |
+|-----------|------|------|
+| `path` | string | 要删除的目录路径。 |
+| `options.recursive` | boolean | 如果为 `true`，递归删除。 |
 
 **`project.copyFile(src, dst)`**
 
-Copies a file from source to destination.
+从源路径复制文件到目标路径。
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `src` | string | Source file path. |
-| `dst` | string | Destination file path. |
+| 参数 | 类型 | 描述 |
+|-----------|------|------|
+| `src` | string | 源文件路径。 |
+| `dst` | string | 目标文件路径。 |
 
 **`project.stat(path)`**
 
-Gets file/directory stats.
+获取文件/目录的状态信息。
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `path` | string | The path to the file or directory. |
+| 参数 | 类型 | 描述 |
+|-----------|------|------|
+| `path` | string | 文件或目录的路径。 |
 
-**Returns:** `Promise<Stats>` - Stats object with `size`, `isDirectory()`, `isFile()`, timestamps.
+**返回值：** `Promise<Stats>` — Stats 对象，包含 `size`、`isDirectory()`、`isFile()`、时间戳（`atime`、`mtime`、`ctime`、`birthtime`）等。
 
-**Dependency Management**
+---
+
+## 依赖管理
 
 **`project.deps(options?)`**
 
-Resolves dependencies from the project's `package.json` and generates a lock file string. This enables dependency resolution directly in the browser without requiring a pre-existing `package-lock.json`.
+从项目的 `package.json` 解析依赖并生成 lock 文件字符串。这使得在浏览器中直接进行依赖解析成为可能，无需预先存在的 `package-lock.json`。
 
-**Options:**
+| 选项 | 类型 | 描述 |
+|--------|------|------|
+| `registry` | string | npm registry URL。默认值：`https://registry.npmmirror.com` |
+| `concurrency` | number | 最大并发网络请求数。默认值：`20` |
 
-| Option | Type | Description |
-|--------|------|-------------|
-| `registry` | string | The npm registry URL. Defaults to `https://registry.npmmirror.com`. |
-| `concurrency` | number | Maximum concurrent network requests. Defaults to `20`. |
+**返回值：** `Promise<string>` — 表示已解析的依赖 lock 文件的 JSON 字符串，兼容 `package-lock.json` 格式。
 
-**Returns:** `Promise<string>` - A JSON string representing the resolved dependency lock file, compatible with `package-lock.json` format.
+**示例：**
 
-**Example:**
-
-```typescript
-// Using default registry (npmmirror)
+```typescript filename="app.ts"
+// 使用默认 registry (npmmirror)
 const lockFile = await project.deps();
 
-// Using official npm registry
+// 使用官方 npm registry
 const lockFile = await project.deps({
     registry: "https://registry.npmjs.org"
 });
 
-// Using a private registry with custom concurrency
+// 使用私有 registry 并自定义并发数
 const lockFile = await project.deps({
     registry: "https://npm.mycompany.com",
     concurrency: 10
@@ -296,227 +146,134 @@ const lockFile = await project.deps({
 
 **`project.install(packageLockJsonString, options?)`**
 
-Populates the `node_modules` directory based on a lock file string.
+根据 lock 文件字符串填充 `node_modules` 目录。
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `packageLockJsonString` | string | A JSON string of the dependency lock file (from `deps()` or a `package-lock.json` file). |
-| `options.maxConcurrentDownloads` | number | Maximum concurrent package downloads. |
-| `options.omit` | string[] | Dependency types to omit. Possible values: `"dev"`, `"optional"`. |
+| 参数 | 类型 | 描述 |
+|-----------|------|------|
+| `packageLockJsonString` | string | 依赖 lock 文件的 JSON 字符串（来自 `deps()` 或 `package-lock.json` 文件）。 |
+| `options.maxConcurrentDownloads` | number | 最大并发包下载数。 |
+| `options.omit` | string[] | 要忽略的依赖类型。可选值：`"dev"`、`"optional"`。 |
 
-**Preview Functionality**
+**示例：**
 
-**`project.installServiceWorker()`**
+```typescript filename="app.ts"
+// 基本安装
+await project.install(lockFile);
 
-Registers and activates the service worker defined in the constructor. This is essential for the preview functionality.
+// 带并发限制的安装
+await project.install(lockFile, { maxConcurrentDownloads: 10 });
+
+// 不安装开发依赖（生产模式）
+await project.install(lockFile, { omit: ["dev"] });
+```
+
+---
+
+## 构建与开发
 
 **`project.build()`**
 
-Triggers the build process in the thread worker. It reads the build configuration from `utoopack.json` in the project's root and runs the bundler based on that configuration.
+在线程 Worker 中触发构建过程。它从项目根目录的 `utoopack.json` 读取构建配置，并基于该配置运行打包器。
 
-* Returns: `Promise<BuildOutput>` - Object with an `issues` array containing any build warnings or errors.
+**返回值：** `Promise<BuildOutput>` — 包含 `issues` 数组的对象，其中包含任何构建警告或错误。
 
-**Development Mode & HMR**
+```typescript filename="app.ts"
+const result = await project.build();
+if (result.issues.length > 0) {
+  console.warn("构建完成，但存在问题：", result.issues);
+}
+```
 
 **`project.dev(onUpdate?)`**
 
-Starts development mode with file watching and Hot Module Replacement (HMR). Unlike `build()`, `dev()` continuously watches for file changes and automatically triggers incremental builds.
+启动带文件监听的开发模式。当文件变更时自动触发增量重建。
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `onUpdate` | function | Callback when a build completes, receives the build result. Optional. |
+| 参数 | 类型 | 描述 |
+|-----------|------|------|
+| `onUpdate` | function | 每次重建完成时调用的回调函数，接收 `BuildOutput`。可选。 |
 
-**Example:**
-
-```typescript
+```typescript filename="app.ts"
 project.dev((result) => {
-  console.log('Build completed', result.issues);
+  console.log("重建完成，问题：", result.issues);
 });
 ```
+
+**`project.hmrSubscribe(identifier, callback)`**
+
+订阅特定标识符的 HMR（热模块替换）事件。
+
+| 参数 | 类型 | 描述 |
+|-----------|------|------|
+| `identifier` | string | 要订阅的模块标识符。 |
+| `callback` | function | 当模块发生变更时，接收更新指令调用。 |
 
 **`project.updateInfoSubscribe(aggregationMs, callback)`**
 
-Subscribe to compilation lifecycle events. This replaces the old `onUpdateStart` and `onUpdateEnd` hooks.
+订阅编译生命周期事件（开始/结束）。
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `aggregationMs` | number | Aggregation time in milliseconds. |
-| `callback` | function | Receives an `UpdateMessage` object. |
-
-**Example:**
-
-```typescript
-project.updateInfoSubscribe(100, (message) => {
-  if (message.updateType === "start") {
-    console.log('Build starting...');
-  } else if (message.updateType === "end") {
-    const { duration, tasks } = message.value;
-    console.log(`Build completed in ${duration}ms with ${tasks} tasks`);
-  }
-});
-```
-
-**`project.connectHmrIframe(iframe, origin?)`**
-
-Connects a preview iframe to the HMR server. Returns an `HmrClient` instance.
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `iframe` | HTMLIFrameElement | The preview page's iframe element. |
-| `origin` | string | The origin of the preview page (defaults to `*`). Optional. |
-
-**Returns:** `HmrClient | null` - The HMR client instance, or `null` if `dev()` has not been called. Call `client.close()` to disconnect.
-
-**Example:**
-
-```typescript
-const iframeRef = useRef<HTMLIFrameElement>(null);
-
-useEffect(() => {
-  if (!iframeRef.current) return;
-  
-  const client = project.connectHmrIframe(iframeRef.current);
-  
-  return () => {
-    client?.close();
-  };
-}, [project]);
-```
-
-**How HMR Works**
-
-HMR uses MessagePort for communication between the main thread and the preview iframe:
-
-1. Call `project.dev()` to start development mode, which starts file watching and the HMR server
-2. Call `project.connectHmrIframe(iframe)` to connect the iframe to the HMR server
-3. When files change, Turbopack automatically triggers incremental builds
-4. HMR updates are sent to the iframe via MessagePort
-5. The HMR client in the iframe applies updates without page refresh
+| 参数 | 类型 | 描述 |
+|-----------|------|------|
+| `aggregationMs` | number | 聚合时间间隔，单位为毫秒。 |
+| `callback` | function | 在编译事件发生时接收 `UpdateMessage` 调用。 |
 
 ---
 
-## Example Workflow: Building and Previewing
+## 预览功能
 
-The `utooweb-demo` shows a complete workflow for editing, building, and previewing.
+**`project.installServiceWorker()`**
 
-1. **Editing**: A file is read using `project.readFile()` and displayed in an editor. When the content changes, `project.writeFile()` is called (often with a debounce) to save the changes back to the OPFS.
-
-    ```typescript
-    // In useFileContent.ts
-    const content = await project.readFile(filePath, "utf8");
-    // ...
-    await project.writeFile(selectedFilePath, newContent);
-    ```
-
-2. **Building**: The user clicks a "Build" button, which calls `project.build()`.
-
-    ```typescript
-    // In useBuild.ts
-    setIsBuilding(true);
-    try {
-        await project.build();
-        // Build succeededThen it generates an `index.html` that includes these assets. The logic for generating HTML is similar to `html-webpack-plugin`. We are currently planning to support using HTML directly as the build entry. Once this feature is completed, the manual step of generating HTML can be omitted
-    } catch (e) {
-        // Build failed
-    } finally {
-        setIsBuilding(false);
-    }
-    ```
-
-3. **Processing Build Output**: After a successful build, the application reads the build output (e.g., `dist/stats.json`) to find the generated asset files (`.js`, `.css`). It then generates an `index.html` that includes these assets.
-
-    ```typescript
-    // In useBuild.ts
-    const statsContent = await project.readFile("dist/stats.json", "utf8");
-    const stats = JSON.parse(statsContent);
-    // ... logic to generate HTML with correct script/link tags ...
-    await project.writeFile("dist/index.html", generatedHtml);
-    ```
-
-4. **Previewing**: The `Preview` component contains an `iframe` whose `src` points to the entry point within the service worker's scope (e.g., `/preview/dist/index.html`). When the build completes, the `iframe` reloads from the Service Worker with the newly generated artifact files from OPFS.
-
-This cycle provides a fast and interactive development loop, all running locally in the user's browser.
+注册并激活构造函数中定义的 Service Worker。这对于预览功能至关重要。
 
 ---
 
-## Server Configuration: COOP & COEP Headers
+## 类型定义
 
-To use `@utoo/web`, your development server must serve the application with specific HTTP headers to create a **cross-origin isolated environment**. This is a security requirement browsers enforce to enable powerful features like `SharedArrayBuffer`, which are essential for the multi-threaded performance of the underlying WebAssembly components.
-
-You must configure your server to send the following two headers:
-
-```
-Cross-Origin-Opener-Policy: same-origin
-Cross-Origin-Embedder-Policy: require-corp
-```
-
-**Example: `webpack-dev-server`**
-
-If you are using `webpack-dev-server`, you can add these headers in your `webpack.config.js` file as shown in the `utooweb-demo`:
-
-```javascript
-// webpack.config.js
-module.exports = {
-  // ... other config
-  devServer: {
-    headers: {
-      "Cross-Origin-Opener-Policy": "same-origin",
-      "Cross-Origin-Embedder-Policy": "require-corp",
-    },
-    // ... other devServer options
-  },
-};
-```
-
-**Important**: Without these headers, the browser will not enable the necessary features, and `@utoo/web` will fail to initialize. This configuration is required for any server hosting your application, not just `webpack-dev-server`.
-
----
-
-## Setting Up the Worker Scripts
-
-A key part of setting up a `@utoo/web` project is creating the worker scripts that you pass to the `UtooProject` constructor. As seen in the `utooweb-demo` example, the content of these files is minimal. Their purpose is to simply load the necessary worker logic from the `@utoo/web` library itself.
-
-You will need to create three files in your project's source, which will then be compiled by your bundler (e.g., Webpack, Vite) into the final URLs passed to the constructor.
-
-**1. Project Main Worker (`worker.ts`)**
-
-This file provides the logic for the main project worker, which handles file system operations and other core tasks.
+**`BuildOutput`**
 
 ```typescript
-// src/worker.ts
-import "@utoo/web/esm/worker";
+interface BuildOutput {
+  issues: Issue[];
+}
 ```
 
-**2. Thread Worker (`threadWorker.ts`)**
-
-This file provides the logic for the build worker, which handles CPU-intensive tasks like bundling.
+**`InstallOptions`**
 
 ```typescript
-// src/threadWorker.ts
-import "@utoo/web/esm/threadWorker";
+interface InstallOptions {
+  maxConcurrentDownloads?: number;
+  omit?: ("dev" | "optional")[];
+}
 ```
 
-**3. Service Worker (`serviceWorker.ts`)**
-
-This file provides the logic for the service worker, which serves the preview from the real file system.
+**`DepsOptions`**
 
 ```typescript
-// src/serviceWorker.ts
-import "@utoo/web/esm/serviceWorker";
+interface DepsOptions {
+  registry?: string;
+  concurrency?: number;
+}
 ```
 
-**4. Loader Worker (`loaderWorker.ts`)**
-
-This file provides the logic for the loader worker, which handles webpack loaders.
+**`Dirent`**
 
 ```typescript
-// src/loaderWorker.ts
-import "@utoo/web/esm/loaderWorker";
+class Dirent {
+  name: string;
+  isDirectory(): boolean;
+  isFile(): boolean;
+}
 ```
 
-Your build setup should be configured to output these files to a location that your main application can access, so you can provide their URLs to the `UtooProject` constructor.
+**`Stats`**
 
-## Notes
-
-* Since the default memory allocator on Rust, [`dlmalloc`](https://github.com/alexcrichton/dlmalloc-rs), does not perform ideally on multi-threaded `wasm`, we have ported [`mimalloc`](https://github.com/microsoft/mimalloc) to the wasm32-unknown-unknown platform to support running builds with threads equal to the number of CPU cores. Therefore, the difference in build performance between the browser environment and the operating system environment is very small.
-* Advanced features of turbopack such as [`persistent caching`](https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopackPersistentCaching), are also in the plan and will be supported directly in the browser in the future.
+```typescript
+class Stats {
+  size: number;
+  isDirectory(): boolean;
+  isFile(): boolean;
+  atime: Date;
+  mtime: Date;
+  ctime: Date;
+  birthtime: Date;
+}
+```
