@@ -14,8 +14,28 @@ type LayoutProps = {
 export default async function DocsLayout({ children, params }: LayoutProps) {
   const { locale } = await params
   const pageMap = await getPageMap(`/${locale}`)
-
+  
+  // Recursively add frontMatter to folders with an index, making them clickable Folder Pages
   const isZh = locale === 'zh'
+  function processPageMap(map: any[]) {
+    map.forEach(node => {
+      // Translate the root Docs folder name
+      if (node.name === 'docs') {
+        node.title = isZh ? '文档' : 'Docs'
+      }
+
+      if (node.children) {
+        const hasIndex = node.children.some((child: any) => child.name === 'index')
+        if (hasIndex) {
+          node.frontMatter = { title: node.title }
+        }
+        processPageMap(node.children)
+      }
+    })
+  }
+  processPageMap(pageMap)
+
+
 
   return (
     <Layout
