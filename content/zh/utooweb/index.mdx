@@ -56,8 +56,3 @@ module.exports = {
 };
 ```
 
-## 备注
-
-- 由于 Rust 默认的内存分配器 [`dlmalloc`](https://github.com/alexcrichton/dlmalloc-rs) 在多线程 `wasm` 上表现不够理想，我们已将 [`mimalloc`](https://github.com/microsoft/mimalloc) 移植到 wasm32-unknown-unknown 平台，以支持使用与 CPU 核心数相等的线程运行构建。因此，浏览器环境与操作系统环境之间的构建性能差异非常小。
-- 未来，我们还将在浏览器中支持 [`HMR`](https://webpack.js.org/concepts/hot-module-replacement/) 特性。
-- Turbopack 的高级功能如 [`持久缓存`](https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopackPersistentCaching)，也在计划中，未来将直接在浏览器中支持。
