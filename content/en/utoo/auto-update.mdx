@@ -1,0 +1,75 @@
+# Auto Update
+
+import { Callout } from 'nextra/components'
+
+utoo has a built-in auto-update mechanism that checks for and installs new versions when you run any command.
+
+## How It Works
+
+```
+Cache fresh? ──no──→ Background fetch latest version → write cache
+     │                                                  │
+    yes                                        Version differs?
+     │                                          ╱        ╲
+Version differs?                               no        yes
+   ╱    ╲                                   (done)        │
+  no    yes                                         In cooldown?
+(done)   ╰──────────────────────────╮            ╱        ╲
+                                    ↓          yes         no
+                                  (done) ←── try update
+```
+
+1. Each time you run a `ut` command, the local version cache is checked (1-hour TTL)
+2. If the cache is expired, the latest version is fetched from the registry in the background
+3. If the latest version differs from the current version, an automatic update is attempted
+4. After a failed update, a 24-hour cooldown period prevents repeated retries
+
+## Version Cache
+
+Version information is cached in `~/.utoo/remote-version.json`:
+
+```json filename="~/.utoo/remote-version.json"
+{
+  "version": "1.0.26",
+  "check_time": 1712736000,
+  "last_update_failed": null
+}
+```
+
+| Field | Description |
+|-------|-------------|
+| `version` | Latest version available on the registry |
+| `check_time` | Last check timestamp (Unix epoch) |
+| `last_update_failed` | Timestamp of last failed update, used for cooldown |
+
+## CI Environments
+
+<Callout type="warning">
+  Auto-update is skipped in CI environments to avoid affecting build stability.
+</Callout>
+
+Auto-update is disabled when the following environment variable is set:
+
+```bash filename="Terminal"
+CI=1
+# or
+CI=true
+```
+
+Most CI platforms (GitHub Actions, GitLab CI, etc.) set `CI=true` automatically, so no extra configuration is needed.
+
+## Force Update
+
+Set `UTOO_FORCE_UPDATE=1` to bypass all checks (cache, cooldown) and immediately fetch and install the latest version:
+
+```bash filename="Terminal" copy
+UTOO_FORCE_UPDATE=1 ut install
+```
+
+## Manual Update
+
+If auto-update fails, you can update manually:
+
+```bash filename="Terminal" copy
+ut install utoo@latest -g
+```

@@ -1,0 +1,75 @@
+# 自动更新
+
+import { Callout } from 'nextra/components'
+
+utoo 内置自动更新机制，运行任意命令时会自动检查并安装新版本。
+
+## 工作流程
+
+```
+缓存未过期？──否──→ 后台拉取最新版本 → 写入缓存
+     │                                  │
+    是                          版本不同？
+     │                         ╱        ╲
+版本不同？                    否         是
+   ╱    ╲                  (结束)        │
+  否     是                         冷却期内？
+(结束)    ╰──────────────────────╮   ╱     ╲
+                                ↓  是      否
+                             (结束)  ←── 尝试更新
+```
+
+1. 每次运行 `ut` 命令时，检查本地版本缓存是否过期（1 小时 TTL）
+2. 缓存过期则后台拉取镜像源上的最新版本号并写入缓存
+3. 如果最新版本与当前版本不同，尝试自动更新
+4. 更新失败后进入 24 小时冷却期，避免频繁重试
+
+## 版本缓存
+
+版本信息缓存在 `~/.utoo/remote-version.json`：
+
+```json filename="~/.utoo/remote-version.json"
+{
+  "version": "1.0.26",
+  "check_time": 1712736000,
+  "last_update_failed": null
+}
+```
+
+| 字段 | 说明 |
+|------|------|
+| `version` | 镜像源上的最新版本号 |
+| `check_time` | 上次检查时间（Unix 时间戳） |
+| `last_update_failed` | 上次更新失败时间，用于冷却期判断 |
+
+## CI 环境
+
+<Callout type="warning">
+  在 CI 环境中自动更新会被跳过，避免影响构建稳定性。
+</Callout>
+
+设置以下环境变量时，自动更新不会触发：
+
+```bash filename="Terminal"
+CI=1
+# 或
+CI=true
+```
+
+大多数 CI 平台（GitHub Actions、GitLab CI 等）会自动设置 `CI=true`，无需额外配置。
+
+## 强制更新
+
+设置 `UTOO_FORCE_UPDATE=1` 可跳过所有检查（缓存、冷却期），立即拉取并安装最新版本：
+
+```bash filename="Terminal" copy
+UTOO_FORCE_UPDATE=1 ut install
+```
+
+## 手动更新
+
+如果自动更新失败，可以手动更新：
+
+```bash filename="Terminal" copy
+ut install utoo@latest -g
+```

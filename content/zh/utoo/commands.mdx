@@ -41,6 +41,9 @@ ut install -O fsevents
 
 # 全局安装
 ut install -g utoo
+
+# 从 pnpm 项目迁移
+ut install --from pnpm
 ```
 
 **选项**
@@ -57,6 +60,22 @@ ut install -g utoo
 | `--omit <type>` | 忽略依赖类型: `dev`, `optional`, `peer` |
 | `--ignore-scripts` | 跳过运行依赖脚本 |
 | `--legacy-peer-deps` | 传统 peer 依赖处理 |
+| `--from <pm>` | 从其他包管理器迁移（支持 `pnpm`） |
+
+**从 pnpm 迁移**
+
+使用 `--from pnpm` 可以自动将 pnpm 项目迁移到 utoo：
+
+```bash filename="Terminal" copy
+ut install --from pnpm
+```
+
+该命令读取 `pnpm-workspace.yaml`，自动完成以下转换：
+- `packages` → `package.json` 的 `workspaces` 字段
+- `overrides` → `package.json` 的 `overrides` 字段
+- `catalog` / `catalogs` → `.utoo.toml` 的 catalog 配置
+
+迁移会保留已有的 `package.json` 和 `.utoo.toml` 配置，仅合并新增字段。
 
 **版本规范**
 
@@ -128,6 +147,12 @@ ut run build -- --mode production
 # 在指定工作区运行
 ut run build -w my-app
 
+# 在多个工作区运行
+ut run build -w packages/a -w packages/b
+
+# 使用 glob 匹配工作区
+ut run build -w 'packages/*'
+
 # 在所有工作区运行（拓扑排序）
 ut run build --workspaces
 
@@ -150,12 +175,13 @@ ut test       # 等同于: ut run test
 
 | 选项 | 描述 |
 |------|------|
-| `-w, --workspace <name>` | 在指定工作区运行 |
+| `-w, --workspace <name>` | 在指定工作区运行（可重复使用，支持 glob 模式） |
 | `--workspaces` | 在所有工作区按拓扑排序运行 |
+| `--if-present` | 跳过没有指定脚本的工作区 |
 
 **工作区执行顺序**
 
-使用 `--workspaces` 时，脚本按拓扑排序执行，确保依赖项在被依赖项之前构建。
+使用 `--workspaces` 或多个 `-w` 时，脚本按拓扑排序分层执行：同一层的工作区并发运行，输出按工作区分组显示，不会交错混乱。
 
 ## execute
 

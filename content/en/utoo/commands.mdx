@@ -41,6 +41,9 @@ ut install -O fsevents
 
 # Install globally
 ut install -g utoo
+
+# Migrate from a pnpm project
+ut install --from pnpm
 ```
 
 **Options**
@@ -57,6 +60,22 @@ ut install -g utoo
 | `--omit <type>` | Omit dependency types: `dev`, `optional`, `peer` |
 | `--ignore-scripts` | Skip running dependency scripts |
 | `--legacy-peer-deps` | Legacy peer dependency handling |
+| `--from <pm>` | Migrate from another package manager (supports `pnpm`) |
+
+**Migrating from pnpm**
+
+Use `--from pnpm` to automatically migrate a pnpm project to utoo:
+
+```bash filename="Terminal" copy
+ut install --from pnpm
+```
+
+This command reads `pnpm-workspace.yaml` and performs the following conversions:
+- `packages` → `workspaces` field in `package.json`
+- `overrides` → `overrides` field in `package.json`
+- `catalog` / `catalogs` → catalog configuration in `.utoo.toml`
+
+The migration preserves existing `package.json` and `.utoo.toml` configurations, only merging new fields.
 
 **Version Specification**
 
@@ -128,6 +147,12 @@ ut run build -- --mode production
 # Run in specific workspace
 ut run build -w my-app
 
+# Run in multiple workspaces
+ut run build -w packages/a -w packages/b
+
+# Use glob patterns to match workspaces
+ut run build -w 'packages/*'
+
 # Run in all workspaces (topological order)
 ut run build --workspaces
 
@@ -150,12 +175,13 @@ ut test       # same as: ut run test
 
 | Option | Description |
 |--------|-------------|
-| `-w, --workspace <name>` | Run in specific workspace |
+| `-w, --workspace <name>` | Run in specific workspace (repeatable, supports glob patterns) |
 | `--workspaces` | Run in all workspaces with topological ordering |
+| `--if-present` | Skip workspaces that don't have the specified script |
 
 **Workspace Execution Order**
 
-When using `--workspaces`, scripts are executed in topological order based on dependency relationships, ensuring dependencies are built before dependents.
+When using `--workspaces` or multiple `-w` flags, scripts are executed in topological layers: workspaces in the same layer run concurrently, and output is grouped per workspace to prevent interleaving.
 
 ## execute
 

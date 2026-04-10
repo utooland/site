@@ -2,41 +2,180 @@
 
 import { Callout, Tabs } from 'nextra/components'
 
-utoo supports multiple configuration methods with hierarchical priority.
+utoo uses TOML-format configuration files at two levels: global and project.
+
+## Configuration Files
+
+### Global Config
+
+Location: `~/.utoo/config.toml`
+
+Applies to all projects. Stores global preferences like registry, cache path, etc.
+
+```toml filename="~/.utoo/config.toml"
+[values]
+registry = "https://registry.npmmirror.com"
+cache-dir = "~/.cache/nm"
+legacy-peer-deps = true
+
+[arrays]
+supports-semver = [
+  "https://registry.npmmirror.com",
+  "!https://registry.npmjs.org",
+]
+```
+
+### Project Config
+
+Location: `.utoo.toml` (project root)
+
+Applies only to the current project. Can override `[values]` from the global config. Also where catalogs are defined.
+
+```toml filename=".utoo.toml"
+[values]
+registry = "https://registry.npmjs.org"
+
+[catalog]
+react = "^18.0.0"
+typescript = "^5.0.0"
+lodash = "^4.17.21"
+
+[catalogs.legacy]
+debug = "^3.2.7"
+path-to-regexp = "^1.9.0"
+```
+
+## File Format
+
+Configuration files contain the following sections:
+
+### `[values]`
+
+Key-value configuration entries. All common settings go here.
+
+| Key | Default | Description |
+|-----|---------|-------------|
+| `registry` | `https://registry.npmmirror.com` | npm registry URL |
+| `cache-dir` | `~/.cache/nm` | Package cache directory |
+| `legacy-peer-deps` | `true` | Enable legacy peer dependency handling, skipping peer dependency resolution |
+| `manifests-concurrency-limit` | `64` | Max concurrent manifest fetches |
+
+```toml filename="Example"
+[values]
+registry = "https://registry.npmmirror.com"
+cache-dir = "~/.cache/nm"
+legacy-peer-deps = true
+```
+
+### `[arrays]`
+
+Array-typed configuration entries. Currently used to cache semver support probe results for registries.
+
+```toml filename="Example"
+[arrays]
+supports-semver = [
+  "https://registry.npmmirror.com",
+  "!https://registry.npmjs.org",
+]
+```
+
+- No prefix means the registry supports semver queries
+- `!` prefix means it does not
+
+This field is maintained automatically by utoo and typically does not need manual editing.
+
+### `[catalog]`
+
+<Callout type="info">
+  Only effective in project config (`.utoo.toml`).
+</Callout>
+
+Default catalog for centralizing shared dependency versions across packages in a monorepo:
+
+```toml filename=".utoo.toml"
+[catalog]
+react = "^18.0.0"
+typescript = "^5.0.0"
+lodash = "^4.17.21"
+```
+
+Reference in `package.json` using the `catalog:` protocol:
+
+```json filename="package.json"
+{
+  "dependencies": {
+    "react": "catalog:",
+    "lodash": "catalog:"
+  }
+}
+```
+
+### `[catalogs.<name>]`
+
+<Callout type="info">
+  Only effective in project config (`.utoo.toml`).
+</Callout>
+
+Named catalogs for managing multiple version strategies:
+
+```toml filename=".utoo.toml"
+[catalogs.legacy]
+debug = "^3.2.7"
+path-to-regexp = "^1.9.0"
+
+[catalogs.react17]
+react = "^17.0.0"
+react-dom = "^17.0.0"
+```
+
+Reference with `catalog:<name>`:
+
+```json filename="package.json"
+{
+  "dependencies": {
+    "debug": "catalog:legacy",
+    "react": "catalog:react17"
+  }
+}
+```
 
 ## Priority Order
 
-### 1. CLI flags (highest)
+Configuration values are resolved in the following order (highest to lowest):
 
-```bash filename="Terminal"
-ut install --registry https://registry.npmmirror.com
+1. **CLI flags** (highest) — `ut install --registry https://...`
+2. **Environment variables** — `UTOO_REGISTRY=https://...`
+3. **Project config** — `[values]` in `.utoo.toml`
+4. **Global config** (lowest) — `[values]` in `~/.utoo/config.toml`
+
+<Callout>
+  Catalog configuration (`[catalog]` / `[catalogs.*]`) is read only from the project config and is not inherited from the global config.
+</Callout>
+
+## Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `UTOO_REGISTRY` | Override npm registry |
+| `UTOO_CACHE_DIR` | Override cache directory |
+| `CI` | Set to `1` or `true` to disable [auto-update](/en/docs/utoo/auto-update) |
+| `UTOO_FORCE_UPDATE` | Set to `1` to force an immediate update |
+
+```bash filename="Terminal" copy
+UTOO_REGISTRY=https://registry.npmmirror.com ut install
 ```
 
-### 2. Environment variables
+## CLI Config Management
 
-```bash filename="Terminal"
-export UTOO_REGISTRY=https://registry.npmmirror.com
-```
+Read and write configuration via the `ut config` command:
 
-### 3. Project config
-
-`.utoo.toml` in project root
-
-### 4. Global config (lowest)
-
-`~/.utoo/config.toml`
-
-## CLI Configuration
-
-Manage configuration via `ut config`:
-
-<Tabs items={['Set', 'Get', 'List']}>
+<Tabs items={['Set', 'Get', 'Delete', 'List']}>
   <Tabs.Tab>
 ```bash filename="Terminal" copy
-# Set locally
+# Set in project config (.utoo.toml)
 ut config set registry https://registry.npmmirror.com
 
-# Set globally
+# Set in global config (~/.utoo/config.toml)
 ut config set registry https://registry.npmmirror.com --global
 ```
   </Tabs.Tab>
@@ -47,65 +186,27 @@ ut config get registry
   </Tabs.Tab>
   <Tabs.Tab>
 ```bash filename="Terminal" copy
+ut config delete registry
+ut config delete registry --global
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" copy
 ut config list
 ```
   </Tabs.Tab>
 </Tabs>
 
-## Environment Variables
-
-| Variable | Description |
-|----------|-------------|
-| `UTOO_REGISTRY` | Override npm registry |
-| `UTOO_CACHE_DIR` | Override cache directory |
-
-```bash filename="Terminal" copy
-UTOO_REGISTRY=https://registry.npmmirror.com ut install
-```
-
-## TOML Configuration
-
-<Tabs items={['Global', 'Project']}>
-  <Tabs.Tab>
-Location: `~/.utoo/config.toml`
-
-```toml filename="~/.utoo/config.toml"
-[values]
-registry = "https://registry.npmmirror.com"
-cache-dir = "~/.cache/nm"
-legacy-peer-deps = true
-```
-  </Tabs.Tab>
-  <Tabs.Tab>
-Location: `.utoo.toml` (project root)
-
-```toml filename=".utoo.toml"
-[values]
-registry = "https://registry.npmjs.org"
-```
-  </Tabs.Tab>
-</Tabs>
-
-## Common Settings
-
-| Key | Default | Description |
-|-----|---------|-------------|
-| `registry` | `https://registry.npmmirror.com` | npm registry URL |
-| `cache-dir` | `~/.cache/nm` | Package cache directory |
-| `legacy-peer-deps` | `false` | Legacy peer dependency handling |
-
 ## Custom Commands
 
-<Callout type="info">
-  Define custom shortcuts for frequently used commands.
-</Callout>
+Define shortcuts for frequently used commands:
 
 ```bash filename="Terminal" copy
-# Set custom command
+# Set custom commands
 ut config set hi.cmd "utx cowsay hi"
 ut config set lint.cmd "ut run lint"
 
-# Run custom command
+# Run custom commands
 ut hi
 ut lint
 ```

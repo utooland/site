@@ -4,5 +4,6 @@ export default {
   utx: 'utx Alias',
   config: 'Configuration',
   stores: 'Storage Paths',
-  workspaces: 'Workspaces'
+  workspaces: 'Workspaces',
+  'auto-update': 'Auto Update'
 }

@@ -48,6 +48,18 @@ ut run build -w apps/web
 ut install -D typescript -w packages/utils
 ```
 
+**Multi-workspace Selection**
+
+Use multiple `-w` flags to select multiple workspaces, with glob pattern support:
+
+```bash filename="Terminal" copy
+# Select multiple workspaces
+ut run build -w packages/a -w packages/b
+
+# Use glob patterns
+ut run build -w 'packages/*'
+```
+
 **Target All Workspaces**
 
 Use `--workspaces` to target all workspaces:
@@ -62,17 +74,21 @@ ut install --workspaces
 
 ## Execution Order
 
-When using `--workspaces`, commands are executed in **topological order** based on dependency relationships:
+When using `--workspaces` or multiple `-w` flags, commands are executed in **topological layers**:
 
 1. Packages with no internal dependencies run first
-2. Dependents run after their dependencies complete
+2. Workspaces in the same layer run concurrently, with output grouped per workspace
+3. Dependents run after their dependencies complete
 
 Example:
 
 ```
-packages/utils    →  (runs first, no deps)
-packages/ui       →  (runs second, depends on utils)
-apps/web          →  (runs last, depends on ui)
+▶ 1/3
+packages/utils    ✓  (runs first, no deps)
+▶ 2/3
+packages/ui       ✓  (runs second, depends on utils)
+▶ 3/3
+apps/web          ✓  (runs last, depends on ui)
 ```
 
 ## Inter-workspace Dependencies
@@ -85,6 +101,19 @@ Reference workspace packages using the `workspace:` protocol:
   "dependencies": {
     "@my-monorepo/ui": "workspace:*",
     "@my-monorepo/utils": "workspace:^1.0.0"
+  }
+}
+```
+
+## Catalog Protocol
+
+Use the `catalog:` protocol to centrally manage dependency versions in a monorepo. See [Configuration - Catalog](/en/docs/utoo/config#catalog).
+
+```json
+{
+  "dependencies": {
+    "react": "catalog:",
+    "debug": "catalog:legacy"
   }
 }
 ```
