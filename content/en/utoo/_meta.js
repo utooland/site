@@ -5,5 +5,6 @@ export default {
   config: 'Configuration',
   stores: 'Storage Paths',
   workspaces: 'Workspaces',
+  migration: 'Migrating from pnpm',
   'auto-update': 'Auto Update'
 }

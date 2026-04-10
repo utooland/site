@@ -5,5 +5,6 @@ export default {
   config: '配置',
   stores: '存储路径',
   workspaces: '工作区',
+  migration: '从 pnpm 迁移',
   'auto-update': '自动更新'
 }
