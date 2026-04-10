@@ -2,41 +2,180 @@
 
 import { Callout, Tabs } from 'nextra/components'
 
-utoo 支持多种配置方式，按优先级层级生效。
+utoo 使用 TOML 格式的配置文件，支持全局和项目两个层级。
 
-## 优先级顺序
+## 配置文件
 
-### 1. CLI 参数（最高）
+### 全局配置
 
-```bash filename="Terminal"
-ut install --registry https://registry.npmmirror.com
+位置：`~/.utoo/config.toml`
+
+适用于所有项目，存储镜像源、缓存路径等全局偏好。
+
+```toml filename="~/.utoo/config.toml"
+[values]
+registry = "https://registry.npmmirror.com"
+cache-dir = "~/.cache/nm"
+legacy-peer-deps = true
+
+[arrays]
+supports-semver = [
+  "https://registry.npmmirror.com",
+  "!https://registry.npmjs.org",
+]
 ```
 
-### 2. 环境变量
+### 项目配置
 
-```bash filename="Terminal"
-export UTOO_REGISTRY=https://registry.npmmirror.com
+位置：`.utoo.toml`（项目根目录）
+
+仅对当前项目生效，可覆盖全局配置中的 `[values]` 项，也是 catalog 的定义位置。
+
+```toml filename=".utoo.toml"
+[values]
+registry = "https://registry.npmjs.org"
+
+[catalog]
+react = "^18.0.0"
+typescript = "^5.0.0"
+lodash = "^4.17.21"
+
+[catalogs.legacy]
+debug = "^3.2.7"
+path-to-regexp = "^1.9.0"
 ```
 
-### 3. 项目配置
+## 文件格式
 
-项目根目录的 `.utoo.toml`
+配置文件包含以下段（section）：
 
-### 4. 全局配置（最低）
+### `[values]`
 
-`~/.utoo/config.toml`
+键值对形式的配置项，所有常用设置都在这里。
 
-## CLI 配置
+| 键 | 默认值 | 描述 |
+|----|--------|------|
+| `registry` | `https://registry.npmmirror.com` | npm 镜像源 URL |
+| `cache-dir` | `~/.cache/nm` | 包缓存目录 |
+| `legacy-peer-deps` | `true` | 启用传统 peer 依赖处理，跳过 peer 依赖解析 |
+| `manifests-concurrency-limit` | `64` | 最大并发 manifest 请求数 |
 
-通过 `ut config` 管理配置：
+```toml filename="示例"
+[values]
+registry = "https://registry.npmmirror.com"
+cache-dir = "~/.cache/nm"
+legacy-peer-deps = true
+```
 
-<Tabs items={['设置', '获取', '列出']}>
+### `[arrays]`
+
+数组形式的配置项，目前用于缓存镜像源的 semver 支持探测结果。
+
+```toml filename="示例"
+[arrays]
+supports-semver = [
+  "https://registry.npmmirror.com",
+  "!https://registry.npmjs.org",
+]
+```
+
+- 无前缀表示支持 semver 查询
+- `!` 前缀表示不支持
+
+此字段由 utoo 自动维护，通常不需要手动编辑。
+
+### `[catalog]`
+
+<Callout type="info">
+  仅在项目配置（`.utoo.toml`）中生效。
+</Callout>
+
+默认 catalog，集中定义 monorepo 中各包共享的依赖版本：
+
+```toml filename=".utoo.toml"
+[catalog]
+react = "^18.0.0"
+typescript = "^5.0.0"
+lodash = "^4.17.21"
+```
+
+在 `package.json` 中使用 `catalog:` 协议引用：
+
+```json filename="package.json"
+{
+  "dependencies": {
+    "react": "catalog:",
+    "lodash": "catalog:"
+  }
+}
+```
+
+### `[catalogs.<name>]`
+
+<Callout type="info">
+  仅在项目配置（`.utoo.toml`）中生效。
+</Callout>
+
+命名 catalog，用于管理多组版本策略：
+
+```toml filename=".utoo.toml"
+[catalogs.legacy]
+debug = "^3.2.7"
+path-to-regexp = "^1.9.0"
+
+[catalogs.react17]
+react = "^17.0.0"
+react-dom = "^17.0.0"
+```
+
+使用 `catalog:<name>` 引用命名 catalog：
+
+```json filename="package.json"
+{
+  "dependencies": {
+    "debug": "catalog:legacy",
+    "react": "catalog:react17"
+  }
+}
+```
+
+## 优先级
+
+配置项按以下优先级从高到低生效：
+
+1. **CLI 参数**（最高）— `ut install --registry https://...`
+2. **环境变量** — `UTOO_REGISTRY=https://...`
+3. **项目配置** — `.utoo.toml` 中的 `[values]`
+4. **全局配置**（最低）— `~/.utoo/config.toml` 中的 `[values]`
+
+<Callout>
+  Catalog 配置（`[catalog]` / `[catalogs.*]`）仅从项目配置读取，不会从全局配置继承。
+</Callout>
+
+## 环境变量
+
+| 变量 | 描述 |
+|------|------|
+| `UTOO_REGISTRY` | 覆盖 npm 镜像源 |
+| `UTOO_CACHE_DIR` | 覆盖缓存目录 |
+| `CI` | 设为 `1` 或 `true` 时禁用[自动更新](/zh/docs/utoo/auto-update) |
+| `UTOO_FORCE_UPDATE` | 设为 `1` 时强制立即更新 |
+
+```bash filename="Terminal" copy
+UTOO_REGISTRY=https://registry.npmmirror.com ut install
+```
+
+## CLI 配置管理
+
+通过 `ut config` 命令读写配置：
+
+<Tabs items={['设置', '获取', '删除', '列出']}>
   <Tabs.Tab>
 ```bash filename="Terminal" copy
-# 本地设置
+# 设置到项目配置（.utoo.toml）
 ut config set registry https://registry.npmmirror.com
 
-# 全局设置
+# 设置到全局配置（~/.utoo/config.toml）
 ut config set registry https://registry.npmmirror.com --global
 ```
   </Tabs.Tab>
@@ -47,58 +186,20 @@ ut config get registry
   </Tabs.Tab>
   <Tabs.Tab>
 ```bash filename="Terminal" copy
+ut config delete registry
+ut config delete registry --global
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" copy
 ut config list
 ```
   </Tabs.Tab>
 </Tabs>
 
-## 环境变量
-
-| 变量 | 描述 |
-|------|------|
-| `UTOO_REGISTRY` | 覆盖 npm 镜像源 |
-| `UTOO_CACHE_DIR` | 覆盖缓存目录 |
-
-```bash filename="Terminal" copy
-UTOO_REGISTRY=https://registry.npmmirror.com ut install
-```
-
-## TOML 配置
-
-<Tabs items={['全局', '项目']}>
-  <Tabs.Tab>
-位置: `~/.utoo/config.toml`
-
-```toml filename="~/.utoo/config.toml"
-[values]
-registry = "https://registry.npmmirror.com"
-cache-dir = "~/.cache/nm"
-legacy-peer-deps = true
-```
-  </Tabs.Tab>
-  <Tabs.Tab>
-位置: `.utoo.toml`（项目根目录）
-
-```toml filename=".utoo.toml"
-[values]
-registry = "https://registry.npmjs.org"
-```
-  </Tabs.Tab>
-</Tabs>
-
-## 常用设置
-
-| 键 | 默认值 | 描述 |
-|----|--------|------|
-| `registry` | `https://registry.npmmirror.com` | npm 镜像源 URL |
-| `cache-dir` | `~/.cache/nm` | 包缓存目录 |
-| `legacy-peer-deps` | `false` | 传统 peer 依赖处理 |
-
 ## 自定义命令
 
-<Callout type="info">
-  为常用命令定义快捷方式。
-</Callout>
+为常用命令定义快捷方式：
 
 ```bash filename="Terminal" copy
 # 设置自定义命令

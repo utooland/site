@@ -108,6 +108,42 @@ utx create-react-app my-app
 | `-h, --help` | Show help |
 | `-v, --version` | Show version |
 
+## Features
+
+### Global Cache
+
+Installed packages are cached by `package/version` in `~/.cache/nm/`. Subsequent installs hard-link directly from the cache, skipping download and extraction. Each version is stored only once on disk, shared across projects.
+
+```
+~/.cache/nm/
+├── lodash/4.17.21.tgz
+├── react/18.3.0.tgz
+└── typescript/5.6.0.tgz
+```
+
+### npmmirror Acceleration
+
+When using npmmirror as the default registry, utoo provides two additional optimizations:
+
+- **Binary mirror** — Prebuilt binaries for native modules (e.g., `esbuild`, `swc`, `cypress`) are downloaded from the npmmirror CDN, avoiding GitHub Releases and other overseas sources
+- **Semver requests** — Supports passing version ranges directly in the URL (e.g., `/lodash/^4`), letting the registry resolve versions server-side to reduce client-side requests
+
+```bash filename="Terminal" copy
+# Check if a registry supports semver requests
+ut ping
+# → PONG 15ms (supports-semver: yes)
+```
+
+### Migrate from pnpm
+
+One command to migrate from a pnpm project, automatically converting workspaces, overrides, and catalog configuration from `pnpm-workspace.yaml`:
+
+```bash filename="Terminal" copy
+ut install --from pnpm
+```
+
+See [Migrating from pnpm](/en/docs/utoo/migration) for details.
+
 ## Shortcut Execution
 
 <Callout>

@@ -1,0 +1,88 @@
+# Migrating from pnpm
+
+import { Callout } from 'nextra/components'
+
+utoo provides a one-command migration to automatically convert a pnpm project to utoo.
+
+## Usage
+
+```bash filename="Terminal" copy
+ut install --from pnpm
+```
+
+Run this command in the project root containing `pnpm-workspace.yaml`. utoo will automatically convert the configuration and install dependencies.
+
+## Conversion Rules
+
+`--from pnpm` reads `pnpm-workspace.yaml` and maps the configuration to utoo's format:
+
+### pnpm-workspace.yaml → package.json
+
+| pnpm field | utoo field | Description |
+|------------|------------|-------------|
+| `packages` | `workspaces` | Workspace glob patterns |
+| `overrides` | `overrides` | Dependency overrides |
+
+### pnpm-workspace.yaml → .utoo.toml
+
+| pnpm field | utoo section | Description |
+|------------|--------------|-------------|
+| `catalog` | `[catalog]` | Default catalog |
+| `catalogs.<name>` | `[catalogs.<name>]` | Named catalogs |
+
+## Example
+
+**Before migration**
+
+```yaml filename="pnpm-workspace.yaml"
+packages:
+  - packages/*
+  - apps/*
+
+catalog:
+  react: ^18.0.0
+  typescript: ^5.0.0
+  lodash: ^4.17.21
+
+catalogs:
+  legacy:
+    debug: ^3.2.7
+
+overrides:
+  vite: npm:rolldown-vite@^7.1.13
+```
+
+**After migration**
+
+utoo automatically generates the following files:
+
+```json filename="package.json"
+{
+  "workspaces": ["packages/*", "apps/*"],
+  "overrides": {
+    "vite": "npm:rolldown-vite@^7.1.13"
+  }
+}
+```
+
+```toml filename=".utoo.toml"
+[catalog]
+react = "^18.0.0"
+typescript = "^5.0.0"
+lodash = "^4.17.21"
+
+[catalogs.legacy]
+debug = "^3.2.7"
+```
+
+## Notes
+
+<Callout>
+  Migration preserves existing `package.json` and `.utoo.toml` contents, only merging new fields without overwriting existing configuration.
+</Callout>
+
+- Existing `package.json` fields (`name`, `version`, `dependencies`, etc.) are preserved
+- Existing `.utoo.toml` settings (e.g., `registry` in `[values]`) are kept intact
+- Only `catalog` and `catalogs` sections are merged from `pnpm-workspace.yaml`
+- pnpm-specific fields like `catalogMode` and `minimumReleaseAge` are ignored
+- Installation starts automatically after migration, with `catalog:` protocol resolved correctly

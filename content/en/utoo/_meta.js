@@ -4,5 +4,7 @@ export default {
   utx: 'utx Alias',
   config: 'Configuration',
   stores: 'Storage Paths',
-  workspaces: 'Workspaces'
+  workspaces: 'Workspaces',
+  migration: 'Migrating from pnpm',
+  'auto-update': 'Auto Update'
 }

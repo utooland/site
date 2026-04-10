@@ -1,0 +1,88 @@
+# 从 pnpm 迁移
+
+import { Callout } from 'nextra/components'
+
+utoo 提供一键迁移命令，将 pnpm 项目自动转换为 utoo 项目。
+
+## 用法
+
+```bash filename="Terminal" copy
+ut install --from pnpm
+```
+
+在包含 `pnpm-workspace.yaml` 的项目根目录运行此命令，utoo 会自动完成配置转换并安装依赖。
+
+## 转换规则
+
+`--from pnpm` 读取 `pnpm-workspace.yaml`，将配置映射到 utoo 的格式：
+
+### pnpm-workspace.yaml → package.json
+
+| pnpm 字段 | utoo 字段 | 说明 |
+|-----------|-----------|------|
+| `packages` | `workspaces` | 工作区 glob 列表 |
+| `overrides` | `overrides` | 依赖覆盖 |
+
+### pnpm-workspace.yaml → .utoo.toml
+
+| pnpm 字段 | utoo 段 | 说明 |
+|-----------|---------|------|
+| `catalog` | `[catalog]` | 默认 catalog |
+| `catalogs.<name>` | `[catalogs.<name>]` | 命名 catalog |
+
+## 示例
+
+**迁移前**
+
+```yaml filename="pnpm-workspace.yaml"
+packages:
+  - packages/*
+  - apps/*
+
+catalog:
+  react: ^18.0.0
+  typescript: ^5.0.0
+  lodash: ^4.17.21
+
+catalogs:
+  legacy:
+    debug: ^3.2.7
+
+overrides:
+  vite: npm:rolldown-vite@^7.1.13
+```
+
+**迁移后**
+
+utoo 自动生成以下文件：
+
+```json filename="package.json"
+{
+  "workspaces": ["packages/*", "apps/*"],
+  "overrides": {
+    "vite": "npm:rolldown-vite@^7.1.13"
+  }
+}
+```
+
+```toml filename=".utoo.toml"
+[catalog]
+react = "^18.0.0"
+typescript = "^5.0.0"
+lodash = "^4.17.21"
+
+[catalogs.legacy]
+debug = "^3.2.7"
+```
+
+## 注意事项
+
+<Callout>
+  迁移会保留已有的 `package.json` 和 `.utoo.toml` 内容，仅合并新增字段，不会覆盖现有配置。
+</Callout>
+
+- `package.json` 中已有的 `name`、`version`、`dependencies` 等字段不受影响
+- `.utoo.toml` 中已有的 `[values]` 配置（如 `registry`）会被保留
+- 仅 `catalog` 和 `catalogs` 段会从 `pnpm-workspace.yaml` 合并写入
+- `pnpm-workspace.yaml` 中的 `catalogMode`、`minimumReleaseAge` 等 pnpm 专有字段会被忽略
+- 迁移完成后即自动开始安装依赖，`catalog:` 协议会被正确解析

@@ -152,6 +152,17 @@ function getPackages(t: Translations) {
         title: t.packages.utoo.features.globalCache.title,
         description: t.packages.utoo.features.globalCache.description,
       },
+      {
+        icon: Globe,
+        title: t.packages.utoo.features.npmmirror.title,
+        description: t.packages.utoo.features.npmmirror.description,
+        link: "https://npmmirror.com",
+      },
+      {
+        icon: RefreshCw,
+        title: t.packages.utoo.features.pnpmMigration.title,
+        description: t.packages.utoo.features.pnpmMigration.description,
+      },
     ],
     commands: [
       { cmd: "ut install", desc: t.packages.utoo.commands.install },
@@ -581,7 +592,11 @@ export function Features() {
                           <feature.icon className={`w-6 h-6 text-${pkg.color}-400`} />
                         </div>
                         <h5 className="text-base font-bold text-foreground/90 group-hover:text-foreground transition-colors leading-tight tracking-tight mt-1">
-                          {feature.title}
+                          {"link" in feature && feature.link ? (
+                            <a href={feature.link} target="_blank" rel="noopener noreferrer" className={`hover:text-${pkg.color}-400 transition-colors`}>
+                              {feature.title}
+                            </a>
+                          ) : feature.title}
                         </h5>
                       </div>
                       <p className="text-sm text-muted-foreground/60 group-hover:text-muted-foreground/90 transition-colors leading-relaxed font-medium">

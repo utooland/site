@@ -4,5 +4,7 @@ export default {
   utx: 'utx 别名',
   config: '配置',
   stores: '存储路径',
-  workspaces: '工作区'
+  workspaces: '工作区',
+  migration: '从 pnpm 迁移',
+  'auto-update': '自动更新'
 }
