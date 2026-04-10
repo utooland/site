@@ -17,7 +17,7 @@ export const translations = {
       utoo: {
         tagline: "Package Manager",
         description:
-          "A high-performance npm package manager built with Rust. Features content-addressable storage, optimized workspace support, and native lockfile compatibility for lightning-fast, reproducible builds.",
+          "A high-performance npm package manager built with Rust. Features global package-version caching, optimized workspace support, and native lockfile compatibility for lightning-fast, reproducible builds.",
         highlight: {
           title: "Native npm Lockfile",
           description:
@@ -46,7 +46,15 @@ export const translations = {
           },
           globalCache: {
             title: "Global Cache",
-            description: "Content-addressable storage to save disk space",
+            description: "Package-version level caching with hard links across projects",
+          },
+          npmmirror: {
+            title: "npmmirror Acceleration",
+            description: "Binary mirror CDN and server-side semver resolution for faster installs",
+          },
+          pnpmMigration: {
+            title: "pnpm Migration",
+            description: "One-command migration from pnpm with catalog support",
           },
         },
         commands: {
@@ -210,7 +218,7 @@ export const translations = {
       utoo: {
         tagline: "包管理器",
         description:
-          "基于 Rust 构建的高性能 npm 包管理器。具备内容可寻址存储、优化的工作区支持以及原生 Lockfile 兼容性，实现极速且可重现的构建体验。",
+          "基于 Rust 构建的高性能 npm 包管理器。具备全局包版本缓存、优化的工作区支持以及原生 Lockfile 兼容性，实现极速且可重现的构建体验。",
         highlight: {
           title: "原生 npm Lockfile",
           description:
@@ -239,7 +247,15 @@ export const translations = {
           },
           globalCache: {
             title: "全局缓存",
-            description: "内容可寻址存储，极大地节省磁盘空间",
+            description: "按包版本缓存，跨项目硬链接共享",
+          },
+          npmmirror: {
+            title: "npmmirror 加速",
+            description: "Binary 镜像 CDN + 服务端 semver 解析，安装更快",
+          },
+          pnpmMigration: {
+            title: "pnpm 迁移",
+            description: "一键从 pnpm 迁移，支持 catalog 协议",
           },
         },
         commands: {

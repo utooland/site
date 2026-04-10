@@ -152,6 +152,16 @@ function getPackages(t: Translations) {
         title: t.packages.utoo.features.globalCache.title,
         description: t.packages.utoo.features.globalCache.description,
       },
+      {
+        icon: Globe,
+        title: t.packages.utoo.features.npmmirror.title,
+        description: t.packages.utoo.features.npmmirror.description,
+      },
+      {
+        icon: RefreshCw,
+        title: t.packages.utoo.features.pnpmMigration.title,
+        description: t.packages.utoo.features.pnpmMigration.description,
+      },
     ],
     commands: [
       { cmd: "ut install", desc: t.packages.utoo.commands.install },
