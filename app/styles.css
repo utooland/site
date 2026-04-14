@@ -269,9 +269,25 @@
   transform: translateX(100%);
 }
 
-/* Nextra docs layout - content width */
+/* Fix mobile sidebar and Nextra docs layout */
+body .nextra-mobile-nav,
+body .nextra-sidebar {
+  background-color: hsl(var(--background)) !important;
+  z-index: 100 !important;
+}
+
 :root {
-  --nextra-content-width: 100rem;
+  --nextra-bg: 255, 255, 255;
+}
+
+.dark {
+  --nextra-bg: 10, 10, 10;
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --nextra-content-width: 100rem;
+  }
 }
 
 .nextra-content pre {
