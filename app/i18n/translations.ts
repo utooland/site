@@ -189,6 +189,44 @@ export const translations = {
         preview: "Preview",
       },
     },
+    benchmark: {
+      badge: "Build Tools Performance",
+      title: "Benchmarks from real-world workloads",
+      description:
+        "Results pulled from utooland/build-tools-performance and distilled into the metrics most teams actually compare: dev startup, production build speed, and HMR latency.",
+      sourceLabel: "Source",
+      sourceText: "GitHub Actions run on November 13, 2025",
+      casesLabel: "Covered workloads",
+      summaryTitle: "Where the leaders stand out",
+      summaryDescription:
+        "A quick read on the best cold-start, build, and HMR results across the benchmark suite.",
+      tableTitle: "Fastest result by case",
+      tableDescription:
+        "Each row highlights the best result recorded for that workload in the upstream benchmark report.",
+      columns: {
+        case: "Case",
+        startup: "Fastest startup",
+        build: "Fastest build",
+        hmr: "Fastest HMR",
+      },
+      highlights: {
+        startup: {
+          title: "Fastest dev startup",
+          description: "Rsbuild leads cold boot time on every React workload shown here.",
+        },
+        build: {
+          title: "Fastest production build",
+          description: "Vite with Rolldown takes the shortest cold build path in the React cases.",
+        },
+        hmr: {
+          title: "Lowest HMR latency",
+          description: "Sub-100ms refresh remains achievable even as the app size scales up.",
+        },
+      },
+      note:
+        "Benchmarks run on shared GitHub Actions hardware, so absolute timings vary. The section focuses on relative winners from the published report.",
+      cta: "View full benchmark repo",
+    },
     // Footer
     footer: {
       builtWith: "Built with",
@@ -389,6 +427,44 @@ export const translations = {
         editor: "编辑器",
         preview: "预览",
       },
+    },
+    benchmark: {
+      badge: "Build Tools Performance",
+      title: "来自真实工作负载的 benchmark",
+      description:
+        "数据来自 utooland/build-tools-performance，并提炼成团队最常对比的指标：开发启动、生产构建速度，以及 HMR 延迟。",
+      sourceLabel: "数据来源",
+      sourceText: "GitHub Actions 运行记录，时间为 2025 年 11 月 13 日",
+      casesLabel: "覆盖场景",
+      summaryTitle: "领先结果一眼看清",
+      summaryDescription:
+        "快速展示 benchmark 套件里冷启动、生产构建和 HMR 的最佳成绩。",
+      tableTitle: "各场景最快结果",
+      tableDescription:
+        "每一行都标出上游 benchmark 报告中该工作负载的最快结果。",
+      columns: {
+        case: "场景",
+        startup: "最快启动",
+        build: "最快构建",
+        hmr: "最快 HMR",
+      },
+      highlights: {
+        startup: {
+          title: "开发冷启动最快",
+          description: "在这里展示的 React 场景中，Rsbuild 的冷启动都拿到第一。",
+        },
+        build: {
+          title: "生产构建最快",
+          description: "在 React 场景里，Vite + Rolldown 拿到了最短的冷构建时间。",
+        },
+        hmr: {
+          title: "HMR 延迟最低",
+          description: "即使项目规模继续放大，也能保持低于 100ms 的热更新速度。",
+        },
+      },
+      note:
+        "Benchmark 运行在共享的 GitHub Actions 机器上，绝对耗时会有波动。这里重点展示公开报告里的相对领先结果。",
+      cta: "查看完整 benchmark 仓库",
     },
     // Footer
     footer: {
