@@ -265,16 +265,17 @@ function getPackages(t: Translations) {
     },
     api: {
       description: t.packages.pack.api.description,
-      code: `const { build, dev } = require('@utoo/pack');
+      code: `const { build, serve } = require('@utoo/pack');
 
 await build({
-  root: process.cwd(),
   config: { mode: 'production' }
 });
 
-await dev({
-  root: process.cwd(),
-  config: { mode: 'development' }
+await serve({
+  config: {
+    mode: 'development',
+    devServer: { port: 3000, hot: true }
+  }
 });`,
     },
   },

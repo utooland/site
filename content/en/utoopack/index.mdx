@@ -76,7 +76,11 @@ async function startDev() {
         chunkFilename: "[name].[contenthash:8].js",
         clean: true
       },
-      sourceMaps: true
+      sourceMaps: true,
+      devServer: {
+        port: 3000,
+        hot: true
+      }
     }
   });
 }
@@ -121,13 +125,21 @@ run();
 
 ## Configuration
 
-The bundler can be configured via `utoopack.json` or through the programmatic API.
+The bundler can be configured via `utoopack.json`, `utoopack.config.mjs`, or the programmatic API.
 
 | Option | Description |
 |--------|-------------|
 | `entry` | Define your application entry points |
+| `output` | Output path, file naming, and asset copying |
+| `module` | Custom loaders and module rules |
+| `styles` | Less, Sass, CSS Modules, Emotion, styled-components |
+| `optimization` | Minification, tree shaking, split chunks, import transforms |
+| `devServer` | Host, port, HTTPS, HMR, proxy |
 | `define` | Build-time variable replacement |
+| `provider` | Auto-provide modules |
 | `externals` | Exclude specific dependencies from the bundle |
+| `resolve` | Aliases and extension resolution |
+| `persistentCaching` | Reuse cache across runs |
 | `mode` | `development` or `production` |
 | `resolve` | Module resolution (`alias`, `extensions`) |
 | `module` | Custom loader rules |

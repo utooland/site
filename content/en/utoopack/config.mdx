@@ -2,7 +2,7 @@
 
 import { Callout, Tabs } from 'nextra/components'
 
-`@utoo/pack` can be configured via `utoopack.json`, `utoopack.config.mjs`, or through the programmatic API.
+`@utoo/pack` can be configured with `utoopack.json`, `utoopack.config.mjs`, or the Node API.
 
 ## Configuration Files
 
@@ -25,48 +25,87 @@ import { Callout, Tabs } from 'nextra/components'
     "filename": "[name].[contenthash:8].js",
     "chunkFilename": "[name].[contenthash:8].js",
     "clean": true
-  },
-  "sourceMaps": true
+  }
 }
 ```
   </Tabs.Tab>
   <Tabs.Tab>
-```javascript filename="utoopack.config.mjs"
+```js filename="utoopack.config.mjs"
 import { defineConfig } from '@utoo/pack';
 
 export default defineConfig({
-  mode: "production",
+  mode: 'development',
   entry: [
     {
-      import: "./src/index.ts",
-      html: { template: "./index.html" }
-    }
+      import: './src/index.tsx',
+      html: {
+        template: './index.html',
+        title: 'Utoo App',
+      },
+    },
   ],
   output: {
-    path: "./dist",
-    filename: "[name].[contenthash:8].js",
-    clean: true
+    path: './dist',
+    clean: true,
   },
-  sourceMaps: true
+  devServer: {
+    host: '0.0.0.0',
+    port: 3000,
+    hot: true,
+  },
+  sourceMaps: true,
 });
 ```
   </Tabs.Tab>
 </Tabs>
 
-## Core Options
+Use `utoopack.json` when your config is fully JSON-serializable. Use `utoopack.config.*` when you want type inference or JS-based composition. The config-file form can also carry runtime-only `UserConfig` fields such as `processEnv`, `watch`, `dev`, `buildId`, `tracing`, `projectPath`, and `rootPath`.
 
-**mode**
+## Top-level Options
 
-Build mode, affects optimizations and defaults.
+| Option | Description |
+|--------|-------------|
+| `mode` | Build mode: `development` or `production` |
+| `target` | Target environment |
+| `entry` | Entry points, HTML generation, and library output |
+| `output` | Output path, filename templates, public path, asset copying |
+| `resolve` | Aliases and extension resolution |
+| `define` | Build-time constant replacement |
+| `provider` | Auto-provide modules, similar to Webpack `ProvidePlugin` |
+| `externals` | Keep dependencies out of the bundle |
+| `module` | Custom module rules and loaders |
+| `styles` | CSS Modules, Less, Sass, PostCSS, Emotion, styled-components, styled-jsx |
+| `images` | Asset inlining behavior |
+| `react` | JSX runtime and React transform options |
+| `optimization` | Minification, tree shaking, split chunks, import transforms |
+| `devServer` | Host, port, HTTPS, HMR, proxy |
+| `sourceMaps` | Enable source maps |
+| `stats` | Emit build stats |
+| `persistentCaching` | Reuse cache across runs |
+| `nodePolyfill` | Polyfill Node.js built-ins for browser builds |
+| `experimental` | Experimental flags exposed by the package |
+
+## Core Configuration
+
+### mode and target
+
+Build mode affects optimizations and defaults. `target` selects the output runtime.
+
+```json
+{
+  "mode": "production",
+  "target": "browser"
+}
+```
 
 | Value | Description |
 |-------|-------------|
 | `development` | Faster builds, better debugging, HMR enabled |
 | `production` | Optimized output, minification, tree shaking |
 
-**entry**
+### entry
 
-Define application entry points.
+Define application entry points, HTML generation, and library output.
 
 ```json
 {
@@ -74,38 +113,42 @@ Define application entry points.
     {
       "name": "main",
       "import": "./src/index.ts",
+      "library": {
+        "name": "MyBundle",
+        "export": ["default"]
+      },
       "html": {
         "template": "./index.html",
         "filename": "index.html",
         "title": "My App",
         "inject": "body",
-        "scriptLoading": "defer"
-      },
-      "library": {
-        "name": "MyLib",
-        "export": ["default"]
+        "scriptLoading": "module"
       }
     }
   ]
 }
 ```
 
-**output**
+### output
 
-Configure output settings.
+Configure output path, file naming, static copying, and runtime asset URLs.
 
 ```json
 {
   "output": {
     "path": "./dist",
+    "type": "standalone",
     "filename": "[name].[contenthash:8].js",
     "chunkFilename": "[name].[contenthash:8].js",
+    "cssFilename": "[name].[contenthash:8].css",
+    "cssChunkFilename": "[name].[contenthash:8].css",
+    "assetModuleFilename": "assets/[name].[contenthash:8][ext]",
     "publicPath": "/",
-    "clean": true,
-    "copy": ["public"],
-    "type": "standalone",
+    "crossOriginLoading": "anonymous",
+    "copy": ["./public"],
     "chunkLoadingGlobal": "TURBOPACK",
-    "entryRootExport": "MyApp"
+    "clean": true,
+    "entryRootExport": "AppExports"
   }
 }
 ```
@@ -113,23 +156,20 @@ Configure output settings.
 | Option | Description |
 |--------|-------------|
 | `path` | Output directory |
+| `type` | Output type: `standalone` or `export` |
 | `filename` | Entry chunk filename template |
 | `chunkFilename` | Non-entry chunk filename template |
-| `cssFilename` | CSS filename template |
-| `cssChunkFilename` | Non-entry CSS chunk filename template |
-| `assetModuleFilename` | Asset module filename template |
+| `cssFilename` | Main CSS filename template |
+| `cssChunkFilename` | CSS chunk filename template |
+| `assetModuleFilename` | Asset filename template |
 | `publicPath` | Public URL path for assets |
+| `crossOriginLoading` | Cross-origin attribute for lazy chunks |
+| `copy` | Copy static files into the output directory |
+| `chunkLoadingGlobal` | Global variable used by the runtime to load chunks |
 | `clean` | Clean output directory before build |
-| `copy` | Copy static files (string paths or `{ from, to }` objects) |
-| `type` | Output type: `standalone` or `export` |
-| `chunkLoadingGlobal` | Global variable name for loading chunks |
-| `entryRootExport` | Expose entry exports to global scope |
+| `entryRootExport` | Expose entry exports on `window` / `globalThis` |
 
-**target**
-
-Target environment string (e.g., `"web"`, `"node"`).
-
-**define**
+### define
 
 Build-time variable replacement.
 
@@ -142,7 +182,20 @@ Build-time variable replacement.
 }
 ```
 
-**externals**
+### provider
+
+Automatically inject modules, similar to Webpack `ProvidePlugin`.
+
+```json
+{
+  "provider": {
+    "$": "jquery",
+    "Buffer": ["buffer", "Buffer"]
+  }
+}
+```
+
+### externals
 
 Exclude dependencies from the bundle.
 
@@ -150,14 +203,18 @@ Exclude dependencies from the bundle.
 {
   "externals": {
     "react": "React",
-    "react-dom": "ReactDOM"
+    "react-dom": "ReactDOM",
+    "lodash-es": {
+      "root": "_",
+      "type": "global"
+    }
   }
 }
 ```
 
-Externals support simple string globals, UMD configuration, and advanced subpath configuration.
+Externals support simple string globals, script/commonjs/esm/global forms, and more advanced subpath configuration.
 
-**resolve**
+### resolve
 
 Module resolution configuration.
 
@@ -173,58 +230,98 @@ Module resolution configuration.
 }
 ```
 
-**module**
+### module
 
-Module rules and conditions for custom loaders.
+Define loader-based module rules. Rule objects can include `loaders`, `condition`, and `type`.
 
 ```json
 {
   "module": {
     "rules": {
-      "*.svg": "svgr-loader",
-      "*.mdx": [
-        { "loader": "mdx-loader", "options": {} }
+      "*.md": ["raw-loader"],
+      "*.svg": [
+        {
+          "loaders": [
+            {
+              "loader": "@svgr/webpack",
+              "options": {
+                "icon": true
+              }
+            }
+          ]
+        }
       ]
-    },
-    "conditions": {
-      "*.js": {
-        "path": { "type": "glob", "value": "**/node_modules/**" }
-      }
     }
   }
 }
 ```
 
-| Option | Description |
-|--------|-------------|
-| `rules` | Map glob patterns to loaders |
-| `conditions` | Configure loader conditions by path (glob or regex) |
+### styles
 
-**provider**
-
-Auto-provide modules (similar to webpack ProvidePlugin).
+Configure built-in style processing.
 
 ```json
 {
-  "provider": {
-    "$": "jquery",
-    "Buffer": ["buffer", "Buffer"]
+  "styles": {
+    "autoCssModules": true,
+    "postcss": {},
+    "less": {
+      "implementation": "less"
+    },
+    "sass": {
+      "implementation": "sass"
+    },
+    "inlineCss": {
+      "injectType": "styleTag"
+    },
+    "emotion": {
+      "autoLabel": "dev-only"
+    },
+    "styledComponents": {
+      "displayName": true,
+      "ssr": true
+    },
+    "styledJsx": {
+      "useLightningcss": true
+    }
   }
 }
 ```
 
-## Optimization
+### images
+
+Configure image inlining.
+
+```json
+{
+  "images": {
+    "inlineLimit": 8192
+  }
+}
+```
+
+### react
+
+React transform options.
+
+```json
+{
+  "react": {
+    "runtime": "automatic",
+    "importSource": "react",
+    "absoluteSourceFilename": false
+  }
+}
+```
+
+### optimization
 
 ```json
 {
   "optimization": {
     "minify": true,
     "treeShaking": true,
-    "concatenateModules": true,
     "moduleIds": "deterministic",
-    "removeConsole": true,
-    "removeUnusedExports": true,
-    "removeUnusedImports": true,
     "splitChunks": {
       "js": {
         "minChunkSize": 50000,
@@ -238,110 +335,44 @@ Auto-provide modules (similar to webpack ProvidePlugin).
         "preventFullImport": true
       }
     },
-    "packageImports": ["antd", "lodash-es"],
-    "transpilePackages": ["my-local-package"],
-    "nestedAsyncChunking": true,
-    "wasmAsAsset": false
+    "packageImports": ["lodash-es"],
+    "transpilePackages": ["shared-ui"],
+    "removeConsole": {
+      "exclude": ["error"]
+    },
+    "concatenateModules": true,
+    "removeUnusedExports": true,
+    "removeUnusedImports": true
   }
 }
 ```
 
-| Option | Description |
-|--------|-------------|
-| `minify` | Enable code minification |
-| `treeShaking` | Remove unused code |
-| `concatenateModules` | Module concatenation (scope hoisting) |
-| `moduleIds` | ID strategy: `named` or `deterministic` |
-| `noMangling` | Disable name mangling |
-| `removeConsole` | Remove console statements (`true` or `{ exclude: ["error"] }`) |
-| `removeUnusedExports` | Remove unused exports |
-| `removeUnusedImports` | Remove unused imports |
-| `splitChunks` | Chunk splitting configuration |
-| `modularizeImports` | Transform barrel imports (like `babel-plugin-import`) |
-| `packageImports` | Packages to optimize imports for |
-| `transpilePackages` | Transpile specific packages |
-| `nestedAsyncChunking` | Enable nested async chunking |
-| `wasmAsAsset` | Bundle WASM as asset |
+Common optimization fields exposed by the current package also include `compress`, `noMangling`, `nestedAsyncChunking`, and `wasmAsAsset`.
 
-## Styles
+### devServer
 
-```json
-{
-  "styles": {
-    "autoCssModules": true,
-    "emotion": true,
-    "styledComponents": true,
-    "styledJsx": true,
-    "less": { "implementation": "less" },
-    "sass": { "implementation": "sass" },
-    "inlineCss": {
-      "injectType": "styleTag"
-    }
-  }
-}
-```
-
-| Option | Description |
-|--------|-------------|
-| `autoCssModules` | Auto-detect and apply CSS Modules |
-| `emotion` | Enable @emotion/react transform |
-| `styledComponents` | Enable styled-components transform (`true` or [config object](https://styled-components.com/docs/tooling#babel-plugin)) |
-| `styledJsx` | Enable styled-jsx transform (`true` or `{ useLightningcss: true }`) |
-| `less` | Less preprocessor config (`implementation`, plus Less options) |
-| `sass` | Sass/SCSS preprocessor config (`implementation`, plus Sass options) |
-| `inlineCss` | CSS injection via style tags (`insert`, `injectType`) |
-
-## Images
-
-```json
-{
-  "images": {
-    "inlineLimit": 10000
-  }
-}
-```
-
-| Option | Description |
-|--------|-------------|
-| `inlineLimit` | Inline images smaller than this size (bytes) as base64 |
-
-## Development Server
+The local repo currently supports `hot`, `host`, `port`, `https`, and `proxy` here.
 
 ```json
 {
   "devServer": {
     "hot": true,
+    "host": "0.0.0.0",
     "port": 3000,
-    "host": "localhost",
-    "https": false
+    "https": false,
+    "proxy": [
+      {
+        "context": ["/api"],
+        "target": "http://localhost:7001",
+        "changeOrigin": true,
+        "pathRewrite": {
+          "^/api": ""
+        }
+      }
+    ]
   }
 }
 ```
-
-| Option | Description |
-|--------|-------------|
-| `hot` | Enable Hot Module Replacement |
-| `port` | Port to listen on |
-| `host` | Host to bind |
-| `https` | Use HTTPS |
-
-## React
-
-```json
-{
-  "react": {
-    "runtime": "automatic",
-    "importSource": "react"
-  }
-}
-```
-
-| Option | Description |
-|--------|-------------|
-| `runtime` | JSX runtime: `automatic` or `classic` |
-| `importSource` | Source for JSX imports (default: `react`) |
-
-
 
 ## Advanced Options
 
@@ -351,9 +382,7 @@ Auto-provide modules (similar to webpack ProvidePlugin).
 | `stats` | `boolean` | Enable build statistics output |
 | `nodePolyfill` | `boolean` | Polyfill Node.js built-ins for browser |
 | `persistentCaching` | `boolean` | Enable persistent build cache |
-| `pluginRuntimeStrategy` | `string` | Plugin execution: `workerThreads` or `childProcesses` |
-
-
+| `experimental` | `object` | Experimental package options |
 
 ## Programmatic API
 
@@ -375,15 +404,18 @@ await build({
 ```javascript
 const { serve } = require('@utoo/pack');
 
-await serve(bundleOptions, projectPath, rootPath, {
-  logServerInfo: true,
-  port: 3000
+await serve({
+  config: {
+    mode: "development",
+    entry: [{ import: "./src/index.ts" }],
+    output: { path: "./dist" },
+    devServer: { port: 3000, hot: true }
+  }
 });
 ```
   </Tabs.Tab>
   <Tabs.Tab>
 ```javascript
-// utoopack.config.mjs
 import { defineConfig } from '@utoo/pack';
 
 export default defineConfig({

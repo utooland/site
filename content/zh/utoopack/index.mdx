@@ -76,7 +76,11 @@ async function startDev() {
         chunkFilename: "[name].[contenthash:8].js",
         clean: true
       },
-      sourceMaps: true
+      sourceMaps: true,
+      devServer: {
+        port: 3000,
+        hot: true
+      }
     }
   });
 }
@@ -121,13 +125,21 @@ run();
 
 ## 配置
 
-打包器可通过 `utoopack.json` 或编程 API 配置。
+打包器可通过 `utoopack.json`、`utoopack.config.mjs` 或 Node API 配置。
 
 | 选项 | 描述 |
 |------|------|
 | `entry` | 定义应用入口 |
+| `output` | 输出目录、文件命名和静态资源复制 |
+| `module` | 自定义 loader 和模块规则 |
+| `styles` | Less、Sass、CSS Modules、Emotion、styled-components |
+| `optimization` | 压缩、tree shaking、split chunks、import 转换 |
+| `devServer` | host、port、HTTPS、HMR、proxy |
 | `define` | 构建时变量替换 |
+| `provider` | 自动注入模块 |
 | `externals` | 从打包中排除特定依赖 |
+| `resolve` | alias 和扩展名解析 |
+| `persistentCaching` | 跨次构建复用缓存 |
 | `mode` | `development` 或 `production` |
 | `resolve` | 模块解析（`alias`、`extensions`） |
 | `module` | 自定义 loader 规则 |
