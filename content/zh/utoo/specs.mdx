@@ -1,0 +1,172 @@
+# Package Specs
+
+import { Callout } from 'nextra/components'
+
+*Package spec* 指 `dependencies` 条目的右侧值——告诉 utoo **从哪里获取** 这个包的字符串。utoo 支持 npm / pnpm / yarn 的全部写法，并额外提供几种 utoo 独有的形式。
+
+| 写法 | 示例 | 来源 |
+|------|------|------|
+| [Semver 范围](#registry) | `"lodash": "^4.17.21"` | npm 镜像源 |
+| [精确版本](#registry) | `"react": "18.3.0"` | npm 镜像源 |
+| [Dist tag](#registry) | `"next": "canary"` | npm 镜像源 |
+| [`npm:` 别名](#npm-别名) | `"vite": "npm:rolldown-vite@^7.1.13"` | npm 镜像源，安装时重命名 |
+| [`workspace:`](#workspace) | `"@my/ui": "workspace:*"` | 当前 monorepo 内的工作区包 |
+| [`catalog:`](#catalog) | `"react": "catalog:"` | `.utoo.toml` catalog |
+| [`file:` tarball](#file-tarball) | `"foo": "file:./foo-1.2.3.tgz"` | 本地 `.tgz` |
+| [`file:` 目录](#file-目录) | `"foo": "file:./local-pkg"` | 本地目录 |
+| [`http(s)://` tarball](#https-tarball) | `"xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"` | 远程 `.tgz` URL |
+| [`git+` / `git://`](#git) | `"foo": "git+https://github.com/user/foo.git#v1.0.0"` | Git 仓库 |
+| [`github:` 简写](#github-简写) | `"foo": "github:user/repo"` | GitHub 仓库 |
+
+任何写法既可以写进 `package.json`，也可以作为命令行参数：
+
+```bash filename="Terminal" copy
+ut install lodash@^4.17.21
+ut install vite@npm:rolldown-vite@^7.1.13
+ut install "foo@file:./local-pkg"
+ut install "xlsx@https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
+```
+
+---
+
+## Registry
+
+默认写法。没有协议前缀的字符串被当作 semver 范围，在配置的 npm 镜像源上查找：
+
+```json filename="package.json"
+{
+  "dependencies": {
+    "lodash": "^4.17.21",
+    "react": "18.3.0",
+    "next": "canary"
+  }
+}
+```
+
+支持 `^1.2.3`、`~1.2.3`、`>=1.0.0 <2.0.0`、精确版本，以及 `latest` / `next` / `canary` 等 [npm dist tag](https://docs.npmjs.com/cli/commands/npm-dist-tag)。
+
+不带版本添加包时，utoo 会规范化写入 `package.json`：
+
+| 输入 | 写入为 |
+|------|--------|
+| `lodash` | `"^4.17.21"`（latest 解析结果）|
+| `lodash@^4.17.0` | `"^4.17.0"`（保留范围）|
+| `lodash@4.17.21` | `"4.17.21"`（精确）|
+
+## `npm:` 别名
+
+把一个包安装到另一个名字下，或把某个名字指向一个 fork。左侧是别名，右侧是真实包名与版本：
+
+```json filename="package.json"
+{
+  "dependencies": {
+    "vite": "npm:rolldown-vite@^7.1.13"
+  }
+}
+```
+
+`node_modules/vite` 会存放 `rolldown-vite` 的文件，`require('vite')` 指向它。
+
+## `workspace:`
+
+引用当前 monorepo 中的工作区包。解析发生在构图阶段，先于任何 registry 调用。
+
+```json filename="packages/web/package.json"
+{
+  "dependencies": {
+    "@my-monorepo/ui": "workspace:*",
+    "@my-monorepo/utils": "workspace:^1.0.0"
+  }
+}
+```
+
+完整 monorepo 用法见 **[工作区](/zh/docs/utoo/workspaces)**。
+
+## `catalog:`
+
+引用项目 `.utoo.toml` catalog 中声明的版本。只改 `.utoo.toml` 一处就能同步所有用到它的工作区。
+
+```json filename="package.json"
+{
+  "dependencies": {
+    "react": "catalog:",
+    "debug": "catalog:legacy"
+  }
+}
+```
+
+默认 vs 命名 catalog、更新流程、作用域规则，详见 **[Catalog](/zh/docs/utoo/catalog)**。如果要强制覆盖传递依赖的版本，请看 **[Overrides](/zh/docs/utoo/overrides)**。
+
+## `file:` tarball
+
+使用本地 `.tgz` 作为依赖，常用于发布前本地冒烟验证：
+
+```json filename="package.json"
+{
+  "dependencies": {
+    "foo": "file:./vendor/foo-1.2.3.tgz"
+  }
+}
+```
+
+tarball 会被解压到 `<cache>/<name>/_file_<sha256(绝对路径)[:16]>/package/`。缓存键是 tarball 的绝对路径，因此不同目录下同名的 tarball 不会冲突。
+
+## `file:` 目录
+
+使用本地源码目录作为依赖。utoo 会把目录树拷贝进缓存（排除 `node_modules` 和 `.git`），所以源码变更不会自动同步——改完源码要重跑 `ut install`。
+
+```json filename="package.json"
+{
+  "dependencies": {
+    "foo": "file:../local-pkg"
+  }
+}
+```
+
+<Callout>
+  目录大小上限 512 MiB。发布到 registry 的包内如果传递性地出现 `file:` 依赖会被显式报错拒绝——`file:` 只在项目根使用才有意义。
+</Callout>
+
+## `http(s)://` tarball
+
+直接使用远程 `.tgz` URL 作为依赖：
+
+```json filename="package.json"
+{
+  "dependencies": {
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
+  }
+}
+```
+
+瞬时失败（网络、5xx、429）会自动重试 5 次，间隔为 100ms / 200ms / 500ms / 1s / 2s。tarball 缓存在 `<cache>/<name>/_http_<sha256(url)[:16]>/`，后续安装直接命中缓存，零网络开销。
+
+`package-lock.json` 会把 URL 写入 `resolved` 字段。
+
+## Git
+
+任何 Git 能理解的 URL 都可用：`git+https`、`git+ssh`、`git://`。`#<ref>` 片段可以锁定到分支、tag 或 commit SHA：
+
+```json filename="package.json"
+{
+  "dependencies": {
+    "foo": "git+https://github.com/user/foo.git#v1.0.0",
+    "bar": "git+ssh://git@internal.git/org/bar.git#main"
+  }
+}
+```
+
+## `github:` 简写
+
+公开 GitHub 仓库的简写：
+
+```json filename="package.json"
+{
+  "dependencies": {
+    "foo": "github:user/repo",
+    "bar": "github:user/repo#semver:^1.0.0"
+  }
+}
+```
+
+等价于对应的 `git+https://github.com/...` URL。

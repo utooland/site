@@ -1,0 +1,73 @@
+# Lifecycle Scripts
+
+utoo 遵循 npm 定义的 lifecycle 脚本集合和执行顺序。本章说明有哪些 hook、脚本运行时的环境，以及怎样跳过它们。
+
+## 安装阶段 hook
+
+`ut install`（以及 `ut rebuild`）对项目根会按顺序执行：
+
+| Hook | 执行时机 |
+|------|----------|
+| `preinstall` | 依赖解析之前 |
+| `install` | 安装阶段 |
+| `postinstall` | 所有依赖安装完之后 |
+| `preprepare` | `prepare` 之前 |
+| `prepare` | 安装完成后、`pack` / `publish` 之前 |
+| `postprepare` | `prepare` 之后 |
+| `prepublish` | `prepare` 的旧别名（npm 兼容） |
+
+项目依赖如果声明了这些 hook 也会被执行（可通过 [`--ignore-scripts`](#跳过脚本) 禁用）。不重装依赖、只重跑 hook 的情况请用 [`ut rebuild`](/zh/docs/utoo/commands#rebuild)。
+
+## Pack / publish hook
+
+由 `ut pm-pack` 和 `ut publish` 触发：
+
+| Hook | 执行时机 | 触发命令 |
+|------|----------|----------|
+| `prepack` | 打 tarball 之前 | `ut pm-pack`、`ut publish` |
+| `postpack` | 打 tarball 之后 | `ut pm-pack`、`ut publish` |
+| `prepublishOnly` | 发布之前（`pm-pack` 不触发） | `ut publish` |
+| `publish` | 发布过程中 | `ut publish` |
+| `postpublish` | 发布成功之后 | `ut publish` |
+
+## 脚本运行环境
+
+utoo 执行的每个脚本——无论是 lifecycle hook 还是 `scripts` 里的用户脚本——都会带上这套环境：
+
+| 变量 | 值 |
+|------|----|
+| `PATH` | 追加了项目根一路往上每一层 `node_modules/.bin`，让包的可执行文件无需 `npx` 就能解析。 |
+| `npm_lifecycle_event` | hook 或脚本名（`install`、`postinstall`、`build`……）。 |
+| `INIT_CWD` | 触发命令时所在目录的绝对路径。 |
+| `npm_package_json` | 当前包 `package.json` 的绝对路径。 |
+| `npm_config_global` | 全局安装（`-g`）时为 `"true"`，否则为空字符串。 |
+
+另外，当 registry 提供 [binary-mirror 配置](/zh/docs/utoo/registry-acceleration#binary-mirror)时，utoo 会把其中的 `ENVS` 段注入进来（如 `ELECTRON_MIRROR`、`SASS_BINARY_SITE`）。依赖的 install 脚本能读到这些变量，从而自动走镜像 CDN。
+
+## 跳过脚本
+
+`--ignore-scripts` 会禁用所有 lifecycle 脚本。它既可以作为 **顶层参数** 套在任意子命令前，也可以作为子命令的自身参数：
+
+```bash filename="Terminal" copy
+# 顶层写法——适用于任意子命令
+ut --ignore-scripts install
+ut --ignore-scripts rebuild
+
+# 子命令写法
+ut install --ignore-scripts
+ut uninstall lodash --ignore-scripts
+```
+
+从不可信来源安装、或在排查"是不是某个脚本导致安装失败"时，都可以用它。
+
+## node-gyp 自动安装
+
+utoo 发现依赖里有 `binding.gyp`（`node-gyp` 原生模块的标志）时，会检查 `PATH` 里是否有 `node-gyp`。没有的话会全局装一次（`ut install -g node-gyp`）再继续。你不需要手动预装 `node-gyp`。
+
+一次 `ut` 调用中这个检查和安装最多执行一次——即使有多个并发的原生模块安装，也共享同一次安装结果。
+
+## 相关内容
+
+- [`ut rebuild`](/zh/docs/utoo/commands#rebuild) — 重跑依赖的安装 hook。
+- [`ut run`](/zh/docs/utoo/commands#run) — 运行 `package.json` 里的任意脚本。
+- [镜像源加速](/zh/docs/utoo/registry-acceleration#binary-mirror) — binary mirror 注入给 install 脚本的环境变量。

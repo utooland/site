@@ -21,14 +21,14 @@ ut install --from pnpm
 | pnpm 字段 | utoo 字段 | 说明 |
 |-----------|-----------|------|
 | `packages` | `workspaces` | 工作区 glob 列表 |
-| `overrides` | `overrides` | 依赖覆盖 |
+| `overrides` | `overrides` | 依赖覆盖——语法见 [Overrides](/zh/docs/utoo/overrides) |
 
 ### pnpm-workspace.yaml → .utoo.toml
 
 | pnpm 字段 | utoo 段 | 说明 |
 |-----------|---------|------|
-| `catalog` | `[catalog]` | 默认 catalog |
-| `catalogs.<name>` | `[catalogs.<name>]` | 命名 catalog |
+| `catalog` | `[catalog]` | 默认 catalog — 详见 [Catalog](/zh/docs/utoo/catalog) |
+| `catalogs.<name>` | `[catalogs.<name>]` | 命名 catalog — 详见 [Catalog](/zh/docs/utoo/catalog#命名-catalog) |
 
 ## 示例
 

@@ -1,0 +1,155 @@
+# Overrides
+
+import { Callout } from 'nextra/components'
+
+`overrides` in `package.json` forces a specific version of a dependency — including **transitive** dependencies that your code does not declare directly. Typical uses:
+
+- Patching a CVE in a deep dependency you do not control
+- Pinning a breaking transitive update until upstream catches up
+- Deduplicating when the tree picks multiple versions of the same library
+- Applying different versions per workspace in a monorepo
+
+utoo supports the full npm `overrides` syntax, plus yarn's equivalent `resolutions` field.
+
+<Callout type="info">
+  Overrides are read only from the root `package.json`. utoo does not honor `overrides` declared inside a published dependency.
+</Callout>
+
+## Catalog vs. overrides — which one?
+
+Both pin versions, but solve different problems:
+
+- **[Catalog](/en/docs/utoo/catalog)** — your own workspaces *opt in* via `"react": "catalog:"`. Affects only packages that reference the catalog.
+- **Overrides** — *forces* a version on every resolution (including deep transitive deps), even in third-party packages.
+
+Use a catalog for internal version consistency; use overrides to fix something in the tree you don't directly own.
+
+## Simple override
+
+Force every copy of `lodash` in the tree to `4.17.21`:
+
+```json filename="package.json"
+{
+  "overrides": {
+    "lodash": "4.17.21"
+  }
+}
+```
+
+The value can be any [package spec](/en/docs/utoo/specs) — exact version, semver range, `npm:` alias, git URL, etc.
+
+## Conditional override
+
+Only override when the existing range matches. Useful when you want the fix to apply only to a specific legacy range:
+
+```json filename="package.json"
+{
+  "overrides": {
+    "lodash@^3.0.0": "4.17.21"
+  }
+}
+```
+
+Any `lodash@^3.0.0` in the tree is replaced with `4.17.21`; `lodash@^4.17.0` is left alone.
+
+## Reference the root version
+
+Use `$<name>` to sync an override with your own top-level `dependencies` / `devDependencies` — one edit keeps both aligned:
+
+```json filename="package.json"
+{
+  "dependencies": {
+    "react": "^18.2.0"
+  },
+  "overrides": {
+    "react": "$react"
+  }
+}
+```
+
+Bumping `react` in `dependencies` automatically bumps every transitive copy.
+
+## Nested override
+
+Scope an override to a specific parent. `debug` only gets replaced when it is pulled in by `express`:
+
+```json filename="package.json"
+{
+  "overrides": {
+    "express": {
+      "debug": "4.0.0"
+    }
+  }
+}
+```
+
+Nesting can go arbitrarily deep. Replace `debug` only when `express → body-parser → debug`:
+
+```json filename="package.json"
+{
+  "overrides": {
+    "express": {
+      "body-parser": {
+        "debug": "3.0.0"
+      }
+    }
+  }
+}
+```
+
+## Override the parent itself (`"."`)
+
+Inside a nested override, the key `"."` means "replace the parent package, not a child." Combined with a version range on the outer key, this pins `express@^4.0.0` to `4.18.0`:
+
+```json filename="package.json"
+{
+  "overrides": {
+    "express@^4.0.0": {
+      ".": "4.18.0"
+    }
+  }
+}
+```
+
+## Per-workspace override
+
+In a monorepo, nest under a workspace package name to scope an override to one workspace:
+
+```json filename="package.json"
+{
+  "workspaces": ["packages/*"],
+  "overrides": {
+    "workspace-a": {
+      "lodash": "3.0.0"
+    },
+    "workspace-b": {
+      "lodash": "4.0.0"
+    }
+  }
+}
+```
+
+`lodash` inside `packages/workspace-a` resolves to `3.0.0`; inside `packages/workspace-b` to `4.0.0`.
+
+## Yarn `resolutions` compatibility
+
+For projects migrating from yarn, the `resolutions` field is parsed alongside `overrides`:
+
+```json filename="package.json"
+{
+  "overrides": {
+    "lodash": "4.17.21"
+  },
+  "resolutions": {
+    "debug": "4.0.0"
+  }
+}
+```
+
+Both apply. If the same key appears in both, `overrides` wins.
+
+## Related
+
+- **[Package Specs](/en/docs/utoo/specs)** — all value forms accepted on the right side of an override.
+- **[Catalog](/en/docs/utoo/catalog)** — opt-in shared versions for your own workspaces.
+- **[Migrating from pnpm](/en/docs/utoo/migration)** — `ut install --from pnpm` carries `overrides` over from `pnpm-workspace.yaml`.

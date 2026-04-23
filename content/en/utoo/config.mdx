@@ -2,34 +2,23 @@
 
 import { Callout, Tabs } from 'nextra/components'
 
-utoo uses TOML-format configuration files at two levels: global and project.
+utoo reads TOML configuration from two locations:
 
-## Configuration Files
+- **Global** — `~/.utoo/config.toml`, applied to every project.
+- **Project** — `.utoo.toml` in the project root, overrides global settings for that project.
 
-### Global Config
+## File sections
 
-Location: `~/.utoo/config.toml`
+A config file may contain any of these TOML sections:
 
-Applies to all projects. Stores global preferences like registry, cache path, etc.
+| Section | Purpose | Global | Project |
+|---------|---------|:------:|:-------:|
+| `[values]` | Scalar settings (registry, cache dir, tokens, custom commands…) | ✓ | ✓ (overrides global) |
+| `[arrays]` | Array settings (auto-maintained, e.g. registry probe cache) | ✓ | ✓ |
+| `[catalog]` | Default [catalog](/en/docs/utoo/catalog) for monorepo deps | — | ✓ |
+| `[catalogs.<name>]` | Named [catalogs](/en/docs/utoo/catalog) | — | ✓ |
 
-```toml filename="~/.utoo/config.toml"
-[values]
-registry = "https://registry.npmmirror.com"
-cache-dir = "~/.cache/nm"
-legacy-peer-deps = true
-
-[arrays]
-supports-semver = [
-  "https://registry.npmmirror.com",
-  "!https://registry.npmjs.org",
-]
-```
-
-### Project Config
-
-Location: `.utoo.toml` (project root)
-
-Applies only to the current project. Can override `[values]` from the global config. Also where catalogs are defined.
+Example of a project `.utoo.toml` combining everything:
 
 ```toml filename=".utoo.toml"
 [values]
@@ -38,40 +27,33 @@ registry = "https://registry.npmjs.org"
 [catalog]
 react = "^18.0.0"
 typescript = "^5.0.0"
-lodash = "^4.17.21"
 
 [catalogs.legacy]
 debug = "^3.2.7"
-path-to-regexp = "^1.9.0"
 ```
 
-## File Format
+## `[values]`
 
-Configuration files contain the following sections:
-
-### `[values]`
-
-Key-value configuration entries. All common settings go here.
+Scalar key/value settings. Written with `ut config set <key> <value>` (add `--global` to target `~/.utoo/config.toml`).
 
 | Key | Default | Description |
 |-----|---------|-------------|
-| `registry` | `https://registry.npmmirror.com` | npm registry URL |
-| `cache-dir` | `~/.cache/nm` | Package cache directory |
-| `legacy-peer-deps` | `true` | Enable legacy peer dependency handling, skipping peer dependency resolution |
+| `registry` | auto-selected | npm registry URL. When unset, utoo picks the fastest reachable registry at startup. |
+| `cache-dir` | `~/.cache/nm` | Global package cache directory |
+| `legacy-peer-deps` | `true` | Skip peer dependency inclusion during resolution |
 | `manifests-concurrency-limit` | `64` | Max concurrent manifest fetches |
+| `auth-token:<host>` | — | Per-registry auth token; written automatically by `ut login` |
+| `<name>.cmd` | — | [Custom command](#custom-commands) shortcut |
 
-```toml filename="Example"
-[values]
-registry = "https://registry.npmmirror.com"
-cache-dir = "~/.cache/nm"
-legacy-peer-deps = true
-```
+<Callout type="info">
+  `auth-token:<host>` entries are stored in the global config so they apply across projects. `ut login` / `ut logout` are the intended way to manage them.
+</Callout>
 
-### `[arrays]`
+## `[arrays]`
 
-Array-typed configuration entries. Currently used to cache semver support probe results for registries.
+Array-valued settings. Currently the only entry is the semver-support probe cache, which utoo maintains automatically:
 
-```toml filename="Example"
+```toml
 [arrays]
 supports-semver = [
   "https://registry.npmmirror.com",
@@ -79,85 +61,38 @@ supports-semver = [
 ]
 ```
 
-- No prefix means the registry supports semver queries
-- `!` prefix means it does not
+- No prefix — the registry supports semver queries (`/lodash/^4`).
+- `!` prefix — the registry does not.
 
-This field is maintained automatically by utoo and typically does not need manual editing.
+Probe results for multiple registries coexist, so switching `--registry` does not trigger a re-probe.
 
-### `[catalog]`
+## Catalogs
 
-<Callout type="info">
-  Only effective in project config (`.utoo.toml`).
-</Callout>
+`[catalog]` and `[catalogs.<name>]` define shared dependency versions for a monorepo. They are project-only and have a dedicated chapter:
 
-Default catalog for centralizing shared dependency versions across packages in a monorepo:
+→ **[Catalog](/en/docs/utoo/catalog)**
 
-```toml filename=".utoo.toml"
-[catalog]
-react = "^18.0.0"
-typescript = "^5.0.0"
-lodash = "^4.17.21"
-```
+## Priority order
 
-Reference in `package.json` using the `catalog:` protocol:
+When the same value comes from multiple places, the highest-priority source wins:
 
-```json filename="package.json"
-{
-  "dependencies": {
-    "react": "catalog:",
-    "lodash": "catalog:"
-  }
-}
-```
-
-### `[catalogs.<name>]`
-
-<Callout type="info">
-  Only effective in project config (`.utoo.toml`).
-</Callout>
-
-Named catalogs for managing multiple version strategies:
-
-```toml filename=".utoo.toml"
-[catalogs.legacy]
-debug = "^3.2.7"
-path-to-regexp = "^1.9.0"
-
-[catalogs.react17]
-react = "^17.0.0"
-react-dom = "^17.0.0"
-```
-
-Reference with `catalog:<name>`:
-
-```json filename="package.json"
-{
-  "dependencies": {
-    "debug": "catalog:legacy",
-    "react": "catalog:react17"
-  }
-}
-```
-
-## Priority Order
-
-Configuration values are resolved in the following order (highest to lowest):
-
-1. **CLI flags** (highest) — `ut install --registry https://...`
+1. **CLI flags** — `ut install --registry https://...`
 2. **Environment variables** — `UTOO_REGISTRY=https://...`
 3. **Project config** — `[values]` in `.utoo.toml`
-4. **Global config** (lowest) — `[values]` in `~/.utoo/config.toml`
+4. **Global config** — `[values]` in `~/.utoo/config.toml`
 
 <Callout>
-  Catalog configuration (`[catalog]` / `[catalogs.*]`) is read only from the project config and is not inherited from the global config.
+  `[catalog]` / `[catalogs.*]` are not subject to this chain — they are read only from the project config.
 </Callout>
 
-## Environment Variables
+## Environment variables
+
+### utoo behavior
 
 | Variable | Description |
 |----------|-------------|
-| `UTOO_REGISTRY` | Override npm registry |
-| `UTOO_CACHE_DIR` | Override cache directory |
+| `UTOO_REGISTRY` | Override the npm registry |
+| `UTOO_CACHE_DIR` | Override the cache directory |
 | `CI` | Set to `1` or `true` to disable [auto-update](/en/docs/utoo/auto-update) |
 | `UTOO_FORCE_UPDATE` | Set to `1` to force an immediate update |
 
@@ -165,17 +100,38 @@ Configuration values are resolved in the following order (highest to lowest):
 UTOO_REGISTRY=https://registry.npmmirror.com ut install
 ```
 
-## CLI Config Management
+### Authentication
 
-Read and write configuration via the `ut config` command:
+| Variable | Description |
+|----------|-------------|
+| `NPM_TOKEN` | Fallback auth token for the active registry when no `auth-token:<host>` is stored |
+| `NODE_AUTH_TOKEN` | Same as `NPM_TOKEN`; chosen for compatibility with GitHub Actions' `setup-node` |
+| `GITHUB_TOKEN` | Auth token for cloning `git+https://github.com/...` dependencies — use for private repos or to lift rate limits |
+| `GH_TOKEN` | Alias for `GITHUB_TOKEN`; either works |
+
+Token resolution order for the registry API: `NPM_TOKEN` → `NODE_AUTH_TOKEN` → `auth-token:<host>` in global config.
+
+### Network proxy
+
+| Variable | Description |
+|----------|-------------|
+| `ALL_PROXY` | Proxy for all requests (takes precedence) |
+| `HTTPS_PROXY` | Proxy for `https://` requests |
+| `HTTP_PROXY` | Proxy for `http://` requests |
+
+utoo reads both upper-case and lower-case forms (`https_proxy`, etc.). System proxy auto-detection (macOS / Windows OS-level settings set by tools like Surge / Clash) is **disabled** — only explicit env vars are honored.
+
+## CLI management
+
+Read and write `[values]` entries via `ut config`:
 
 <Tabs items={['Set', 'Get', 'Delete', 'List']}>
   <Tabs.Tab>
 ```bash filename="Terminal" copy
-# Set in project config (.utoo.toml)
+# Project config (.utoo.toml)
 ut config set registry https://registry.npmmirror.com
 
-# Set in global config (~/.utoo/config.toml)
+# Global config (~/.utoo/config.toml)
 ut config set registry https://registry.npmmirror.com --global
 ```
   </Tabs.Tab>
@@ -197,21 +153,23 @@ ut config list
   </Tabs.Tab>
 </Tabs>
 
-## Custom Commands
+## Custom commands
 
-Define shortcuts for frequently used commands:
+Any `[values]` key ending in `.cmd` defines a top-level shortcut. `ut <name>` runs the stored command string:
 
 ```bash filename="Terminal" copy
-# Set custom commands
+# Register shortcuts
 ut config set hi.cmd "utx cowsay hi"
 ut config set lint.cmd "ut run lint"
 
-# Run custom commands
+# Invoke them
 ut hi
 ut lint
 ```
 
-## Registry Recommendations
+Because they live in the same `[values]` table, `--global` applies: register once globally and every project can use them.
+
+## Registry recommendations
 
 <Tabs items={['China', 'Global']}>
   <Tabs.Tab>

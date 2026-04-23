@@ -65,46 +65,44 @@ utx create-react-app my-app
 ## 命令
 
 <Cards>
-  <Cards.Card title="install" href="/zh/docs/utoo/commands/install" />
-  <Cards.Card title="run" href="/zh/docs/utoo/commands/run" />
-  <Cards.Card title="execute" href="/zh/docs/utoo/commands/execute" />
-  <Cards.Card title="view" href="/zh/docs/utoo/commands/view" />
+  <Cards.Card title="install" href="/zh/docs/utoo/commands#install" />
+  <Cards.Card title="run" href="/zh/docs/utoo/commands#run" />
+  <Cards.Card title="execute" href="/zh/docs/utoo/commands#execute" />
+  <Cards.Card title="view" href="/zh/docs/utoo/commands#view" />
 </Cards>
 
 **所有命令**
 
 | 命令 | 别名 | 描述 |
 |------|------|------|
-| [`install`](/zh/docs/utoo/commands/install) | `i` | 安装依赖 |
-| [`uninstall`](/zh/docs/utoo/commands/uninstall) | `un` | 卸载依赖 |
-| [`run`](/zh/docs/utoo/commands/run) | `r` | 运行 package.json 脚本 |
-| [`execute`](/zh/docs/utoo/commands/execute) | `x` | 执行 npm 包命令 |
-| [`view`](/zh/docs/utoo/commands/view) | `v`, `info`, `show` | 查看包信息 |
-| [`list`](/zh/docs/utoo/commands/list) | `ls` | 列出依赖树 |
-| [`link`](/zh/docs/utoo/commands/link) | `ln` | 链接本地包 |
-| [`deps`](/zh/docs/utoo/commands/deps) | `d` | 生成 package-lock.json |
-| [`update`](/zh/docs/utoo/commands/update) | `u` | 更新依赖 |
-| [`rebuild`](/zh/docs/utoo/commands/rebuild) | `rb` | 重建脚本钩子 |
-| [`clean`](/zh/docs/utoo/commands/clean) | `c` | 清理包缓存 |
-| [`pm-pack`](/zh/docs/utoo/commands/pm-pack) | `pk` | 创建包的 tarball |
-| [`ping`](/zh/docs/utoo/commands/ping) | `pg` | 检测镜像源连通性 |
-| [`login`](/zh/docs/utoo/commands/login) | `lg` | 登录镜像源 |
-| [`logout`](/zh/docs/utoo/commands/logout) | `lo` | 注销登录 |
-| [`whoami`](/zh/docs/utoo/commands/whoami) | `who` | 显示当前用户名 |
+| [`install`](/zh/docs/utoo/commands#install) | `i` | 安装项目依赖 |
+| [`uninstall`](/zh/docs/utoo/commands#uninstall) | `un` | 卸载指定依赖 |
+| [`run`](/zh/docs/utoo/commands#run) | `r` | 运行 package.json 中定义的脚本 |
+| [`execute`](/zh/docs/utoo/commands#execute) | `x` | 执行来自本地或远程 npm 包的命令 |
+| [`view`](/zh/docs/utoo/commands#view) | `v`, `info`, `show` | 查看包信息 |
+| [`list`](/zh/docs/utoo/commands#list) | `ls` | 列出依赖（类似 npm list） |
+| [`link`](/zh/docs/utoo/commands#link) | `ln` | 链接包（类似 npm link） |
+| [`deps`](/zh/docs/utoo/commands#deps) | `d` | 仅生成 package-lock.json |
+| [`update`](/zh/docs/utoo/commands#update) | `u` | 删除 node_modules 并重新安装 |
+| [`rebuild`](/zh/docs/utoo/commands#rebuild) | `rb` | 重跑所有包的脚本钩子 |
+| [`clean`](/zh/docs/utoo/commands#clean) | `c` | 清理全局存储中的包缓存 |
+| [`pm-pack`](/zh/docs/utoo/commands#pm-pack) | `pk` | 创建包的 tarball |
+| [`ping`](/zh/docs/utoo/commands#ping) | `pg` | 检测镜像源连通性 |
+| [`login`](/zh/docs/utoo/commands#login) | `lg` | 登录镜像源 |
+| [`logout`](/zh/docs/utoo/commands#logout) | `lo` | 注销登录 |
+| [`whoami`](/zh/docs/utoo/commands#whoami) | `who` | 显示当前用户名 |
 | [`config`](/zh/docs/utoo/config) | `cfg` | 管理配置 |
-| [`init`](/zh/docs/utoo/commands/init) | `create` | 创建 package.json 文件 |
-| [`publish`](/zh/docs/utoo/commands/publish) | `pub` | 发布包到镜像源 |
-| [`completions`](/zh/docs/utoo/commands/completions) | `cmp` | 生成 shell 自动补全脚本 |
+| [`init`](/zh/docs/utoo/commands#init) | `create` | 创建 package.json 文件 |
+| [`publish`](/zh/docs/utoo/commands#publish) | `pub` | 发布包到镜像源 |
+| [`completions`](/zh/docs/utoo/commands#completions) | `cmp` | 生成 shell 自动补全脚本 |
+| `*` | — | 任何未识别命令会走到 `ut run *` |
+
+每个命令自身的选项列在对应章节里；也可以直接 `ut <command> --help` 在终端查看。
 
 ## 全局选项
 
 | 选项 | 描述 |
 |------|------|
-| `--verbose` | 启用调试日志 |
-| `--registry <url>` | 覆盖 npm 镜像源 |
-| `--cache-dir <path>` | 指定缓存目录 |
-| `--legacy-peer-deps` | 传统 peer 依赖处理 |
-| `--manifests-concurrency-limit <n>` | 最大并发 manifest 请求数（默认：64） |
 | `-h, --help` | 显示帮助 |
 | `-v, --version` | 显示版本 |
 
@@ -121,18 +119,11 @@ utx create-react-app my-app
 └── typescript/5.6.0.tgz
 ```
 
-### npmmirror 加速
+### 镜像源加速
 
-使用 npmmirror 作为默认镜像源时，utoo 提供两项额外加速：
+当使用的 registry 是 cnpm 兼容镜像（如 `registry.npmmirror.com`）时，utoo 自动启用两项加速：**semver 查询加速**（服务端解析版本）和 **binary mirror**（原生模块下载改走 CDN）。两项在 npm 官方源上都会跳过。
 
-- **Binary 镜像** — 原生模块（如 `esbuild`、`swc`、`cypress`）的预编译二进制从 npmmirror CDN 下载，无需访问 GitHub Releases 等海外源
-- **Semver 请求** — 支持在 URL 中直接传递版本范围（如 `/lodash/^4`），由镜像源服务端解析，减少客户端请求数量
-
-```bash filename="Terminal" copy
-# 检测镜像源是否支持 semver 请求
-ut ping
-# → PONG 15ms (supports-semver: yes)
-```
+具体机制见 [镜像源加速](/zh/docs/utoo/registry-acceleration)，命令行探测见 [`ut ping`](/zh/docs/utoo/commands#ping)。
 
 ### 从 pnpm 迁移
 

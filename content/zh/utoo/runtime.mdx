@@ -1,0 +1,62 @@
+# Node Runtime
+
+import { Callout } from 'nextra/components'
+
+utoo 可以在 `ut install` 时一并安装 Node.js 二进制，让项目不再依赖系统上装好的 Node。在 `package.json` 中声明 `engines.install-node` 即可启用。
+
+## 用法
+
+```json filename="package.json"
+{
+  "engines": {
+    "install-node": "20"
+  }
+}
+```
+
+支持任意 npm 能识别的版本范围：`"20"`、`"20.11.1"`、`"^20.0.0"`。执行 `ut install` 后，匹配范围的 Node 二进制会被安装到 `node_modules` 中，`package.json` 脚本可直接使用。
+
+## 平台展开
+
+utoo 会把 `engines.install-node` 展开成 6 个平台对应的 `optionalDependencies` 条目：
+
+| 包名 | 平台 | 架构 |
+|------|------|------|
+| `node-darwin-x64` | macOS | x64 |
+| `node-bin-darwin-arm64` | macOS | arm64 |
+| `node-linux-x64` | Linux | x64 |
+| `node-linux-arm64` | Linux | arm64 |
+| `node-win-x64` | Windows | x64 |
+| `node-win-x86` | Windows | x86 |
+
+由于它们是 `optionalDependencies`，按 npm 的标准行为，只有与当前 `os` / `cpu` 匹配的包会真正被安装。
+
+<Callout>
+  Apple Silicon 下的 Node 有两套发布：`node-darwin-arm64` 只发布到 Node 14 及以下，`node-bin-darwin-arm64` 则覆盖 Node 16 及以上。Node 14 已 EOL，utoo 使用 `node-bin-darwin-arm64`。
+</Callout>
+
+## `install-node` 与 `engines.node` 的区别
+
+两者解决不同的问题：
+
+| 字段 | 作用 |
+|------|------|
+| `engines.node` | **声明性约束**。声明代码测试过的 Node 版本；包管理器可在不匹配时告警或拒绝安装。**不会安装 Node**。 |
+| `engines.install-node` | **命令性安装**。让 utoo 下载并安装满足版本范围的 Node 二进制。 |
+
+两者可以组合：用 `engines.node` 声明兼容性契约，用 `engines.install-node` 保证实际安装到的版本满足它。
+
+```json filename="package.json"
+{
+  "engines": {
+    "node": ">=20.0.0",
+    "install-node": "20.11.1"
+  }
+}
+```
+
+## 使用场景
+
+- **无需额外"安装 Node"步骤的 CI**：一条 `ut install` 就够，不需要 `setup-node` / `nvm install`。
+- **团队版本一致性**：锁定 `install-node` 让所有开发者、所有机器用同一个 Node，与 `nvm` / `fnm` / 系统装的版本无关。
+- **从 utoo 一路引导**：utoo 的安装脚本（`curl … | bash`）本身不依赖已装 Node——配合 `install-node`，一台全新机器只要两条命令就能完成"装 utoo → 装项目 + Node"。

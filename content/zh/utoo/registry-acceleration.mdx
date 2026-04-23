@@ -1,0 +1,118 @@
+# 镜像源加速
+
+import { Callout } from 'nextra/components'
+
+utoo 有两项 registry 级别的加速特性，选了能力匹配的 registry 后自动启用，无需任何配置。
+
+<Callout type="info">
+  这两项特性在 **npm 官方源**（`registry.npmjs.org`）上一律跳过。想要受益，请切换到兼容的镜像源——`registry.npmmirror.com` 是参考实现。
+</Callout>
+
+## Semver 查询加速
+
+### 为什么更快
+
+常规安装会给每个依赖范围先下载完整的 "packument"（一个包所有版本的元信息），再在本地做 semver 匹配。对几百个唯一包的依赖树来说，就是几百次 manifest 请求。
+
+能力匹配的 registry 允许直接把 semver 范围写进 URL，返回的 manifest 已经是服务端预先匹配好的结果：
+
+```
+GET https://registry.npmmirror.com/lodash/^4.17.0
+→ 直接返回 lodash@4.17.21 这一个 manifest
+```
+
+utoo 在 registry 支持这种形式时自动启用，把"客户端多次拉取 + 本地过滤"压成"服务端一次解析"。
+
+### 怎样判断支持
+
+首次遇到未知 registry 时，utoo 会探测：
+
+```
+GET {registry}/utoo/%5E1
+```
+
+（即 `utoo@^1` 的占位查询，超时 5 秒）。2xx 表示支持。
+
+npm 官方源被硬编码为"不支持"——utoo 不会去探测它。
+
+### 配置缓存
+
+探测结果缓存在全局配置的 `[arrays] supports-semver` 中：
+
+```toml filename="~/.utoo/config.toml"
+[arrays]
+supports-semver = [
+  "https://registry.npmmirror.com",
+  "!https://some-private.registry",
+]
+```
+
+- 无前缀 — registry 支持 semver 查询。
+- `!` 前缀 — 探测结果为否。
+
+多个 registry 的结果共存在同一个数组里，因此命令行里 `--registry` 切换源不会触发重新探测。
+
+### 从命令行查看
+
+`ut ping` 会告诉你当前或指定 registry 是否支持 semver：
+
+```bash filename="Terminal" copy
+ut ping
+# → PONG 15ms (supports-semver: yes)
+
+ut ping https://registry.npmjs.org
+# → PONG 120ms (supports-semver: no)
+```
+
+详见 [`ut ping`](/zh/docs/utoo/commands#ping)。
+
+## Binary Mirror
+
+原生模块（`esbuild`、`swc`、`cypress`、`electron`、`node-sass`，以及所有走 `node-pre-gyp` 的包）都带着预编译二进制，通常从 GitHub Releases 或厂商 CDN 下载。在那些主机速度慢或被墙的网络下，install 脚本阶段会成瓶颈——严重时直接失败。
+
+utoo 会按 registry 发布的一份配置文档，把这些下载透明地切到该 registry 关联的 CDN 上。
+
+### `binary-mirror-config` 契约
+
+首次需要时，utoo 只拉一份 JSON：
+
+```
+GET {registry}/binary-mirror-config/latest
+```
+
+文档中的 `mirrors.china` 字段以包名为键列出每个包的改写规则。utoo 把结果缓存一次供整个进程使用。
+
+### 具体改写什么
+
+对每个安装的包，若在 `mirrors.china` 命中条目：
+
+1. **`package.json` 的 `binary` 字段** — 改写后 `node-pre-gyp` 会从镜像 host 下载。
+2. **`lib/index.js` / `lib/install.js` 里的 host 字符串** — 三种策略按包选择：
+   - `replaceHost` + `host` — 字符串替换
+   - `replaceHostMap` — 一对一替换表
+   - `replaceHostRegExpMap` — 正则替换
+3. **特定包的特殊处理** — 比如 `cypress` 另外有 `lib/tasks/download.js` 的改写器；`node-pre-gyp` 有 `versioning.js` 强制 HTTPS 的补丁。
+
+### 给 install 脚本注入的环境变量
+
+同一份配置文档的 `mirrors.china.ENVS` 段是一组 `KEY=value` 对，utoo 会把它们注入到每个 lifecycle 脚本的环境里。常见的有 `ELECTRON_MIRROR=`、`SASS_BINARY_SITE=`、`SENTRYCLI_CDNURL=` 等。读取这些环境变量的包在安装时就会自动走镜像，用户无感。
+
+### 什么时候生效
+
+| Registry | 行为 |
+|----------|------|
+| `registry.npmjs.org`（npm 官方源） | 跳过——不启用 binary mirror。 |
+| `registry.npmmirror.com` | 启用——binary / host / envs 全套改写。 |
+| 其他 cnpm 兼容的镜像源 | 只要 registry 发布了 `binary-mirror-config/latest` 就启用。 |
+
+切换 registry 以启用 binary mirror，详见 [配置](/zh/docs/utoo/config#cli-配置管理)：
+
+```bash filename="Terminal" copy
+ut config set registry https://registry.npmmirror.com --global
+```
+
+## 相关内容
+
+- [`ut ping`](/zh/docs/utoo/commands#ping) — 从命令行探测一个 registry 是否支持 semver。
+- [配置](/zh/docs/utoo/config) — registry 的选取逻辑和 `[arrays] supports-semver` 缓存。
+- [Lifecycle Scripts](/zh/docs/utoo/lifecycle) — binary mirror 注入的环境变量对所有 install 脚本可见。

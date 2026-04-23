@@ -1,0 +1,172 @@
+# Package Specs
+
+import { Callout } from 'nextra/components'
+
+A *package spec* is the value on the right-hand side of a `dependencies` entry — the string that tells utoo **where** a package comes from. utoo supports the full set of specifiers that npm / pnpm / yarn accept, plus a couple of utoo-specific additions.
+
+| Spec | Example | Resolved from |
+|------|---------|---------------|
+| [Semver range](#registry) | `"lodash": "^4.17.21"` | npm registry |
+| [Exact version](#registry) | `"react": "18.3.0"` | npm registry |
+| [Dist tag](#registry) | `"next": "canary"` | npm registry |
+| [`npm:` alias](#npm-alias) | `"vite": "npm:rolldown-vite@^7.1.13"` | npm registry, renamed on install |
+| [`workspace:`](#workspace) | `"@my/ui": "workspace:*"` | Local workspace package |
+| [`catalog:`](#catalog) | `"react": "catalog:"` | `.utoo.toml` catalog |
+| [`file:` tarball](#file-tarball) | `"foo": "file:./foo-1.2.3.tgz"` | Local `.tgz` on disk |
+| [`file:` directory](#file-directory) | `"foo": "file:./local-pkg"` | Local directory on disk |
+| [`http(s)://` tarball](#https-tarball) | `"xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"` | Remote `.tgz` URL |
+| [`git+` / `git://`](#git) | `"foo": "git+https://github.com/user/foo.git#v1.0.0"` | Git repository |
+| [`github:` shorthand](#github-shorthand) | `"foo": "github:user/repo"` | GitHub repository |
+
+Any spec can be used both in `package.json` and on the command line:
+
+```bash filename="Terminal" copy
+ut install lodash@^4.17.21
+ut install vite@npm:rolldown-vite@^7.1.13
+ut install "foo@file:./local-pkg"
+ut install "xlsx@https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
+```
+
+---
+
+## Registry
+
+The default. Strings without a protocol prefix are parsed as semver ranges and looked up in the configured npm registry:
+
+```json filename="package.json"
+{
+  "dependencies": {
+    "lodash": "^4.17.21",
+    "react": "18.3.0",
+    "next": "canary"
+  }
+}
+```
+
+Supported forms: `^1.2.3`, `~1.2.3`, `>=1.0.0 <2.0.0`, exact versions, and [npm dist tags](https://docs.npmjs.com/cli/commands/npm-dist-tag) like `latest`, `next`, `canary`.
+
+When you add a package without a version, utoo normalizes the spec in `package.json`:
+
+| Input | Written as |
+|-------|------------|
+| `lodash` | `"^4.17.21"` (latest resolved) |
+| `lodash@^4.17.0` | `"^4.17.0"` (range preserved) |
+| `lodash@4.17.21` | `"4.17.21"` (exact) |
+
+## `npm:` alias
+
+Install a package under a different name, or pin a package name to a fork. The alias on the left, the real package/version on the right:
+
+```json filename="package.json"
+{
+  "dependencies": {
+    "vite": "npm:rolldown-vite@^7.1.13"
+  }
+}
+```
+
+`node_modules/vite` will contain `rolldown-vite`'s files, and `require('vite')` resolves to it.
+
+## `workspace:`
+
+Reference a package that lives inside the current monorepo. Resolution happens at graph build time, before any registry call.
+
+```json filename="packages/web/package.json"
+{
+  "dependencies": {
+    "@my-monorepo/ui": "workspace:*",
+    "@my-monorepo/utils": "workspace:^1.0.0"
+  }
+}
+```
+
+See **[Workspaces](/en/docs/utoo/workspaces)** for the full monorepo story.
+
+## `catalog:`
+
+Reference a version declared in the project's `.utoo.toml` catalog. Lets one edit in `.utoo.toml` update every workspace that consumes the dependency.
+
+```json filename="package.json"
+{
+  "dependencies": {
+    "react": "catalog:",
+    "debug": "catalog:legacy"
+  }
+}
+```
+
+See **[Catalog](/en/docs/utoo/catalog)** for default vs. named catalogs, update flow, and scope rules. For forcing a version on transitive deps instead, see **[Overrides](/en/docs/utoo/overrides)**.
+
+## `file:` tarball
+
+Consume a `.tgz` from disk. Useful for local smoke-testing a package before publishing:
+
+```json filename="package.json"
+{
+  "dependencies": {
+    "foo": "file:./vendor/foo-1.2.3.tgz"
+  }
+}
+```
+
+The tarball is extracted into `<cache>/<name>/_file_<sha256(abs-path)[:16]>/package/`. The cache key is the tarball's absolute path, so copies in different directories do not collide.
+
+## `file:` directory
+
+Consume a local source directory. utoo copies the tree into the cache (excluding `node_modules` and `.git`), so updates to the source do not auto-propagate — re-run `ut install` after source changes.
+
+```json filename="package.json"
+{
+  "dependencies": {
+    "foo": "file:../local-pkg"
+  }
+}
+```
+
+<Callout>
+  Directory size cap: 512 MiB. A `file:` dep declared transitively inside a registry-published package is rejected with an explicit error — `file:` is only meaningful from the project root.
+</Callout>
+
+## `http(s)://` tarball
+
+Consume a remote `.tgz` URL directly:
+
+```json filename="package.json"
+{
+  "dependencies": {
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
+  }
+}
+```
+
+Transient failures (network, 5xx, 429) are retried up to 5× with backoff (100 ms, 200 ms, 500 ms, 1 s, 2 s). The tarball is cached at `<cache>/<name>/_http_<sha256(url)[:16]>/` so subsequent installs hit the cache with no network work.
+
+`package-lock.json` records the URL as the `resolved` field.
+
+## Git
+
+Any URL that Git itself understands works: `git+https`, `git+ssh`, `git://`. A `#<ref>` fragment pins to a branch, tag, or commit SHA:
+
+```json filename="package.json"
+{
+  "dependencies": {
+    "foo": "git+https://github.com/user/foo.git#v1.0.0",
+    "bar": "git+ssh://git@internal.git/org/bar.git#main"
+  }
+}
+```
+
+## `github:` shorthand
+
+A shorthand for public GitHub repositories:
+
+```json filename="package.json"
+{
+  "dependencies": {
+    "foo": "github:user/repo",
+    "bar": "github:user/repo#semver:^1.0.0"
+  }
+}
+```
+
+Equivalent to the corresponding `git+https://github.com/...` URL.

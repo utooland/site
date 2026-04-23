@@ -105,18 +105,14 @@ Reference workspace packages using the `workspace:` protocol:
 }
 ```
 
-## Catalog Protocol
+See [Package Specs](/en/docs/utoo/specs#workspace) for the full set of supported forms.
 
-Use the `catalog:` protocol to centrally manage dependency versions in a monorepo. See [Configuration - Catalog](/en/docs/utoo/config#catalog).
+## Shared Versions and Overrides
 
-```json
-{
-  "dependencies": {
-    "react": "catalog:",
-    "debug": "catalog:legacy"
-  }
-}
-```
+Two project-wide mechanisms complement workspaces:
+
+- **[Catalog](/en/docs/utoo/catalog)** — opt-in shared versions for your own workspace packages, referenced as `"react": "catalog:"`.
+- **[Overrides](/en/docs/utoo/overrides)** — force a version on every resolution (including transitive deps), and optionally scope overrides per workspace.
 
 ## Interactive Mode
 

@@ -1,6 +1,12 @@
 export default {
   index: '概述',
   commands: '命令',
+  specs: 'Package Specs',
+  catalog: 'Catalog',
+  overrides: 'Overrides',
+  lifecycle: 'Lifecycle Scripts',
+  runtime: 'Node Runtime',
+  'registry-acceleration': '镜像源加速',
   utx: 'utx 别名',
   config: '配置',
   stores: '存储路径',

@@ -1,0 +1,118 @@
+# Registry Acceleration
+
+import { Callout } from 'nextra/components'
+
+utoo has two registry-level acceleration features that kick in automatically when you use a registry that supports them. Neither needs configuration — they're on when the registry is capable, off otherwise.
+
+<Callout type="info">
+  Both features are **skipped on the official npm registry** (`registry.npmjs.org`). To benefit, configure a compatible mirror — `registry.npmmirror.com` is the reference implementation.
+</Callout>
+
+## Semver Query Acceleration
+
+### Why it's faster
+
+A normal install resolves each dependency range by downloading the full "packument" (every version's metadata for a package) and running semver matching locally. For a tree with hundreds of unique packages, that's hundreds of manifest fetches.
+
+Capable registries accept the semver range directly in the URL and return the pre-matched manifest:
+
+```
+GET https://registry.npmmirror.com/lodash/^4.17.0
+→ returns the single manifest lodash@4.17.21
+```
+
+utoo uses this URL form whenever the registry supports it, compressing many client-side fetches into one server-resolved lookup per dependency.
+
+### How utoo detects support
+
+On first contact with an unknown registry, utoo probes:
+
+```
+GET {registry}/utoo/%5E1
+```
+
+(a canary query for `utoo@^1`, 5 s timeout). A 2xx response means the registry supports semver queries.
+
+The official npm registry is hardcoded as unsupported — utoo never probes it.
+
+### Config cache
+
+Probe results are cached in the global config under `[arrays] supports-semver`:
+
+```toml filename="~/.utoo/config.toml"
+[arrays]
+supports-semver = [
+  "https://registry.npmmirror.com",
+  "!https://some-private.registry",
+]
+```
+
+- No prefix — registry supports semver queries.
+- `!` prefix — probe returned negative.
+
+Multiple registries coexist in the array, so switching `--registry` at the CLI never triggers a re-probe.
+
+### Checking from the CLI
+
+Run `ut ping` to see whether the current (or any) registry supports semver:
+
+```bash filename="Terminal" copy
+ut ping
+# → PONG 15ms (supports-semver: yes)
+
+ut ping https://registry.npmjs.org
+# → PONG 120ms (supports-semver: no)
+```
+
+See [`ut ping`](/en/docs/utoo/commands#ping) for details.
+
+## Binary Mirror
+
+Native modules (`esbuild`, `swc`, `cypress`, `electron`, `node-sass`, anything using `node-pre-gyp`) ship prebuilt binaries that are normally downloaded from GitHub Releases or vendor CDNs. In networks where those hosts are slow or blocked, the install-script phase becomes the bottleneck — or fails outright.
+
+utoo transparently redirects these downloads to the CDN associated with the current registry, using a config document the registry publishes.
+
+### The `binary-mirror-config` contract
+
+On first need, utoo fetches one JSON document:
+
+```
+GET {registry}/binary-mirror-config/latest
+```
+
+The document's `mirrors.china` field maps package names to per-package rewriting rules. utoo caches the result for the whole process.
+
+### What utoo rewrites
+
+For each installed package that matches an entry in `mirrors.china`:
+
+1. **`binary` field in `package.json`** — rewritten so `node-pre-gyp` downloads from the mirror host.
+2. **Host strings in `lib/index.js` / `lib/install.js`** — three strategies, picked per package:
+   - `replaceHost` + `host` — plain string substitution
+   - `replaceHostMap` — one-to-one substitution map
+   - `replaceHostRegExpMap` — regex substitution
+3. **Package-specific special cases** — e.g. `cypress` has its own `lib/tasks/download.js` rewriter, `node-pre-gyp` has its `versioning.js` force-HTTPS patch.
+
+### Environment variables for install scripts
+
+The same config document carries a `mirrors.china.ENVS` block — a set of `KEY=value` pairs that utoo injects into every lifecycle script's environment. Typical entries include `ELECTRON_MIRROR=`, `SASS_BINARY_SITE=`, `SENTRYCLI_CDNURL=`, and similar. Packages that read these at install time pick up the mirror automatically, with no user action.
+
+### When it's active
+
+| Registry | Behavior |
+|----------|----------|
+| `registry.npmjs.org` (official npm) | Skipped — binary mirror never fires. |
+| `registry.npmmirror.com` | Active — full binary + host + envs rewrite. |
+| Other cnpm-compatible mirrors | Active if they publish `binary-mirror-config/latest`. |
+
+To switch registries and make binary mirroring available, see [Configuration](/en/docs/utoo/config#cli-management):
+
+```bash filename="Terminal" copy
+ut config set registry https://registry.npmmirror.com --global
+```
+
+## Related
+
+- [`ut ping`](/en/docs/utoo/commands#ping) — probe a registry's semver support from the CLI.
+- [Configuration](/en/docs/utoo/config) — how registry selection works and the `[arrays] supports-semver` cache.
+- [Lifecycle Scripts](/en/docs/utoo/lifecycle) — the env vars binary mirror injects are visible to every install script.

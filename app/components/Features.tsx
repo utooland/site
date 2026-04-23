@@ -107,6 +107,45 @@ function CopyButton({ text }: { text: string }) {
   );
 }
 
+type InstallOption = { label: string; cmd: string };
+
+function InstallBlock({ install, color }: { install: string | InstallOption[]; color: string }) {
+  const options: InstallOption[] = Array.isArray(install)
+    ? install
+    : [{ label: "", cmd: install }];
+  const [activeIdx, setActiveIdx] = useState(0);
+  const active = options[activeIdx];
+
+  return (
+    <div className="flex flex-col gap-2 w-fit">
+      {options.length > 1 && (
+        <div className="flex items-center gap-1 text-xs font-mono">
+          {options.map((opt, idx) => (
+            <button
+              key={opt.label}
+              type="button"
+              onClick={() => setActiveIdx(idx)}
+              className={`px-2.5 py-1 rounded-md transition-colors ${
+                idx === activeIdx
+                  ? `bg-${color}-500/10 text-${color}-400`
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      )}
+      <div className="flex items-center gap-3 w-fit px-4 py-2 rounded-xl bg-white/[0.02] border border-white/[0.05] font-mono text-xs text-muted-foreground shadow-2xl backdrop-blur-sm">
+        <span className={`text-${color}-400 font-bold opacity-40`}>$</span>
+        <span className="text-foreground/60 font-medium">{active.cmd}</span>
+        <div className="w-px h-3 bg-white/10 mx-1" />
+        <CopyButton text={active.cmd} />
+      </div>
+    </div>
+  );
+}
+
 function getPackages(t: Translations) {
   return [
   {
@@ -115,7 +154,11 @@ function getPackages(t: Translations) {
     description: t.packages.utoo.description,
     color: "indigo",
     gradient: "from-indigo-500 to-blue-500",
-    install: "npm i -g utoo",
+    install: [
+      { label: "macOS / Linux", cmd: "curl -fsSL https://utoo.land/install | bash" },
+      { label: "Windows", cmd: "irm https://utoo.land/install.ps1 | iex" },
+      { label: "npm", cmd: "npm i -g utoo" },
+    ],
     highlight: {
       icon: FileText,
       title: t.packages.utoo.highlight.title,
@@ -523,12 +566,7 @@ export function Features() {
                         </div>
 
                         {/* Install command - more prominent and integrated */}
-                        <div className="flex items-center gap-3 w-fit px-4 py-2 rounded-xl bg-white/[0.02] border border-white/[0.05] font-mono text-xs text-muted-foreground shadow-2xl backdrop-blur-sm">
-                          <span className={`text-${pkg.color}-400 font-bold opacity-40`}>$</span>
-                          <span className="text-foreground/60 font-medium">{pkg.install}</span>
-                          <div className="w-px h-3 bg-white/10 mx-1" />
-                          <CopyButton text={pkg.install} />
-                        </div>
+                        <InstallBlock install={pkg.install} color={pkg.color} />
                       </div>
                     
                     <p className="text-muted-foreground text-xl leading-relaxed max-w-2xl font-medium tracking-tight">
