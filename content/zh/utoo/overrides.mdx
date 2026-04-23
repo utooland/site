@@ -1,0 +1,155 @@
+# Overrides
+
+import { Callout } from 'nextra/components'
+
+`package.json` 里的 `overrides` 用于强制指定某个依赖的版本——包括你没有直接声明、只是通过其他包间接引入的**传递依赖**。典型用途：
+
+- 修复深层依赖中的 CVE（你没法直接改它）
+- 在上游还没跟进时，钉死某个出问题的传递依赖版本
+- 依赖树里出现同一个包的多个版本，强行归一
+- monorepo 下为不同工作区指定不同版本
+
+utoo 完整支持 npm 的 `overrides` 语法，同时兼容 yarn 的 `resolutions`。
+
+<Callout type="info">
+  overrides 仅从根 `package.json` 读取。发布到 registry 的依赖内部声明的 `overrides` 会被忽略。
+</Callout>
+
+## Catalog 和 overrides 该用哪个
+
+两者都锁版本，但解决的问题不同：
+
+- **[Catalog](/zh/docs/utoo/catalog)** — 你自己的工作区*主动引用*（`"react": "catalog:"`），只影响引用了 catalog 的包。
+- **Overrides** — *强制*覆盖每一次解析（包括深层传递依赖），哪怕是第三方包。
+
+内部版本一致性用 catalog；要修改依赖树里你不直接拥有的部分，用 overrides。
+
+## 简单覆盖
+
+强制树中所有 `lodash` 都是 `4.17.21`：
+
+```json filename="package.json"
+{
+  "overrides": {
+    "lodash": "4.17.21"
+  }
+}
+```
+
+值可以是任何 [package spec](/zh/docs/utoo/specs) — 精确版本、semver 范围、`npm:` 别名、git URL 都行。
+
+## 条件覆盖
+
+只在现有范围匹配时才覆盖，常用于只修某个老版本：
+
+```json filename="package.json"
+{
+  "overrides": {
+    "lodash@^3.0.0": "4.17.21"
+  }
+}
+```
+
+树里匹配 `lodash@^3.0.0` 的会被替换成 `4.17.21`；`lodash@^4.17.0` 不受影响。
+
+## 引用根版本
+
+用 `$<name>` 把 override 与你自己的顶层 `dependencies` / `devDependencies` 同步——只改一处，两边一起变：
+
+```json filename="package.json"
+{
+  "dependencies": {
+    "react": "^18.2.0"
+  },
+  "overrides": {
+    "react": "$react"
+  }
+}
+```
+
+升级根的 `react` 会自动带动树中所有传递引用。
+
+## 嵌套覆盖
+
+把覆盖限定在某个父包下。只有通过 `express` 引入的 `debug` 才会被替换：
+
+```json filename="package.json"
+{
+  "overrides": {
+    "express": {
+      "debug": "4.0.0"
+    }
+  }
+}
+```
+
+嵌套可以任意深。只替换 `express → body-parser → debug` 路径下的 debug：
+
+```json filename="package.json"
+{
+  "overrides": {
+    "express": {
+      "body-parser": {
+        "debug": "3.0.0"
+      }
+    }
+  }
+}
+```
+
+## 覆盖父包自身（`"."`）
+
+在嵌套覆盖中，键 `"."` 表示"替换父包本身，而不是子包"。结合外层键的版本范围，可以把 `express@^4.0.0` 钉到 `4.18.0`：
+
+```json filename="package.json"
+{
+  "overrides": {
+    "express@^4.0.0": {
+      ".": "4.18.0"
+    }
+  }
+}
+```
+
+## 工作区级覆盖
+
+monorepo 中，嵌套在某工作区包名下可以把覆盖限定在该工作区：
+
+```json filename="package.json"
+{
+  "workspaces": ["packages/*"],
+  "overrides": {
+    "workspace-a": {
+      "lodash": "3.0.0"
+    },
+    "workspace-b": {
+      "lodash": "4.0.0"
+    }
+  }
+}
+```
+
+`packages/workspace-a` 内的 `lodash` 解析为 `3.0.0`；`packages/workspace-b` 内的解析为 `4.0.0`。
+
+## Yarn `resolutions` 兼容
+
+从 yarn 项目迁移时，`resolutions` 字段会与 `overrides` 一同解析：
+
+```json filename="package.json"
+{
+  "overrides": {
+    "lodash": "4.17.21"
+  },
+  "resolutions": {
+    "debug": "4.0.0"
+  }
+}
+```
+
+两者同时生效。同一个 key 同时出现时，`overrides` 优先。
+
+## 相关内容
+
+- **[Package Specs](/zh/docs/utoo/specs)** — override 右值可用的所有写法。
+- **[Catalog](/zh/docs/utoo/catalog)** — 工作区主动引用的共享版本。
+- **[从 pnpm 迁移](/zh/docs/utoo/migration)** — `ut install --from pnpm` 会把 `pnpm-workspace.yaml` 中的 `overrides` 迁移过来。

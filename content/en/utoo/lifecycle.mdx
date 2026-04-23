@@ -1,0 +1,73 @@
+# Lifecycle Scripts
+
+utoo runs the same set of npm lifecycle scripts from your `package.json`'s `scripts` field, in the same order npm uses. This page documents which hooks exist, what environment they run in, and how to skip them.
+
+## Install-time hooks
+
+Run by `ut install` (and `ut rebuild`) for the project root:
+
+| Hook | When it runs |
+|------|--------------|
+| `preinstall` | Before dependencies are resolved |
+| `install` | During the install phase |
+| `postinstall` | After all dependencies are installed |
+| `preprepare` | Before `prepare` |
+| `prepare` | After install, and before `pack` / `publish` |
+| `postprepare` | After `prepare` |
+| `prepublish` | Legacy alias for `prepare` (npm-compat) |
+
+Every dependency that declares these hooks also gets them run (subject to [`--ignore-scripts`](#skipping-scripts)). To re-run the dependency install hooks without reinstalling, use [`ut rebuild`](/en/docs/utoo/commands#rebuild).
+
+## Pack / publish hooks
+
+Run by `ut pm-pack` and `ut publish`:
+
+| Hook | When it runs | Triggered by |
+|------|--------------|--------------|
+| `prepack` | Before the tarball is assembled | `ut pm-pack`, `ut publish` |
+| `postpack` | After the tarball is assembled | `ut pm-pack`, `ut publish` |
+| `prepublishOnly` | Before publish (not during `pm-pack`) | `ut publish` |
+| `publish` | During publish | `ut publish` |
+| `postpublish` | After successful publish | `ut publish` |
+
+## Script environment
+
+Every script utoo runs — lifecycle hook or user `scripts` entry — starts with this environment:
+
+| Variable | Value |
+|----------|-------|
+| `PATH` | Augmented with every `node_modules/.bin` on the path up to the project root, so package binaries resolve without `npx`. |
+| `npm_lifecycle_event` | The hook or script name (`install`, `postinstall`, `build`, …). |
+| `INIT_CWD` | Absolute path to the directory where the triggering `ut` command ran. |
+| `npm_package_json` | Absolute path to the current package's `package.json`. |
+| `npm_config_global` | `"true"` when the install is global (`-g`), else empty. |
+
+In addition, when the active registry provides a [binary-mirror config](/en/docs/utoo/registry-acceleration#binary-mirror), utoo injects its `ENVS` block into the environment (e.g. `ELECTRON_MIRROR`, `SASS_BINARY_SITE`). These are visible to dependency install scripts so native modules pick up the right CDN automatically.
+
+## Skipping scripts
+
+Disable all lifecycle scripts with `--ignore-scripts`. It works as a **top-level flag** that applies to whichever subcommand follows, or as a per-command option:
+
+```bash filename="Terminal" copy
+# Global form — applies to any subcommand
+ut --ignore-scripts install
+ut --ignore-scripts rebuild
+
+# Per-command form
+ut install --ignore-scripts
+ut uninstall lodash --ignore-scripts
+```
+
+Use this when installing packages from an untrusted source, or when debugging whether a failure is caused by a script.
+
+## Automatic `node-gyp`
+
+When utoo encounters a dependency that contains a `binding.gyp` file (the marker of a `node-gyp` native module), it checks `PATH` for `node-gyp`. If missing, utoo installs it globally once (`ut install -g node-gyp`) and proceeds. You never need to pre-install `node-gyp` manually.
+
+The check and install run at most once per `ut` invocation — concurrent native-module installs share a single install.
+
+## Related
+
+- [`ut rebuild`](/en/docs/utoo/commands#rebuild) — re-run dependency install hooks.
+- [`ut run`](/en/docs/utoo/commands#run) — run an arbitrary script from `package.json`.
+- [Registry Acceleration](/en/docs/utoo/registry-acceleration#binary-mirror) — for the binary-mirror envs injected into install scripts.

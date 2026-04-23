@@ -270,10 +270,16 @@
 }
 
 /* Fix mobile sidebar and Nextra docs layout */
-body .nextra-mobile-nav,
-body .nextra-sidebar {
+body .nextra-mobile-nav {
   background-color: hsl(var(--background)) !important;
   z-index: 100 !important;
+}
+
+/* Desktop sidebar: keep background but no z-index lift — lifting it above
+   the default stacking context hides floating popovers (language switcher,
+   theme menu) that sit at z-index 30. */
+body .nextra-sidebar {
+  background-color: hsl(var(--background)) !important;
 }
 
 :root {

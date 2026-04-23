@@ -105,18 +105,14 @@ apps/web          ✓  （最后，依赖 ui）
 }
 ```
 
-## Catalog 协议
+完整写法见 [Package Specs](/zh/docs/utoo/specs#workspace)。
 
-使用 `catalog:` 协议在 monorepo 中统一管理依赖版本，参见[配置 - Catalog](/zh/docs/utoo/config#catalog)。
+## 共享版本与覆盖
 
-```json
-{
-  "dependencies": {
-    "react": "catalog:",
-    "debug": "catalog:legacy"
-  }
-}
-```
+两种项目级机制与工作区配合使用：
+
+- **[Catalog](/zh/docs/utoo/catalog)** — 自己的工作区主动引用的共享版本，写法如 `"react": "catalog:"`。
+- **[Overrides](/zh/docs/utoo/overrides)** — 强制覆盖每次解析（包括传递依赖）的版本，也支持按工作区粒度。
 
 ## 交互模式
 

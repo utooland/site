@@ -1,0 +1,105 @@
+# Catalog
+
+import { Callout } from 'nextra/components'
+
+A **catalog** is a central place to declare shared dependency versions inside a monorepo, so every workspace package references the same version without repeating the range. utoo implements the same `catalog:` protocol popularized by pnpm.
+
+<Callout type="info">
+  Catalogs are defined in the project-level `.utoo.toml`. Global `~/.utoo/config.toml` catalogs are ignored.
+</Callout>
+
+## Why use a catalog
+
+Without a catalog, each workspace package restates its version range:
+
+```json filename="packages/ui/package.json"
+{ "dependencies": { "react": "^18.0.0" } }
+```
+```json filename="packages/web/package.json"
+{ "dependencies": { "react": "^18.2.0" } }
+```
+
+Over time these drift, producing duplicated React installs. With a catalog, each workspace writes `"react": "catalog:"` and the version lives in one place.
+
+## Default catalog
+
+Declare a default catalog under `[catalog]` in `.utoo.toml`:
+
+```toml filename=".utoo.toml"
+[catalog]
+react = "^18.0.0"
+typescript = "^5.0.0"
+lodash = "^4.17.21"
+```
+
+Reference it from any workspace `package.json` with the bare `catalog:` protocol:
+
+```json filename="packages/ui/package.json"
+{
+  "dependencies": {
+    "react": "catalog:",
+    "lodash": "catalog:"
+  }
+}
+```
+
+The `catalog:` spec is resolved before the registry lookup, so installs and `package-lock.json` pin to whatever range the catalog declares.
+
+## Named catalogs
+
+When you need more than one version strategy (e.g. a legacy app pinned to React 17), declare named catalogs with `[catalogs.<name>]`:
+
+```toml filename=".utoo.toml"
+[catalogs.legacy]
+debug = "^3.2.7"
+path-to-regexp = "^1.9.0"
+
+[catalogs.react17]
+react = "^17.0.0"
+react-dom = "^17.0.0"
+```
+
+Reference them with `catalog:<name>`:
+
+```json filename="package.json"
+{
+  "dependencies": {
+    "debug": "catalog:legacy",
+    "react": "catalog:react17"
+  }
+}
+```
+
+## Protocol reference
+
+| Spec | Meaning |
+|------|---------|
+| `catalog:` | Default catalog (`[catalog]`) |
+| `catalog:default` | Alias of `catalog:`, also resolves to `[catalog]` |
+| `catalog:<name>` | Named catalog (`[catalogs.<name>]`) |
+
+## Update flow
+
+To bump a shared dependency, edit its range in `.utoo.toml` and re-run `ut install`. utoo re-resolves every `catalog:` reference against the new range and rewrites `package-lock.json`; no edit to each workspace `package.json` is needed.
+
+```diff filename=".utoo.toml"
+ [catalog]
+-lodash = "^4.17.21"
++lodash = "4.17.20"
+```
+```bash filename="Terminal" copy
+ut install
+```
+
+## Scope rules
+
+- `[catalog]` and `[catalogs.*]` are **project-only**. They must live in `.utoo.toml` at the project root.
+- A project config does not merge with the global config for these sections — if present, the local catalog fully replaces any global value. In practice this means the global config should not contain `[catalog]`.
+- Non-catalog settings (`[values]`, `[arrays]`) still follow normal global→project override rules; see [Configuration](/en/docs/utoo/config).
+
+## Related
+
+- **[Overrides](/en/docs/utoo/overrides)** — for forcing a version on deep transitive dependencies you do not directly own, use overrides instead of a catalog.
+- **[Migrating from pnpm](/en/docs/utoo/migration)** — `ut install --from pnpm` converts `pnpm-workspace.yaml` catalogs into `.utoo.toml`.
+- **[Workspaces](/en/docs/utoo/workspaces)** — catalogs are most commonly used alongside workspaces in a monorepo.
+- **[Package Specs](/en/docs/utoo/specs)** — `catalog:` is one of several dependency specifier forms utoo supports.

@@ -1,0 +1,105 @@
+# Catalog
+
+import { Callout } from 'nextra/components'
+
+**Catalog** 是 monorepo 中集中声明共享依赖版本的地方——所有工作区包引用同一个版本号，不用各自重复写范围。utoo 实现了与 pnpm 一致的 `catalog:` 协议。
+
+<Callout type="info">
+  Catalog 定义在项目级 `.utoo.toml` 中。全局 `~/.utoo/config.toml` 里的 catalog 会被忽略。
+</Callout>
+
+## 为什么需要 catalog
+
+不使用 catalog 时，每个工作区包都要各自声明版本范围：
+
+```json filename="packages/ui/package.json"
+{ "dependencies": { "react": "^18.0.0" } }
+```
+```json filename="packages/web/package.json"
+{ "dependencies": { "react": "^18.2.0" } }
+```
+
+时间一长版本就会漂移，安装出多份 React。启用 catalog 后，各包只需写 `"react": "catalog:"`，版本由一处统一维护。
+
+## 默认 catalog
+
+在 `.utoo.toml` 中用 `[catalog]` 声明默认 catalog：
+
+```toml filename=".utoo.toml"
+[catalog]
+react = "^18.0.0"
+typescript = "^5.0.0"
+lodash = "^4.17.21"
+```
+
+在工作区的 `package.json` 中用 `catalog:` 协议引用：
+
+```json filename="packages/ui/package.json"
+{
+  "dependencies": {
+    "react": "catalog:",
+    "lodash": "catalog:"
+  }
+}
+```
+
+`catalog:` 会在进 registry 查询前被解析，因此安装结果和 `package-lock.json` 都会锁定到 catalog 所声明的范围。
+
+## 命名 catalog
+
+当需要同时维护多组版本策略（例如遗留应用继续使用 React 17），用 `[catalogs.<name>]` 声明命名 catalog：
+
+```toml filename=".utoo.toml"
+[catalogs.legacy]
+debug = "^3.2.7"
+path-to-regexp = "^1.9.0"
+
+[catalogs.react17]
+react = "^17.0.0"
+react-dom = "^17.0.0"
+```
+
+用 `catalog:<name>` 引用：
+
+```json filename="package.json"
+{
+  "dependencies": {
+    "debug": "catalog:legacy",
+    "react": "catalog:react17"
+  }
+}
+```
+
+## 协议写法
+
+| 写法 | 含义 |
+|------|------|
+| `catalog:` | 默认 catalog（`[catalog]`） |
+| `catalog:default` | `catalog:` 的别名，同样指向 `[catalog]` |
+| `catalog:<name>` | 命名 catalog（`[catalogs.<name>]`） |
+
+## 版本更新流程
+
+需要升级共享依赖时，只改 `.utoo.toml` 中对应的版本范围，然后重跑 `ut install`。utoo 会按新范围重新解析所有 `catalog:` 引用并重写 `package-lock.json`，无需修改任何工作区的 `package.json`。
+
+```diff filename=".utoo.toml"
+ [catalog]
+-lodash = "^4.17.21"
++lodash = "4.17.20"
+```
+```bash filename="Terminal" copy
+ut install
+```
+
+## 作用域规则
+
+- `[catalog]` 和 `[catalogs.*]` **仅项目级生效**，必须放在项目根的 `.utoo.toml` 中。
+- 项目配置在这两个 section 上不会与全局配置合并——一旦项目中存在这些 section，就完全覆盖全局。实际使用中，全局配置里不应出现 `[catalog]`。
+- 其他段（`[values]`、`[arrays]`）仍然按正常的"全局 → 项目"覆盖规则生效，见 [配置](/zh/docs/utoo/config)。
+
+## 相关内容
+
+- **[Overrides](/zh/docs/utoo/overrides)** — 如果需要强制覆盖你不直接拥有的传递依赖版本，用 overrides 而不是 catalog。
+- **[从 pnpm 迁移](/zh/docs/utoo/migration)** — `ut install --from pnpm` 会把 `pnpm-workspace.yaml` 中的 catalog 转换进 `.utoo.toml`。
+- **[工作区](/zh/docs/utoo/workspaces)** — catalog 最常和 monorepo 工作区配合使用。
+- **[Package Specs](/zh/docs/utoo/specs)** — `catalog:` 是 utoo 支持的众多依赖写法之一。

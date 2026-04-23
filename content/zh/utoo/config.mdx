@@ -2,34 +2,23 @@
 
 import { Callout, Tabs } from 'nextra/components'
 
-utoo 使用 TOML 格式的配置文件，支持全局和项目两个层级。
+utoo 从两处读取 TOML 配置：
 
-## 配置文件
+- **全局** — `~/.utoo/config.toml`，对所有项目生效。
+- **项目** — 项目根目录的 `.utoo.toml`，为当前项目覆盖全局配置。
 
-### 全局配置
+## 文件结构
 
-位置：`~/.utoo/config.toml`
+配置文件可以包含以下 TOML section：
 
-适用于所有项目，存储镜像源、缓存路径等全局偏好。
+| Section | 用途 | 全局 | 项目 |
+|---------|------|:----:|:----:|
+| `[values]` | 标量配置（镜像源、缓存目录、token、自定义命令等）| ✓ | ✓（覆盖全局） |
+| `[arrays]` | 数组配置（由 utoo 自动维护，如镜像源探测缓存）| ✓ | ✓ |
+| `[catalog]` | monorepo 依赖的默认 [catalog](/zh/docs/utoo/catalog) | — | ✓ |
+| `[catalogs.<name>]` | 命名 [catalog](/zh/docs/utoo/catalog) | — | ✓ |
 
-```toml filename="~/.utoo/config.toml"
-[values]
-registry = "https://registry.npmmirror.com"
-cache-dir = "~/.cache/nm"
-legacy-peer-deps = true
-
-[arrays]
-supports-semver = [
-  "https://registry.npmmirror.com",
-  "!https://registry.npmjs.org",
-]
-```
-
-### 项目配置
-
-位置：`.utoo.toml`（项目根目录）
-
-仅对当前项目生效，可覆盖全局配置中的 `[values]` 项，也是 catalog 的定义位置。
+一个综合性的项目级 `.utoo.toml` 示例：
 
 ```toml filename=".utoo.toml"
 [values]
@@ -38,40 +27,33 @@ registry = "https://registry.npmjs.org"
 [catalog]
 react = "^18.0.0"
 typescript = "^5.0.0"
-lodash = "^4.17.21"
 
 [catalogs.legacy]
 debug = "^3.2.7"
-path-to-regexp = "^1.9.0"
 ```
 
-## 文件格式
+## `[values]`
 
-配置文件包含以下段（section）：
-
-### `[values]`
-
-键值对形式的配置项，所有常用设置都在这里。
+标量键值对。通过 `ut config set <key> <value>` 写入（加 `--global` 写入 `~/.utoo/config.toml`）。
 
 | 键 | 默认值 | 描述 |
 |----|--------|------|
-| `registry` | `https://registry.npmmirror.com` | npm 镜像源 URL |
-| `cache-dir` | `~/.cache/nm` | 包缓存目录 |
-| `legacy-peer-deps` | `true` | 启用传统 peer 依赖处理，跳过 peer 依赖解析 |
+| `registry` | 自动选取 | npm 镜像源 URL。未设置时 utoo 会在启动时自动挑选最快可达的镜像。|
+| `cache-dir` | `~/.cache/nm` | 全局包缓存目录 |
+| `legacy-peer-deps` | `true` | 解析依赖时跳过 peer 依赖 |
 | `manifests-concurrency-limit` | `64` | 最大并发 manifest 请求数 |
+| `auth-token:<host>` | — | 每个 registry 的认证 token，由 `ut login` 自动写入 |
+| `<name>.cmd` | — | [自定义命令](#自定义命令) 快捷方式 |
 
-```toml filename="示例"
-[values]
-registry = "https://registry.npmmirror.com"
-cache-dir = "~/.cache/nm"
-legacy-peer-deps = true
-```
+<Callout type="info">
+  `auth-token:<host>` 条目存储在全局配置中，以便跨项目使用。推荐通过 `ut login` / `ut logout` 管理，而不是手动编辑。
+</Callout>
 
-### `[arrays]`
+## `[arrays]`
 
-数组形式的配置项，目前用于缓存镜像源的 semver 支持探测结果。
+数组形式的配置项。目前唯一的条目是镜像源 semver 探测缓存，由 utoo 自动维护：
 
-```toml filename="示例"
+```toml
 [arrays]
 supports-semver = [
   "https://registry.npmmirror.com",
@@ -79,80 +61,33 @@ supports-semver = [
 ]
 ```
 
-- 无前缀表示支持 semver 查询
-- `!` 前缀表示不支持
+- 无前缀 — 镜像源支持 semver 查询（`/lodash/^4`）。
+- `!` 前缀 — 不支持。
 
-此字段由 utoo 自动维护，通常不需要手动编辑。
+多个镜像源的探测结果可以同时缓存，切换 `--registry` 不会触发重新探测。
 
-### `[catalog]`
+## Catalog
 
-<Callout type="info">
-  仅在项目配置（`.utoo.toml`）中生效。
-</Callout>
+`[catalog]` 和 `[catalogs.<name>]` 用于定义 monorepo 内共享的依赖版本。它们仅项目级生效，单独成章：
 
-默认 catalog，集中定义 monorepo 中各包共享的依赖版本：
-
-```toml filename=".utoo.toml"
-[catalog]
-react = "^18.0.0"
-typescript = "^5.0.0"
-lodash = "^4.17.21"
-```
-
-在 `package.json` 中使用 `catalog:` 协议引用：
-
-```json filename="package.json"
-{
-  "dependencies": {
-    "react": "catalog:",
-    "lodash": "catalog:"
-  }
-}
-```
-
-### `[catalogs.<name>]`
-
-<Callout type="info">
-  仅在项目配置（`.utoo.toml`）中生效。
-</Callout>
-
-命名 catalog，用于管理多组版本策略：
-
-```toml filename=".utoo.toml"
-[catalogs.legacy]
-debug = "^3.2.7"
-path-to-regexp = "^1.9.0"
-
-[catalogs.react17]
-react = "^17.0.0"
-react-dom = "^17.0.0"
-```
-
-使用 `catalog:<name>` 引用命名 catalog：
-
-```json filename="package.json"
-{
-  "dependencies": {
-    "debug": "catalog:legacy",
-    "react": "catalog:react17"
-  }
-}
-```
+→ **[Catalog](/zh/docs/utoo/catalog)**
 
 ## 优先级
 
-配置项按以下优先级从高到低生效：
+同一个值在多处出现时，按以下优先级从高到低生效：
 
-1. **CLI 参数**（最高）— `ut install --registry https://...`
+1. **CLI 参数** — `ut install --registry https://...`
 2. **环境变量** — `UTOO_REGISTRY=https://...`
-3. **项目配置** — `.utoo.toml` 中的 `[values]`
-4. **全局配置**（最低）— `~/.utoo/config.toml` 中的 `[values]`
+3. **项目配置** — `.utoo.toml` 的 `[values]`
+4. **全局配置** — `~/.utoo/config.toml` 的 `[values]`
 
 <Callout>
-  Catalog 配置（`[catalog]` / `[catalogs.*]`）仅从项目配置读取，不会从全局配置继承。
+  `[catalog]` / `[catalogs.*]` 不走这条链——它们只从项目配置读取。
 </Callout>
 
 ## 环境变量
+
+### utoo 行为
 
 | 变量 | 描述 |
 |------|------|
@@ -165,17 +100,38 @@ react-dom = "^17.0.0"
 UTOO_REGISTRY=https://registry.npmmirror.com ut install
 ```
 
+### 认证
+
+| 变量 | 描述 |
+|------|------|
+| `NPM_TOKEN` | 当前 registry 的备用认证 token；未存 `auth-token:<host>` 时使用 |
+| `NODE_AUTH_TOKEN` | 同 `NPM_TOKEN`；兼容 GitHub Actions 的 `setup-node` |
+| `GITHUB_TOKEN` | 用于克隆 `git+https://github.com/...` 依赖；私有仓库或提升速率限制时使用 |
+| `GH_TOKEN` | `GITHUB_TOKEN` 的别名；任一个都可用 |
+
+Registry API 的 token 解析顺序：`NPM_TOKEN` → `NODE_AUTH_TOKEN` → 全局配置里的 `auth-token:<host>`。
+
+### 网络代理
+
+| 变量 | 描述 |
+|------|------|
+| `ALL_PROXY` | 所有请求的代理（优先级最高） |
+| `HTTPS_PROXY` | `https://` 请求的代理 |
+| `HTTP_PROXY` | `http://` 请求的代理 |
+
+utoo 同时识别大写和小写形式（如 `https_proxy`）。系统代理的自动检测（macOS / Windows 系统层、Surge / Clash 等工具设置的那种）**已禁用**——只认显式设置的环境变量。
+
 ## CLI 配置管理
 
-通过 `ut config` 命令读写配置：
+通过 `ut config` 命令读写 `[values]` 条目：
 
 <Tabs items={['设置', '获取', '删除', '列出']}>
   <Tabs.Tab>
 ```bash filename="Terminal" copy
-# 设置到项目配置（.utoo.toml）
+# 项目配置（.utoo.toml）
 ut config set registry https://registry.npmmirror.com
 
-# 设置到全局配置（~/.utoo/config.toml）
+# 全局配置（~/.utoo/config.toml）
 ut config set registry https://registry.npmmirror.com --global
 ```
   </Tabs.Tab>
@@ -199,17 +155,19 @@ ut config list
 
 ## 自定义命令
 
-为常用命令定义快捷方式：
+任何以 `.cmd` 结尾的 `[values]` 键都会注册成一个顶层快捷方式，`ut <name>` 会执行对应命令串：
 
 ```bash filename="Terminal" copy
-# 设置自定义命令
+# 注册快捷方式
 ut config set hi.cmd "utx cowsay hi"
 ut config set lint.cmd "ut run lint"
 
-# 运行自定义命令
+# 调用
 ut hi
 ut lint
 ```
+
+由于它们属于 `[values]`，可以用 `--global` 一次写入全局，所有项目都能用。
 
 ## 镜像源推荐
 

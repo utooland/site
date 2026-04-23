@@ -62,30 +62,11 @@ ut install --from pnpm
 | `--legacy-peer-deps` | 传统 peer 依赖处理 |
 | `--from <pm>` | 从其他包管理器迁移（支持 `pnpm`） |
 
-**从 pnpm 迁移**
+**参考**
 
-使用 `--from pnpm` 可以自动将 pnpm 项目迁移到 utoo：
-
-```bash filename="Terminal" copy
-ut install --from pnpm
-```
-
-该命令读取 `pnpm-workspace.yaml`，自动完成以下转换：
-- `packages` → `package.json` 的 `workspaces` 字段
-- `overrides` → `package.json` 的 `overrides` 字段
-- `catalog` / `catalogs` → `.utoo.toml` 的 catalog 配置
-
-迁移会保留已有的 `package.json` 和 `.utoo.toml` 配置，仅合并新增字段。
-
-**版本规范**
-
-添加包时，utoo 会规范化版本：
-
-| 输入 | package.json 中的结果 |
-|------|----------------------|
-| `lodash` | `"^4.17.21"` (最新版) |
-| `lodash@^4.17.0` | `"^4.17.0"` (保留范围) |
-| `lodash@4.17.21` | `"4.17.21"` (精确版本) |
+- [Package Specs](/zh/docs/utoo/specs) — 全部依赖写法（`npm:`、`workspace:`、`catalog:`、`file:`、`http(s):`、git、github:），以及新增依赖时的版本规范化规则。
+- [Node Runtime](/zh/docs/utoo/runtime) — 在 `package.json` 里声明 `engines.install-node`，`ut install` 会同时装好匹配的 Node 二进制。
+- [从 pnpm 迁移](/zh/docs/utoo/migration) — `--from pnpm` 的详细说明。
 
 ## uninstall
 
@@ -432,10 +413,7 @@ ut rb
 
 **执行操作**
 
-重新运行 node_modules 中所有包的安装脚本，包括：
-- `preinstall`
-- `install`
-- `postinstall`
+为 `node_modules` 中每个包重跑依赖的安装 hook（`preinstall`、`install`、`postinstall`）。完整 hook 列表与脚本运行环境见 [Lifecycle Scripts](/zh/docs/utoo/lifecycle)。
 
 **使用场景**
 
@@ -564,28 +542,7 @@ ut ping https://registry.npmmirror.com
 - 成功: `PONG {延迟}ms (supports-semver: yes/no)`
 - 失败: `FAIL registry did not respond ({延迟}ms)`
 
-其中 `supports-semver` 表示该镜像源是否支持语义化版本查询，即直接通过 URL 进行范围解析，例如：
-
-```
-https://registry.npmmirror.com/lodash/^4
-```
-
-目前 cnpm 相关镜像（如 npmmirror）支持此特性，npm 官方源不支持。
-
-utoo 会自动探测镜像源的 semver 支持情况，并将结果缓存到全局配置文件 `~/.utoo/config.toml` 中，避免重复探测：
-
-```toml filename="~/.utoo/config.toml"
-[arrays]
-supports-semver = [
-  "https://registry.npmmirror.com",
-  "!https://some-private.registry",
-]
-```
-
-- 无前缀表示支持（如 `"https://registry.npmmirror.com"`）
-- `!` 前缀表示不支持（如 `"!https://some-private.registry"`）
-
-多个镜像源的探测结果会同时缓存，切换镜像源时不会重复探测。
+其中 `supports-semver` 表示该镜像源是否支持服务端版本范围查询（`/pkg/^range` URL 形式）。它能带来什么加速见 [镜像源加速](/zh/docs/utoo/registry-acceleration#semver-查询加速)，磁盘缓存的格式见 [配置](/zh/docs/utoo/config#arrays)。
 
 **使用场景**
 

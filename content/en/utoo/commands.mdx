@@ -62,30 +62,11 @@ ut install --from pnpm
 | `--legacy-peer-deps` | Legacy peer dependency handling |
 | `--from <pm>` | Migrate from another package manager (supports `pnpm`) |
 
-**Migrating from pnpm**
+**See also**
 
-Use `--from pnpm` to automatically migrate a pnpm project to utoo:
-
-```bash filename="Terminal" copy
-ut install --from pnpm
-```
-
-This command reads `pnpm-workspace.yaml` and performs the following conversions:
-- `packages` → `workspaces` field in `package.json`
-- `overrides` → `overrides` field in `package.json`
-- `catalog` / `catalogs` → catalog configuration in `.utoo.toml`
-
-The migration preserves existing `package.json` and `.utoo.toml` configurations, only merging new fields.
-
-**Version Specification**
-
-When adding packages, utoo normalizes versions:
-
-| Input | Result in package.json |
-|-------|------------------------|
-| `lodash` | `"^4.17.21"` (latest) |
-| `lodash@^4.17.0` | `"^4.17.0"` (range preserved) |
-| `lodash@4.17.21` | `"4.17.21"` (exact version) |
+- [Package Specs](/en/docs/utoo/specs) — full list of dependency specifier forms (`npm:`, `workspace:`, `catalog:`, `file:`, `http(s):`, git, github:), and how versions are normalized when added.
+- [Node Runtime](/en/docs/utoo/runtime) — declaring `engines.install-node` in `package.json` makes `ut install` install a matching Node binary alongside dependencies.
+- [Migrating from pnpm](/en/docs/utoo/migration) — details on `--from pnpm`.
 
 ## uninstall
 
@@ -432,10 +413,7 @@ ut rb
 
 **What It Does**
 
-Re-runs install scripts for all packages in node_modules, including:
-- `preinstall`
-- `install`
-- `postinstall`
+Re-runs the dependency install hooks (`preinstall`, `install`, `postinstall`) for every package in `node_modules`. See [Lifecycle Scripts](/en/docs/utoo/lifecycle) for the full list of hooks and the script environment.
 
 **Use Cases**
 
@@ -564,28 +542,7 @@ ut ping https://registry.npmmirror.com
 - Success: `PONG {latency}ms (supports-semver: yes/no)`
 - Failure: `FAIL registry did not respond ({latency}ms)`
 
-The `supports-semver` field indicates whether the registry supports semantic versioning queries, i.e. resolving version ranges directly via URL, for example:
-
-```
-https://registry.npmmirror.com/lodash/^4
-```
-
-Currently cnpm-based registries (e.g. npmmirror) support this feature, while the official npm registry does not.
-
-utoo automatically probes semver support for each registry and caches the result in the global config file `~/.utoo/config.toml` to avoid repeated probing:
-
-```toml filename="~/.utoo/config.toml"
-[arrays]
-supports-semver = [
-  "https://registry.npmmirror.com",
-  "!https://some-private.registry",
-]
-```
-
-- No prefix means supported (e.g. `"https://registry.npmmirror.com"`)
-- `!` prefix means not supported (e.g. `"!https://some-private.registry"`)
-
-Probe results for multiple registries are cached simultaneously, so switching registries (e.g. `ut install --registry=xxx`) won't trigger a re-probe.
+`supports-semver` reports whether the registry supports server-side version-range queries (the `/pkg/^range` URL form). See [Registry Acceleration](/en/docs/utoo/registry-acceleration#semver-query-acceleration) for what that unlocks and [Configuration](/en/docs/utoo/config#arrays) for the on-disk cache format.
 
 **Use Cases**
 

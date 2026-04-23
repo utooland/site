@@ -21,14 +21,14 @@ Run this command in the project root containing `pnpm-workspace.yaml`. utoo will
 | pnpm field | utoo field | Description |
 |------------|------------|-------------|
 | `packages` | `workspaces` | Workspace glob patterns |
-| `overrides` | `overrides` | Dependency overrides |
+| `overrides` | `overrides` | Dependency overrides — see [Overrides](/en/docs/utoo/overrides) for syntax |
 
 ### pnpm-workspace.yaml → .utoo.toml
 
 | pnpm field | utoo section | Description |
 |------------|--------------|-------------|
-| `catalog` | `[catalog]` | Default catalog |
-| `catalogs.<name>` | `[catalogs.<name>]` | Named catalogs |
+| `catalog` | `[catalog]` | Default catalog — see [Catalog](/en/docs/utoo/catalog) |
+| `catalogs.<name>` | `[catalogs.<name>]` | Named catalogs — see [Catalog](/en/docs/utoo/catalog#named-catalogs) |
 
 ## Example
 

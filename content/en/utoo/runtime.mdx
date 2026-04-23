@@ -1,0 +1,62 @@
+# Node Runtime
+
+import { Callout } from 'nextra/components'
+
+utoo can install the Node.js binary itself as part of `ut install`, so projects don't depend on a system-wide Node being present at the right version. Opt in by declaring `engines.install-node` in `package.json`.
+
+## Usage
+
+```json filename="package.json"
+{
+  "engines": {
+    "install-node": "20"
+  }
+}
+```
+
+Any version range that npm accepts works: `"20"`, `"20.11.1"`, `"^20.0.0"`. Run `ut install` and a Node binary matching the range lands in `node_modules`, ready for `package.json` scripts to pick up.
+
+## Platform expansion
+
+utoo translates `engines.install-node` into six platform-specific entries under `optionalDependencies`:
+
+| Package | Platform | Arch |
+|---------|----------|------|
+| `node-darwin-x64` | macOS | x64 |
+| `node-bin-darwin-arm64` | macOS | arm64 |
+| `node-linux-x64` | Linux | x64 |
+| `node-linux-arm64` | Linux | arm64 |
+| `node-win-x64` | Windows | x64 |
+| `node-win-x86` | Windows | x86 |
+
+Because these are listed as `optionalDependencies`, npm's standard rule applies: only the package whose `os`/`cpu` match the current platform is actually installed.
+
+<Callout>
+  Two distributions of Apple-Silicon Node coexist: `node-darwin-arm64` only publishes for Node 14 and earlier, while `node-bin-darwin-arm64` publishes for Node 16 and later. utoo uses `node-bin-darwin-arm64` since Node 14 is past end-of-life.
+</Callout>
+
+## `install-node` vs. `engines.node`
+
+These fields solve different problems:
+
+| Field | Role |
+|-------|------|
+| `engines.node` | **Declarative constraint.** Asserts what Node version the code is tested against; package managers may warn or fail installs on a mismatch. Does **not** install Node. |
+| `engines.install-node` | **Imperative install.** Tells utoo to download and install the Node binary that satisfies the range. |
+
+They compose: use `engines.node` for the compatibility contract, and `engines.install-node` to make sure the installed copy actually satisfies it.
+
+```json filename="package.json"
+{
+  "engines": {
+    "node": ">=20.0.0",
+    "install-node": "20.11.1"
+  }
+}
+```
+
+## Use cases
+
+- **CI without a separate "install Node" step.** `ut install` is enough; no `setup-node` / `nvm install`.
+- **Team version consistency.** Pinning `install-node` makes every developer and every machine use the same Node, independent of `nvm` / `fnm` / system install.
+- **Bootstrapping from utoo itself.** utoo's CLI installer (`curl … | bash`) doesn't require Node to be installed first — combined with `install-node`, a clean machine can go from no-Node to a fully installed project in two commands.
