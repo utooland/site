@@ -2,7 +2,7 @@
 
 import { Callout, Tabs } from 'nextra/components'
 
-`@utoo/pack` 可通过 `utoopack.json`、`utoopack.config.mjs` 或编程 API 配置。
+`@utoo/pack` 支持通过 `utoopack.json`、`utoopack.config.mjs` 和 Node API 进行配置。
 
 ## 配置文件
 
@@ -25,48 +25,87 @@ import { Callout, Tabs } from 'nextra/components'
     "filename": "[name].[contenthash:8].js",
     "chunkFilename": "[name].[contenthash:8].js",
     "clean": true
-  },
-  "sourceMaps": true
+  }
 }
 ```
   </Tabs.Tab>
   <Tabs.Tab>
-```javascript filename="utoopack.config.mjs"
+```js filename="utoopack.config.mjs"
 import { defineConfig } from '@utoo/pack';
 
 export default defineConfig({
-  mode: "production",
+  mode: 'development',
   entry: [
     {
-      import: "./src/index.ts",
-      html: { template: "./index.html" }
-    }
+      import: './src/index.tsx',
+      html: {
+        template: './index.html',
+        title: 'Utoo App',
+      },
+    },
   ],
   output: {
-    path: "./dist",
-    filename: "[name].[contenthash:8].js",
-    clean: true
+    path: './dist',
+    clean: true,
   },
-  sourceMaps: true
+  devServer: {
+    host: '0.0.0.0',
+    port: 3000,
+    hot: true,
+  },
+  sourceMaps: true,
 });
 ```
   </Tabs.Tab>
 </Tabs>
 
-## 核心选项
+如果配置完全可 JSON 序列化，推荐使用 `utoopack.json`。如果需要类型提示，或者要在 JS 里组合配置，推荐使用 `utoopack.config.*`。配置文件形式还可以承载 `UserConfig` 里的运行时字段，例如 `processEnv`、`watch`、`dev`、`buildId`、`tracing`、`projectPath` 和 `rootPath`。
 
-**mode**
+## 顶层选项
 
-构建模式，影响优化和默认值。
+| 选项 | 描述 |
+|------|------|
+| `mode` | 构建模式：`development` 或 `production` |
+| `target` | 目标运行环境 |
+| `entry` | 入口、HTML 生成和库输出 |
+| `output` | 输出目录、文件名模板、资源复制 |
+| `resolve` | alias 和扩展名解析 |
+| `define` | 构建时常量替换 |
+| `provider` | 自动注入模块，类似 Webpack `ProvidePlugin` |
+| `externals` | 将依赖排除出 bundle |
+| `module` | 自定义模块规则和 loader |
+| `styles` | CSS Modules、Less、Sass、PostCSS、Emotion、styled-components、styled-jsx |
+| `images` | 图片内联行为 |
+| `react` | JSX runtime 和 React transform 相关配置 |
+| `optimization` | 压缩、tree shaking、split chunks、import 转换 |
+| `devServer` | host、port、HTTPS、HMR、proxy |
+| `sourceMaps` | 是否生成 source map |
+| `stats` | 是否输出构建统计信息 |
+| `persistentCaching` | 是否跨次构建复用缓存 |
+| `nodePolyfill` | 浏览器构建时是否补齐 Node.js 内置能力 |
+| `experimental` | 包里暴露的实验性选项 |
+
+## 核心配置
+
+### mode 和 target
+
+`mode` 会影响默认优化策略，`target` 用来指定输出运行环境。
+
+```json
+{
+  "mode": "production",
+  "target": "browser"
+}
+```
 
 | 值 | 描述 |
 |----|------|
 | `development` | 更快构建，更好调试，启用 HMR |
 | `production` | 优化输出，压缩，tree shaking |
 
-**entry**
+### entry
 
-定义应用入口。
+定义应用入口、HTML 生成和库输出。
 
 ```json
 {
@@ -74,38 +113,42 @@ export default defineConfig({
     {
       "name": "main",
       "import": "./src/index.ts",
+      "library": {
+        "name": "MyBundle",
+        "export": ["default"]
+      },
       "html": {
         "template": "./index.html",
         "filename": "index.html",
         "title": "My App",
         "inject": "body",
-        "scriptLoading": "defer"
-      },
-      "library": {
-        "name": "MyLib",
-        "export": ["default"]
+        "scriptLoading": "module"
       }
     }
   ]
 }
 ```
 
-**output**
+### output
 
-配置输出设置。
+配置输出目录、文件命名、静态资源复制和运行时资源路径。
 
 ```json
 {
   "output": {
     "path": "./dist",
+    "type": "standalone",
     "filename": "[name].[contenthash:8].js",
     "chunkFilename": "[name].[contenthash:8].js",
+    "cssFilename": "[name].[contenthash:8].css",
+    "cssChunkFilename": "[name].[contenthash:8].css",
+    "assetModuleFilename": "assets/[name].[contenthash:8][ext]",
     "publicPath": "/",
-    "clean": true,
-    "copy": ["public"],
-    "type": "standalone",
+    "crossOriginLoading": "anonymous",
+    "copy": ["./public"],
     "chunkLoadingGlobal": "TURBOPACK",
-    "entryRootExport": "MyApp"
+    "clean": true,
+    "entryRootExport": "AppExports"
   }
 }
 ```
@@ -113,23 +156,20 @@ export default defineConfig({
 | 选项 | 描述 |
 |------|------|
 | `path` | 输出目录 |
+| `type` | 输出类型：`standalone` 或 `export` |
 | `filename` | 入口 chunk 文件名模板 |
 | `chunkFilename` | 非入口 chunk 文件名模板 |
-| `cssFilename` | CSS 文件名模板 |
-| `cssChunkFilename` | 非入口 CSS chunk 文件名模板 |
-| `assetModuleFilename` | 资源模块文件名模板 |
+| `cssFilename` | 主 CSS 文件名模板 |
+| `cssChunkFilename` | CSS chunk 文件名模板 |
+| `assetModuleFilename` | 资源文件名模板 |
 | `publicPath` | 资源的公共 URL 路径 |
+| `crossOriginLoading` | 懒加载 chunk 的 crossorigin 配置 |
+| `copy` | 将静态文件复制到输出目录 |
+| `chunkLoadingGlobal` | 运行时加载 chunk 使用的全局变量名 |
 | `clean` | 构建前清理输出目录 |
-| `copy` | 复制静态文件（字符串路径或 `{ from, to }` 对象） |
-| `type` | 输出类型：`standalone` 或 `export` |
-| `chunkLoadingGlobal` | 加载 chunk 的全局变量名 |
-| `entryRootExport` | 将入口导出暴露到全局作用域 |
+| `entryRootExport` | 将入口导出挂到 `window` / `globalThis` 上 |
 
-**target**
-
-目标环境字符串（如 `"web"`、`"node"`）。
-
-**define**
+### define
 
 构建时变量替换。
 
@@ -142,7 +182,20 @@ export default defineConfig({
 }
 ```
 
-**externals**
+### provider
+
+自动注入模块，作用类似 Webpack 的 `ProvidePlugin`。
+
+```json
+{
+  "provider": {
+    "$": "jquery",
+    "Buffer": ["buffer", "Buffer"]
+  }
+}
+```
+
+### externals
 
 从打包中排除依赖。
 
@@ -150,14 +203,18 @@ export default defineConfig({
 {
   "externals": {
     "react": "React",
-    "react-dom": "ReactDOM"
+    "react-dom": "ReactDOM",
+    "lodash-es": {
+      "root": "_",
+      "type": "global"
+    }
   }
 }
 ```
 
-支持简单字符串全局变量、UMD 配置和高级子路径配置。
+`externals` 支持简单字符串全局变量，也支持 script/commonjs/esm/global 形式以及更复杂的子路径配置。
 
-**resolve**
+### resolve
 
 模块解析配置。
 
@@ -173,58 +230,98 @@ export default defineConfig({
 }
 ```
 
-**module**
+### module
 
-自定义 loader 的模块规则和条件。
+定义基于 loader 的模块规则。规则对象支持 `loaders`、`condition` 和 `type` 等字段。
 
 ```json
 {
   "module": {
     "rules": {
-      "*.svg": "svgr-loader",
-      "*.mdx": [
-        { "loader": "mdx-loader", "options": {} }
+      "*.md": ["raw-loader"],
+      "*.svg": [
+        {
+          "loaders": [
+            {
+              "loader": "@svgr/webpack",
+              "options": {
+                "icon": true
+              }
+            }
+          ]
+        }
       ]
-    },
-    "conditions": {
-      "*.js": {
-        "path": { "type": "glob", "value": "**/node_modules/**" }
-      }
     }
   }
 }
 ```
 
-| 选项 | 描述 |
-|------|------|
-| `rules` | 将 glob 模式映射到 loader |
-| `conditions` | 按路径（glob 或 regex）配置 loader 条件 |
+### styles
 
-**provider**
-
-自动提供模块（类似 webpack ProvidePlugin）。
+配置内置样式处理能力。
 
 ```json
 {
-  "provider": {
-    "$": "jquery",
-    "Buffer": ["buffer", "Buffer"]
+  "styles": {
+    "autoCssModules": true,
+    "postcss": {},
+    "less": {
+      "implementation": "less"
+    },
+    "sass": {
+      "implementation": "sass"
+    },
+    "inlineCss": {
+      "injectType": "styleTag"
+    },
+    "emotion": {
+      "autoLabel": "dev-only"
+    },
+    "styledComponents": {
+      "displayName": true,
+      "ssr": true
+    },
+    "styledJsx": {
+      "useLightningcss": true
+    }
   }
 }
 ```
 
-## 优化
+### images
+
+配置图片内联行为。
+
+```json
+{
+  "images": {
+    "inlineLimit": 8192
+  }
+}
+```
+
+### react
+
+React transform 相关配置。
+
+```json
+{
+  "react": {
+    "runtime": "automatic",
+    "importSource": "react",
+    "absoluteSourceFilename": false
+  }
+}
+```
+
+### optimization
 
 ```json
 {
   "optimization": {
     "minify": true,
     "treeShaking": true,
-    "concatenateModules": true,
     "moduleIds": "deterministic",
-    "removeConsole": true,
-    "removeUnusedExports": true,
-    "removeUnusedImports": true,
     "splitChunks": {
       "js": {
         "minChunkSize": 50000,
@@ -238,124 +335,54 @@ export default defineConfig({
         "preventFullImport": true
       }
     },
-    "packageImports": ["antd", "lodash-es"],
-    "transpilePackages": ["my-local-package"],
-    "nestedAsyncChunking": true,
-    "wasmAsAsset": false
+    "packageImports": ["lodash-es"],
+    "transpilePackages": ["shared-ui"],
+    "removeConsole": {
+      "exclude": ["error"]
+    },
+    "concatenateModules": true,
+    "removeUnusedExports": true,
+    "removeUnusedImports": true
   }
 }
 ```
 
-| 选项 | 描述 |
-|------|------|
-| `minify` | 启用代码压缩 |
-| `treeShaking` | 移除未使用代码 |
-| `concatenateModules` | 模块合并（scope hoisting） |
-| `moduleIds` | ID 策略：`named` 或 `deterministic` |
-| `noMangling` | 禁用名称混淆 |
-| `removeConsole` | 移除 console 语句（`true` 或 `{ exclude: ["error"] }`） |
-| `removeUnusedExports` | 移除未使用的导出 |
-| `removeUnusedImports` | 移除未使用的导入 |
-| `splitChunks` | Chunk 分割配置 |
-| `modularizeImports` | 转换 barrel 导入（类似 `babel-plugin-import`） |
-| `packageImports` | 要优化导入的包 |
-| `transpilePackages` | 转译指定包 |
-| `nestedAsyncChunking` | 启用嵌套异步 chunking |
-| `wasmAsAsset` | 将 WASM 打包为资源 |
+当前包还暴露了 `compress`、`noMangling`、`nestedAsyncChunking` 和 `wasmAsAsset` 等优化项。
 
-## 样式
+### devServer
 
-```json
-{
-  "styles": {
-    "autoCssModules": true,
-    "emotion": true,
-    "styledComponents": true,
-    "styledJsx": true,
-    "less": { "implementation": "less" },
-    "sass": { "implementation": "sass" },
-    "inlineCss": {
-      "injectType": "styleTag"
-    }
-  }
-}
-```
-
-| 选项 | 描述 |
-|------|------|
-| `autoCssModules` | 自动检测并应用 CSS Modules |
-| `emotion` | 启用 @emotion/react 转换 |
-| `styledComponents` | 启用 styled-components 转换（`true` 或配置对象） |
-| `styledJsx` | 启用 styled-jsx 转换（`true` 或 `{ useLightningcss: true }`） |
-| `less` | Less 预处理器配置（`implementation` 及 Less 选项） |
-| `sass` | Sass/SCSS 预处理器配置（`implementation` 及 Sass 选项） |
-| `inlineCss` | 通过 style 标签注入 CSS（`insert`、`injectType`） |
-
-## 图片
-
-```json
-{
-  "images": {
-    "inlineLimit": 10000
-  }
-}
-```
-
-| 选项 | 描述 |
-|------|------|
-| `inlineLimit` | 小于此大小（字节）的图片内联为 base64 |
-
-## 开发服务器
+本地仓库当前支持的字段包括 `hot`、`host`、`port`、`https` 和 `proxy`。
 
 ```json
 {
   "devServer": {
     "hot": true,
+    "host": "0.0.0.0",
     "port": 3000,
-    "host": "localhost",
-    "https": false
+    "https": false,
+    "proxy": [
+      {
+        "context": ["/api"],
+        "target": "http://localhost:7001",
+        "changeOrigin": true,
+        "pathRewrite": {
+          "^/api": ""
+        }
+      }
+    ]
   }
 }
 ```
-
-| 选项 | 描述 |
-|------|------|
-| `hot` | 启用热模块替换 |
-| `port` | 监听端口 |
-| `host` | 绑定主机 |
-| `https` | 使用 HTTPS |
-
-## React
-
-```json
-{
-  "react": {
-    "runtime": "automatic",
-    "importSource": "react"
-  }
-}
-```
-
-| 选项 | 描述 |
-|------|------|
-| `runtime` | JSX 运行时：`automatic` 或 `classic` |
-| `importSource` | JSX 导入来源（默认：`react`） |
-
-
-
 
 ## 高级选项
 
 | 选项 | 类型 | 描述 |
 |------|------|------|
-| `sourceMaps` | `boolean` | 启用 source maps |
+| `sourceMaps` | `boolean` | 启用 source map |
 | `stats` | `boolean` | 启用构建统计输出 |
-| `nodePolyfill` | `boolean` | 为浏览器 polyfill Node.js 内置模块 |
+| `nodePolyfill` | `boolean` | 为浏览器补齐 Node.js 内置模块 |
 | `persistentCaching` | `boolean` | 启用持久化构建缓存 |
-| `pluginRuntimeStrategy` | `string` | 插件执行方式：`workerThreads` 或 `childProcesses` |
-
-
-
+| `experimental` | `object` | 实验性包配置 |
 
 ## 编程 API
 
@@ -377,15 +404,18 @@ await build({
 ```javascript
 const { serve } = require('@utoo/pack');
 
-await serve(bundleOptions, projectPath, rootPath, {
-  logServerInfo: true,
-  port: 3000
+await serve({
+  config: {
+    mode: "development",
+    entry: [{ import: "./src/index.ts" }],
+    output: { path: "./dist" },
+    devServer: { port: 3000, hot: true }
+  }
 });
 ```
   </Tabs.Tab>
   <Tabs.Tab>
 ```javascript
-// utoopack.config.mjs
 import { defineConfig } from '@utoo/pack';
 
 export default defineConfig({
