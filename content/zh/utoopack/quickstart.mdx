@@ -1,0 +1,153 @@
+# 快速开始
+import { Tabs } from 'nextra/components'
+
+目前 utoopack 提供了多种使用方式:
+
+- 单独的 cli 使用模式
+- 在 webpack 项目中使用 webpack 兼容模式
+- 在蚂蚁开源框架 [`umi`](https://github.com/umijs/umi)、[`dumi`](https://github.com/umijs/dumi)、[`father`](https://github.com/umijs/father) 中直接使用
+
+## 独立使用
+
+```bash
+mkdir utoo-demo && cd utoo-demo
+ut init
+```
+
+`@utoo/pack` 提供了单独的构建 CLI:
+
+```bash
+ut i @utoo/pack @utoo/pack-cli react react-dom -S 
+ut i @types/react @type/react-dom -D
+```
+
+项目下新建一个 utoopack 构建配置文件 `utoopack.config.mjs`:
+
+```ts filename="utoopack.config.mjs"
+import { defineConfig } from '@utoo/pack';
+
+export default defineConfig({
+  entry: [{
+    import: './src/index.tsx',
+    html: { template: 'index.html' }
+  }]
+})
+```
+
+模版 html 文件:
+
+```html filename="index.html"
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Utoopack Example</title>
+</head>
+
+<body>
+    <div id="root"></div>
+</body>
+</html>
+```
+
+然后新建一个 `src/index.tsx` 文件:
+
+```ts filename="src/index.tsx"
+import ReactDOM from "react-dom/client";
+
+ReactDOM.createRoot(document.getElementById("root")!).render(
+  <div>Hello, Utoo</div>,
+);
+```
+
+## webpack 兼容模式
+
+`@utoo/pack` 目前提供了对于现有 webpack 项目直接迁移的模式，你可以通过简单的方式将现成的 webpack 项目迁移到 utoopack 构建上来:
+
+安装 `@utoo/pack` 相关依赖:
+
+```bash
+ut i @utoo/pack @utoo/pack-cli -S
+```
+
+修改 `dev`、`build` 构建脚本:
+
+```json filename="package.json"
+{
+  "script": {
+    "build": "up build --webpack",
+    "dev": "up dev --webpack"
+  }
+}
+```
+
+`@utoo/pack` 会自动读取项目本地的 webpack 构建配置文件 `webpack.config.js` 并自动转换成 utoopack 的构建配置内容。
+
+## Node API 使用
+
+`@utoo/pack` 也提供了单独的 Node API，具体参考以下方式:
+
+<Tabs items={['Production Build', 'Development Server']}>
+  <Tabs.Tab>
+```javascript filename="build.js"
+const { build } = require('@utoo/pack');
+
+async function runBuild() {
+  await build({
+    config: {
+      entry: [
+        {
+          import: "./src/index.ts",
+          html: {
+            template: "./index.html"
+          }
+        }
+      ],
+      output: {
+        clean: true
+      },
+      sourceMaps: true
+    }
+  });
+}
+
+runBuild();
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```javascript filename="dev.js"
+const { serve } = require('@utoo/pack');
+
+async function startDev() {
+  await serve({
+    config: {
+      entry: [
+        {
+          import: "./src/index.ts",
+          html: {
+            template: "./index.html"
+          }
+        }
+      ],
+      output: {
+        clean: true
+      },
+      sourceMaps: true,
+    }
+  });
+}
+
+startDev();
+```
+  </Tabs.Tab>
+</Tabs>
+
+
+## 更多框架中使用
+
+目前 utoopack 已经在多个蚂蚁开源中集成，可以直接在各个框架中开启:
+
+- umi: https://umijs.org/docs/api/config#utoopack
+- dumi: https://d.umijs.org/config#utoopack
+- father: https://github.com/umijs/father/blob/master/docs/config.md#bundler
