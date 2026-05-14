@@ -1,0 +1,155 @@
+# Quick Start
+
+import { Tabs } from 'nextra/components'
+
+Utoopack currently supports multiple usage modes:
+
+- Standalone CLI mode
+- Webpack compatibility mode for Webpack projects
+- Direct usage in Ant open source frameworks such as [`umi`](https://github.com/umijs/umi), [`dumi`](https://github.com/umijs/dumi), and [`father`](https://github.com/umijs/father)
+
+## Standalone Usage
+
+```bash
+mkdir utoo-demo && cd utoo-demo
+ut init
+```
+
+`@utoo/pack` provides a standalone build CLI:
+
+```bash
+ut i @utoo/pack @utoo/pack-cli react react-dom -S 
+ut i @types/react @types/react-dom -D
+```
+
+Create a utoopack build configuration file named `utoopack.config.mjs` in your project:
+
+```ts filename="utoopack.config.mjs"
+import { defineConfig } from '@utoo/pack';
+
+export default defineConfig({
+  entry: [{
+    import: './src/index.tsx',
+    html: { template: 'index.html' }
+  }]
+})
+```
+
+Create the template HTML file:
+
+```html filename="index.html"
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Utoopack Example</title>
+</head>
+
+<body>
+    <div id="root"></div>
+</body>
+</html>
+```
+
+Then create a `src/index.tsx` file:
+
+```ts filename="src/index.tsx"
+import ReactDOM from "react-dom/client";
+
+ReactDOM.createRoot(document.getElementById("root")!).render(
+  <div>Hello, Utoo</div>,
+);
+```
+
+## Webpack Compatibility Mode
+
+`@utoo/pack` currently provides a mode for migrating existing Webpack projects directly. You can move an existing Webpack project to utoopack with a simple setup:
+
+Install the related `@utoo/pack` dependencies:
+
+```bash
+ut i @utoo/pack @utoo/pack-cli -S
+```
+
+Update the `dev` and `build` scripts:
+
+```json filename="package.json"
+{
+  "scripts": {
+    "build": "up build --webpack",
+    "dev": "up dev --webpack"
+  }
+}
+```
+
+`@utoo/pack` automatically reads the local Webpack build configuration file `webpack.config.js` and converts it into utoopack build configuration.
+
+## Node API Usage
+
+`@utoo/pack` also provides a standalone Node API. Use it as follows:
+
+<Tabs items={['Production Build', 'Development Server']}>
+  <Tabs.Tab>
+```javascript filename="build.js"
+const { build } = require('@utoo/pack');
+
+async function runBuild() {
+  await build({
+    config: {
+      entry: [
+        {
+          import: "./src/index.ts",
+          html: {
+            template: "./index.html"
+          }
+        }
+      ],
+      output: {
+        clean: true
+      },
+      sourceMaps: true
+    }
+  });
+}
+
+runBuild();
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```javascript filename="dev.js"
+const { serve } = require('@utoo/pack');
+
+async function startDev() {
+  await serve({
+    config: {
+      entry: [
+        {
+          import: "./src/index.ts",
+          html: {
+            template: "./index.html"
+          }
+        }
+      ],
+      output: {
+        clean: true
+      },
+      sourceMaps: true,
+    }
+  });
+}
+
+startDev();
+```
+  </Tabs.Tab>
+</Tabs>
+
+## Usage in More Frameworks
+
+Utoopack is already integrated into multiple Ant open source frameworks and can be enabled directly in each framework:
+
+- umi: https://umijs.org/docs/api/config#utoopack
+- dumi: https://d.umijs.org/config#utoopack
+- father: https://github.com/umijs/father/blob/master/docs/config.md#bundler
+
+The Ant Design Pro v6 template project also uses utoopack as its default bundler. See: https://github.com/ant-design/ant-design-pro
