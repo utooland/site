@@ -1,0 +1,203 @@
+# @utoo/pack：基于 Turbopack 的下一代构建工具
+
+<img src="/blog/utoopack-intro/hero.png" width="674" alt="@utoo/pack" />
+
+## 前言
+
+Utoo 是一套基于 Rust 开发的前端通用工具链，目前提供了包管理器以及构建工具的功能。
+
+utoopack 是 Utoo 工具链中负责前端构建的工具，作为蚂蚁上一代前端 Rust 构建工具 Mako 的 Next 版本。
+
+utoopack 基于 Next.js 背后的 Rust Bundler Turbopack，在 Turbopack 优秀的增量引擎架构之上，utoopack 面向更通用的前端项目提供独立的构建 CLI、Node API、通用 Bundler 的配置体系以及对 Webpack 的兼容层。
+
+## 性能优势
+
+Utoopack 得益于 Turbopack 优秀增量构建引擎架构设计，在目前蚂蚁内部业务落地场景中：
+
+- 冷启动方面对比 Webpack 有 **3 到 10 倍**的性能提升（项目规模越大，提升越明显）
+- 热更新速度**几百倍**于 webpack
+- 得益于持久化缓存设计，大型项目的热启动能达到**毫秒级**
+
+## 谁在使用
+
+目前 Utoopack 已经在蚂蚁内部业务以及多个开源前端框架中落地，并在不少场景中作为默认的 Bundler 来使用：
+
+<img src="/blog/utoopack-intro/adoption.png" width="647" alt="@utoo/pack adoption" />
+
+一方面，utoopack 已经完成了大量 Webpack 常用功能的对齐，比如 externals、umd 构建、样式处理、node polyfills、产物分析等能力，已经可以承接真实业务项目中复杂的构建诉求。另一方面，Next.js 在 v16 中将 Turbopack 作为 `next dev` 和 `next build` 的默认 Bundler，也进一步验证了 Turbopack 这套 Rust 增量构建体系在大型前端项目中的稳定性和可用性。
+
+在蚂蚁前端开源生态中，umi、father、dumi 都已经集成了 utoopack 来作为底层的 bundler：
+
+- umi 是面向中后台应用的前端框架，在脚手架模版中已经默认使用 utoopack 作为 Bundler。对于 umi 用户来说，通过一行简单的配置即可开启：[https://umijs.org/docs/api/config#utoopack](https://umijs.org/docs/api/config#utoopack)
+- father 是组件库打包工具，其中的 umd 产物构建场景也集成了 utoopack。在内部业务场景中对比 webpack 能有 **10x 以上**的速度提升。
+- dumi 是面向文档站研发的工具，也集成了 utoopack。目前已经发布了稳定版本的 utoopack 构建支持：[https://d.umijs.org/config#utoopack](https://d.umijs.org/config#utoopack)
+
+在业务模版层面，Ant Design Pro v6 默认使用 utoopack 来作为 Bundler（参考：[https://mp.weixin.qq.com/s/pHp-_o9dsQf1k9NRBHobNw](https://mp.weixin.qq.com/s/pHp-_o9dsQf1k9NRBHobNw)），生产构建、冷启动、HMR 均带来了显著的性能提升。
+
+目前 `@utoo/pack` 在 npm 上的下载量维持在 9w 左右：
+
+<img src="/blog/utoopack-intro/npm-downloads.png" width="623" alt="@utoo/pack npm downloads" />
+
+在蚂蚁内部，utoopack 已经落地了多个核心前端工程场景，包括中后台框架、H5 框架以及组件库构建体系。
+
+其中中后台框架使用 utoopack 作为默认的构建工具，在 utoopack 中同时也完成了微前端框架 qiankun 的支持。H5 框架目前则处于接入内测中，utoopack 主要完成了其中 Client、Server (SSR) 的产物构建适配工作，对比 Webpack，能有 5x - 10x 的本地构建性能提升。
+
+## utoopack 和 mako 的关系
+
+utoopack 实际上是之前蚂蚁开源的另外一个 Rust Bundler Mako 的 Next 版本，它主要为了解决 mako 遗留下的一些问题以及继续作为高性能的 Rust 构建工具继续为蚂蚁集团的前端构建场景服务。
+
+utoopack 主要解决了 mako 存在的这样一些问题：
+
+- mako 因为架构设计问题导致项目的 SWC 版本迭代困难，目前 mako 依赖的 swc 版本已经落后了 50 多个大版本，一些构建期的 JS Syntax 或者 transform error 得不到及时的修复
+- 功能不稳定：HMR 经常失效或者卡住，大型项目上会存在比较高的内存占用（同因为架构设计导致）
+- mako 存在一些几乎无法修复的 Bug：构建产物的模块合并导致的 css chunk 引入顺序错乱，从而导致样式覆盖等问题
+
+目前在构建性能上 utoopack 的冷启动会稍微落后 mako，但热启动得益于文件持久化缓存会快很多，utoopack 也会持续和 turbopack 一起去进行性能优化。
+
+## 为什么要选择 turbopack
+
+在早期进行技术选型时，我们深入评估了当时以 Turbopack、Rspack 以及 Rolldown 为代表的三大高性能 Rust Bundler。最终选择 **Turbopack**（turbo-tasks）作为底层核心，主要基于以下评估：
+
+- **项目的成熟性以及架构的兼容性**：Vite / Rolldown 架构并不适合蚂蚁内部强依赖 Bundle 的工程体系，会面临 ESM 生态迁移的巨大迁移成本，并且当时 Rolldown 还没发布 1.0
+- **项目的掌控力以及迭代风险**：蚂蚁在构建工具上一直有比较高功能定制以及紧急业务问题修复等诉求，对于构建工具能有比较高的自主掌控性，同时在自研 Rust Bundler Mako 进展阻塞之后，一直希望能有一套更新的构建体系架构接入进来。
+- **模型先进性以及架构灵活性**：Turbopack 本身由 Webpack 作者 Sokra 以及 Next.js 团队的一众 Bundler 全明星研发，具备先进的增量架构引擎：依托 `turbo-tasks` 提供的函数级缓存以及自动失效机制，从底层实现了毫秒级的 HMR 响应以及增量构建机制。
+
+同时 Turbopack 当时整体建设已经相当完整：build / dev 测试进度已经 100%，并且接近在 Next.js 框架中默认启用，这也在一些方面为后面 utoopack 的快速落地提供了安全的保障。
+
+基于内部多次讨论之后，我们选择了基于 Turbopack 去构建一个服务于蚂蚁内部的新一代的 Rust Bundler。
+
+## 架构介绍
+
+utoopack 并不是简单 fork 了一份 Turbopack 代码来维护，而是直接依赖 Turbopack 的一些核心 Rust crates，在 turbopack 提供的底层能力之上建设通用前端 Bundler 能力，整体链路如图所示：
+
+<img src="/blog/utoopack-intro/architecture-overview.png" width="627" alt="@utoo/pack architecture overview" />
+
+其中各模块分工如下：
+
+- `@utoo/pack` 提供对外的 Node API 以及 CLI
+- `pack-napi` 完成 JS 和 Rust 之间的通信
+- `pack-api` 封装 Rust 侧的构建 API
+- `pack-core` 则是 utoopack 自身的 Bundler Core
+
+同时在底层，utoopack 会复用 SWC 以及 Lightning CSS：
+
+- SWC 处理 JS、TS、JSX 的 transform、minify 等，utoopack 开发一些自定义 swc transform 去满足自身构建需求
+- Lightning CSS 负责 CSS 的 resolve、transform 和 minify
+
+<img src="/blog/utoopack-intro/swc-lightning-css.png" width="700" alt="SWC and Lightning CSS" />
+
+utoopack 的 rust crate pack-core 在底层对 turbopack 的 rust crate 进行拓展以及重写。
+
+Turbopack 的架构设计和 Webpack 主要区别在于：Webpack 本身是一套 Compiler / Compilation 模型，它的一次构建任务从 entry 出发，经过 resolver、parser、graph、emit 等阶段。当文件发生变化的时候，webpack 也有增量更新的能力，但很多工作依旧会围绕一次 compilation 生命周期展开，更新粒度会受到模块、loader、chunk 生成流程影响。
+
+Turbopack 的核心则是 turbo-tasks 驱动的增量计算模型，它将整个构建过程拆分成大量可以追踪依赖关系的函数级任务（类似于 SolidJS 的响应式原理），当某个文件或配置变化时，系统可以标记相关任务失效，并沿依赖图传播变化，只重新执行受影响的部分。
+
+### 基于 Turbopack 做了哪些工作
+
+本质上来说，Turbopack 目前主要的工作重心还是服务于 Next.js 框架需求场景。utoopack 则需要面向更通用的前端工程化场景，因此需要在 Turbopack 上补齐**大量的兼容性和通用 Bundler 能力**。
+
+同时，Utoo 团队也与 Vercel Turbopack 团队建立了长期合作共建关系。我们一方面基于 Turbopack 建设 utoopack 的上层通用 Bundler 能力，另一方面也会将过程中沉淀出的通用能力和问题修复反馈回 Turbopack 与 Next.js 社区。
+
+<img src="/blog/utoopack-intro/turbopack-prs.png" width="1386" alt="Utoo contributions to Turbopack" />
+
+蚂蚁前端项目长期运行在 Webpack 体系下，存量项目中有大量代码、配置和工程习惯依赖 Webpack 的历史行为。因此，utoopack 在落地过程中并不是简单接入 Turbopack，而是围绕 **Webpack 兼容**和**通用构建能力**补齐做了大量系统性建设：
+
+<img src="/blog/utoopack-intro/compatibility-capabilities.png" width="836" alt="@utoo/pack compatibility capabilities" />
+
+在兼容性方面，utoopack 主要围绕存量 Webpack 项目的迁移成本做系统性适配，覆盖样式处理、模块与资源引用、路径解析、运行时检查、微前端加载等典型场景。这些工作本质上是为了让已有工程能够更平滑地迁移到 Turbopack 体系。
+
+在 Bundler 能力方面，utoopack 也补齐了一批大型前端工程常用的通用能力，包括产物格式、externals、CSS Modules、resourceQuery、插件适配和 Node polyfills 等。这些能力不只服务于蚂蚁内部场景，也代表了复杂工程迁移到新一代 Bundler 时的共性诉求。
+
+除此之外，utoopack 还围绕新的研发场景做了一些更底层的能力改造：
+
+例如面向 vibe coding 场景的浏览器端 WebAssembly 构建能力，以及 Turbopack 的 webpack-loaders 支持运行在 Node.js 的 worker_threads 上，以降低通信开销并提升构建性能。
+
+## 使用指南
+
+### 在 umi 中使用
+
+目前 utoopack 是 umi 的 default bundler，可以直接在 umi 配置文件中通过 utoopack 来开启：
+
+```typescript
+// .umirc.ts
+import { defineConfig } from 'umi';
+
+export default defineConfig({
+  utoopack: {}
+})
+```
+
+或者新建一个 umi 的应用，默认使用 utoopack 打包：
+
+```bash
+utx create-umi
+```
+
+### 独立使用
+
+utoopack 提供了单独的 CLI 可以直接安装使用：
+
+```bash
+ut i @utoo/pack @utoo/pack-cli -S
+```
+
+依赖使用文件如下：
+
+```json
+{
+  "name": "@utoo/pack-demo",
+  "version": "1.0.0",
+  "description": "utoopack example",
+  "scripts": {
+    "build": "up build",
+    "dev": "up dev"
+  },
+  "dependencies": {
+    "@utoo/pack": "^1.4.6",
+    "@utoo/pack-cli": "^1.4.6"
+  }
+}
+```
+
+具体参考 utoo 官网文档：[https://utoo.land/zh/docs/utoopack/quickstart](https://utoo.land/zh/docs/utoopack/quickstart)
+
+### webpack 兼容模式
+
+对于 webpack 项目，utoopack 本身提供了一套快速的兼容模式来方便业务接入：
+
+在项目中安装 CLI 相关依赖：
+
+```bash
+ut i @utoo/pack @utoo/pack-cli -S
+```
+
+修改对应的 dev、build 脚本来对 webpack 项目直接使用 utoopack 构建：
+
+```json
+{
+  "scripts": {
+    "build": "up build --webpack",
+    "dev": "up dev --webpack"
+  }
+}
+```
+
+具体使用参考：[https://utoo.land/zh/docs/utoopack/quickstart#webpack-%E5%85%BC%E5%AE%B9%E6%A8%A1%E5%BC%8F](https://utoo.land/zh/docs/utoopack/quickstart#webpack-%E5%85%BC%E5%AE%B9%E6%A8%A1%E5%BC%8F)
+
+## 总结
+
+utoopack 是 Utoo 工具链中面向前端构建场景的新一代 Rust Bundler，同时也是蚂蚁上一代 Rust 构建工具 Mako 的持续演进版本。
+
+目前 utoopack 已经在蚂蚁内部中后台、H5、组件库构建等业务场景中逐步落地。后续 utoopack 会继续围绕功能兼容性、构建性能这几个方向去演进：一方面持续降低存量业务从 Webpack / Mako 的迁移成本，另一方面也会继续与 Turbopack 团队合作共建，把落地过程中沉淀出的通用能力以及问题修复反馈到上游生态。
+
+同时 utoopack 也会围绕自身的构建性能以及稳定性继续持续建设，欢迎大家来试用，有问题可以通过 issue 来反馈：[https://github.com/utooland/utoo/issues](https://github.com/utooland/utoo/issues)。
+
+## 参考链接
+
+- utoo：[https://github.com/utooland/utoo](https://github.com/utooland/utoo)
+- utoo 文档：[https://utoo.land/](https://utoo.land/)
+- Turbopack 增量引擎架构：[https://gitnation.com/contents/the-core-of-turbopack-explained-live-coding](https://gitnation.com/contents/the-core-of-turbopack-explained-live-coding)
+- turbo-tasks 介绍：[https://turbopack-rust-docs.vercel.sh/rustdoc/turbo_tasks/](https://turbopack-rust-docs.vercel.sh/rustdoc/turbo_tasks/)
+- umi：[https://github.com/umijs/umi](https://github.com/umijs/umi)
+- father：[https://github.com/umijs/father](https://github.com/umijs/father)
+- dumi：[https://github.com/umijs/dumi](https://github.com/umijs/dumi)

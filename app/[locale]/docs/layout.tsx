@@ -2,6 +2,7 @@ import { Footer, Layout, Navbar } from 'nextra-theme-docs'
 import { getPageMap } from 'nextra/page-map'
 import 'nextra-theme-docs/style.css'
 import type { ReactNode } from 'react'
+import { DocsPrimaryNav } from '../../components/DocsPrimaryNav'
 import { SharedFooter } from '../../components/SharedFooter'
 
 import { Search } from 'nextra/components'
@@ -14,7 +15,7 @@ type LayoutProps = {
 export default async function DocsLayout({ children, params }: LayoutProps) {
   const { locale } = await params
   const pageMap = await getPageMap(`/${locale}`)
-  
+
   // Translate the root Docs folder name
   const isZh = locale === 'zh'
   pageMap.forEach((node: any) => {
@@ -22,8 +23,6 @@ export default async function DocsLayout({ children, params }: LayoutProps) {
       node.title = isZh ? '文档' : 'Docs'
     }
   })
-
-
 
   return (
     <Layout
@@ -42,14 +41,20 @@ export default async function DocsLayout({ children, params }: LayoutProps) {
       feedback={{ content: isZh ? '有问题？给我们反馈' : 'Question? Give us feedback' }}
       search={
         isZh ? (
-          <Search
-            placeholder="搜索文档..."
-            emptyResult="未找到结果。"
-            errorText="加载搜索索引失败。"
-            loading="加载中…"
-          />
+          <div className="flex items-center gap-4">
+            <DocsPrimaryNav locale={locale} />
+            <Search
+              placeholder="搜索文档..."
+              emptyResult="未找到结果。"
+              errorText="加载搜索索引失败。"
+              loading="加载中…"
+            />
+          </div>
         ) : (
-          <Search />
+          <div className="flex items-center gap-4">
+            <DocsPrimaryNav locale={locale} />
+            <Search />
+          </div>
         )
       }
       toc={{

@@ -43,6 +43,7 @@ export function Header() {
 
           {/* Language switcher */}
           <button
+            type="button"
             onClick={() => setLocale(locale === "en" ? "zh" : "en")}
             className="flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-300 text-sm font-bold text-muted-foreground hover:text-foreground hover:bg-white/5"
           >
@@ -52,6 +53,7 @@ export function Header() {
 
           {/* Theme switcher */}
           <button
+            type="button"
             onClick={toggleTheme}
             className="p-2.5 rounded-xl transition-all duration-300 text-muted-foreground hover:text-foreground hover:bg-white/5"
           >

@@ -3,12 +3,20 @@
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-interface TerminalLine {
+interface TerminalLineDefinition {
   type: "command" | "output" | "success" | "info" | "highlight";
   text: string;
 }
 
-const demos: { title: string; package: string; lines: TerminalLine[] }[] = [
+interface TerminalLine extends TerminalLineDefinition {
+  id: string;
+}
+
+const rawDemos: {
+  title: string;
+  package: string;
+  lines: TerminalLineDefinition[];
+}[] = [
   {
     title: "Install Dependencies",
     package: "utoo",
@@ -120,6 +128,15 @@ const demos: { title: string; package: string; lines: TerminalLine[] }[] = [
   },
 ];
 
+const demos: { title: string; package: string; lines: TerminalLine[] }[] =
+  rawDemos.map((demo) => ({
+    ...demo,
+    lines: demo.lines.map((line, lineIndex) => ({
+      ...line,
+      id: `${demo.title}-${line.type}-${lineIndex}`,
+    })),
+  }));
+
 export function TerminalDemo() {
   const [currentDemo, setCurrentDemo] = useState(0);
   const [visibleLines, setVisibleLines] = useState<number>(0);
@@ -212,7 +229,7 @@ export function TerminalDemo() {
             >
               {demo.lines.slice(0, visibleLines).map((line, index) => (
                 <motion.div
-                  key={index}
+                  key={line.id}
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.15 }}
@@ -241,9 +258,10 @@ export function TerminalDemo() {
 
       {/* Demo indicators */}
       <div className="flex justify-center gap-2 mt-4">
-        {demos.map((_, index) => (
+        {demos.map((demo, index) => (
           <button
-            key={index}
+            key={demo.title}
+            type="button"
             onClick={() => setCurrentDemo(index)}
             className={`w-2 h-2 rounded-full transition-all ${
               index === currentDemo
