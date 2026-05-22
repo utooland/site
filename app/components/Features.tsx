@@ -24,14 +24,7 @@ import {
   Layout,
   Server,
 } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { useI18n } from "../i18n/context";
 import type { Translations } from "../i18n/translations";
 
@@ -46,41 +39,45 @@ function highlightJS(code: string) {
   ];
 
   for (const [regex, type] of patterns) {
-    let match;
-    while ((match = regex.exec(code)) !== null) {
+    let match = regex.exec(code);
+    while (match !== null) {
       const start = match.index;
       const end = start + match[0].length;
       const overlaps = tokens.some(t => (start < t.end && end > t.start));
       if (!overlaps) {
         tokens.push({ start, end, type });
       }
+      match = regex.exec(code);
     }
   }
 
   tokens.sort((a, b) => a.start - b.start);
 
-const colors: Record<string, string> = {
+  const colors: Record<string, string> = {
     comment: "text-slate-500/80",
     string: "dark:text-amber-400 light:text-amber-600",
     keyword: "dark:text-pink-400 light:text-pink-600",
     number: "dark:text-purple-400 light:text-purple-600",
   };
 
-  let result = "";
+  const result: ReactNode[] = [];
   let lastEnd = 0;
 
   for (const token of tokens) {
-    result += escapeHtml(code.slice(lastEnd, token.start));
-    result += `<span class="${colors[token.type]}">${escapeHtml(code.slice(token.start, token.end))}</span>`;
+    result.push(code.slice(lastEnd, token.start));
+    result.push(
+      <span
+        key={`${token.start}-${token.end}-${token.type}`}
+        className={colors[token.type]}
+      >
+        {code.slice(token.start, token.end)}
+      </span>,
+    );
     lastEnd = token.end;
   }
-  result += escapeHtml(code.slice(lastEnd));
+  result.push(code.slice(lastEnd));
 
   return result;
-}
-
-function escapeHtml(str: string) {
-  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
 function CopyButton({ text }: { text: string }) {
@@ -94,6 +91,7 @@ function CopyButton({ text }: { text: string }) {
 
   return (
     <button
+      type="button"
       onClick={handleCopy}
       className="p-1.5 rounded hover:bg-white/10 transition-colors"
       title="Copy"
@@ -387,6 +385,7 @@ function QuickReference({
         {hasTabs ? (
           <div className="flex gap-2">
             <button
+              type="button"
               onClick={() => setActiveTab("commands")}
               className={`text-xs px-4 py-2 rounded-lg transition-all duration-300 ${
                 activeTab === "commands"
@@ -398,6 +397,7 @@ function QuickReference({
             </button>
             {hasApi && (
               <button
+                type="button"
                 onClick={() => setActiveTab("api")}
                 className={`text-xs px-4 py-2 rounded-lg transition-all duration-300 ${
                   activeTab === "api"
@@ -410,6 +410,7 @@ function QuickReference({
             )}
             {hasConfig && (
               <button
+                type="button"
                 onClick={() => setActiveTab("config")}
                 className={`text-xs px-4 py-2 rounded-lg transition-all duration-300 ${
                   activeTab === "config"
@@ -466,10 +467,9 @@ function QuickReference({
               {" "}{pkg.config.addConfig}
             </div>
             <div className="text-muted-foreground/50 text-[10px] font-mono">{pkg.config.file}</div>
-            <pre
-              className="text-foreground/90 whitespace-pre overflow-x-auto text-xs p-2 rounded bg-muted/20"
-              dangerouslySetInnerHTML={{ __html: highlightJS(pkg.config.code) }}
-            />
+            <pre className="text-foreground/90 whitespace-pre overflow-x-auto text-xs p-2 rounded bg-muted/20">
+              {highlightJS(pkg.config.code)}
+            </pre>
           </div>
         )}
         {activeTab === "api" && pkg.api && (
@@ -477,10 +477,9 @@ function QuickReference({
             <div className="text-muted-foreground text-[10px] mb-2">
               {pkg.api.description}
             </div>
-            <pre
-              className="text-foreground/90 whitespace-pre overflow-x-auto text-xs"
-              dangerouslySetInnerHTML={{ __html: highlightJS(pkg.api.code) }}
-            />
+            <pre className="text-foreground/90 whitespace-pre overflow-x-auto text-xs">
+              {highlightJS(pkg.api.code)}
+            </pre>
           </div>
         )}
       </div>

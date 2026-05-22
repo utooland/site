@@ -5,5 +5,9 @@ export default {
   },
   utoo: 'utoo',
   utoopack: '@utoo/pack',
-  utooweb: '@utoo/web'
+  utooweb: '@utoo/web',
+  blog: {
+    title: 'Blog',
+    display: 'hidden'
+  }
 }

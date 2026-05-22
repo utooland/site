@@ -1,0 +1,201 @@
+# @utoo/pack: A Next-Generation Build Tool Based on Turbopack
+
+<img src="/blog/utoopack-intro/hero.png" width="674" alt="@utoo/pack" />
+
+## Introduction
+
+Utoo is a general-purpose frontend toolchain built with Rust. It currently provides package management and build tooling capabilities.
+
+utoopack is the build tool in the Utoo toolchain. It is the next generation of Mako, Ant Group's previous Rust-based frontend build tool.
+
+utoopack is built on top of Turbopack, the Rust bundler behind Next.js. On top of Turbopack's incremental engine architecture, utoopack provides an independent build CLI, Node API, general-purpose bundler configuration model, and Webpack compatibility layer for broader frontend projects.
+
+## Performance Advantages
+
+Thanks to Turbopack's incremental build engine, utoopack has shown strong performance in Ant Group's internal production scenarios:
+
+- **3x to 10x** faster cold starts than Webpack, with larger projects seeing more obvious gains
+- HMR that is **hundreds of times** faster than Webpack
+- Millisecond-level warm starts for large projects through persistent caching
+
+## Who Is Using It
+
+Utoopack has already landed in Ant Group's internal businesses and multiple open-source frontend frameworks. In several scenarios, it is used as the default bundler:
+
+<img src="/blog/utoopack-intro/adoption.png" width="647" alt="@utoo/pack adoption" />
+
+On one hand, utoopack has aligned with many commonly used Webpack capabilities, including externals, UMD builds, style processing, Node polyfills, and bundle analysis. It can already support complex build requirements in real business projects. On the other hand, Next.js v16 makes Turbopack the default bundler for both `next dev` and `next build`, further validating the stability and usability of Turbopack's Rust-based incremental build system in large frontend projects.
+
+In Ant Group's open-source frontend ecosystem, umi, father, and dumi have all integrated utoopack as an underlying bundler:
+
+- umi is a frontend framework for middle and back-office applications. Its project templates now use utoopack as the default bundler. For umi users, utoopack can be enabled with a single config option: [https://umijs.org/docs/api/config#utoopack](https://umijs.org/docs/api/config#utoopack)
+- father is a library build tool. Its UMD output build scenario has integrated utoopack, delivering more than **10x** speedups over Webpack in internal business scenarios.
+- dumi is a documentation site framework that has integrated utoopack. Stable utoopack build support has already been released: [https://d.umijs.org/config#utoopack](https://d.umijs.org/config#utoopack)
+
+At the business template layer, Ant Design Pro v6 uses utoopack as the default bundler (reference: [https://mp.weixin.qq.com/s/pHp-_o9dsQf1k9NRBHobNw](https://mp.weixin.qq.com/s/pHp-_o9dsQf1k9NRBHobNw)), bringing significant improvements to production builds, cold starts, and HMR.
+
+`@utoo/pack` currently maintains around 90k npm downloads:
+
+<img src="/blog/utoopack-intro/npm-downloads.png" width="623" alt="@utoo/pack npm downloads" />
+
+Inside Ant Group, utoopack has already landed in several core frontend engineering scenarios, including middle and back-office frameworks, H5 frameworks, and component library build systems.
+
+The middle and back-office framework uses utoopack as its default build tool, and utoopack has also completed support for the qiankun micro-frontend framework. The H5 framework is currently in internal testing, where utoopack mainly handles Client and Server (SSR) output build adaptation. Compared with Webpack, it can deliver 5x to 10x faster local builds.
+
+## Relationship Between utoopack and Mako
+
+utoopack is the next generation of Mako, another Rust bundler previously open-sourced by Ant Group. It was created to solve problems left by Mako while continuing to serve Ant Group's frontend build scenarios as a high-performance Rust build tool.
+
+utoopack mainly addresses these Mako issues:
+
+- Because of architectural constraints, Mako had difficulty keeping up with SWC version upgrades. Its SWC dependency is now more than 50 major versions behind, leaving some build-time JavaScript syntax and transform errors hard to fix quickly.
+- Some capabilities were unstable: HMR could fail or get stuck, and large projects could see high memory usage because of the architecture.
+- Some Mako bugs were nearly impossible to fix, such as CSS chunk import order problems caused by build output module concatenation, which could lead to style override issues.
+
+In cold build performance, utoopack is currently slightly slower than Mako. However, warm starts are much faster thanks to persistent file caching, and utoopack will continue to improve performance together with Turbopack.
+
+## Why Turbopack
+
+During early technical evaluation, we looked closely at three representative high-performance Rust bundlers: Turbopack, Rspack, and Rolldown. We ultimately chose **Turbopack** (`turbo-tasks`) as the underlying core for these reasons:
+
+- **Project maturity and architectural compatibility**: The Vite / Rolldown architecture does not fit Ant Group's bundle-heavy internal engineering system well. It would introduce a large ESM ecosystem migration cost, and Rolldown had not reached 1.0 at the time.
+- **Control and iteration risk**: Ant Group has always needed strong build-tool customization and quick fixes for urgent business issues. After the self-developed Rust bundler Mako became blocked, we wanted a newer build architecture with higher autonomy and control.
+- **Advanced model and architectural flexibility**: Turbopack is developed by Webpack creator Sokra and the Next.js team. It provides an advanced incremental architecture through `turbo-tasks`, with function-level caching and automatic invalidation that enable millisecond-level HMR response and incremental builds from the ground up.
+
+At the time, Turbopack was also already quite complete: build and dev test progress had reached 100%, and it was close to being enabled by default in Next.js. This gave us confidence for the later landing of utoopack.
+
+After multiple internal discussions, we chose to build a new generation Rust bundler for Ant Group on top of Turbopack.
+
+## Architecture
+
+utoopack is not a simple fork of Turbopack. Instead, it directly depends on several core Turbopack Rust crates and builds general-purpose frontend bundler capabilities on top of Turbopack's foundation. The overall flow is shown below:
+
+<img src="/blog/utoopack-intro/architecture-overview.png" width="627" alt="@utoo/pack architecture overview" />
+
+The modules are divided as follows:
+
+- `@utoo/pack` provides the public Node API and CLI
+- `pack-napi` handles communication between JavaScript and Rust
+- `pack-api` wraps the Rust-side build API
+- `pack-core` is utoopack's own bundler core
+
+At the lower level, utoopack also reuses SWC and Lightning CSS:
+
+- SWC handles JavaScript, TypeScript, and JSX transform and minification. utoopack develops custom SWC transforms to satisfy its own build requirements.
+- Lightning CSS handles CSS resolve, transform, and minification.
+
+<img src="/blog/utoopack-intro/swc-lightning-css.png" width="700" alt="SWC and Lightning CSS" />
+
+utoopack's Rust crate `pack-core` extends and rewrites parts of Turbopack's Rust crates.
+
+The key architectural difference between Turbopack and Webpack is that Webpack is based on a Compiler / Compilation model. A build starts from entries and passes through resolver, parser, graph, emit, and other stages. When files change, Webpack has incremental update capabilities, but much of the work still revolves around a compilation lifecycle, and the update granularity is affected by modules, loaders, and chunk generation.
+
+Turbopack is centered on the `turbo-tasks` incremental computation model. It breaks the build process into many function-level tasks whose dependency relationships can be tracked. When a file or configuration changes, the system can invalidate related tasks, propagate changes along the dependency graph, and re-run only the affected parts.
+
+### What We Built on Top of Turbopack
+
+Turbopack's main focus is still serving Next.js framework scenarios. utoopack targets more general frontend engineering scenarios, so it needs to fill in a large amount of compatibility and general-purpose bundler functionality on top of Turbopack.
+
+The Utoo team has also established a long-term collaboration with the Vercel Turbopack team. We build utoopack's upper-layer general bundler capabilities on top of Turbopack, and we also contribute reusable capabilities and fixes back to the Turbopack and Next.js communities.
+
+<img src="/blog/utoopack-intro/turbopack-prs.png" width="1386" alt="Utoo contributions to Turbopack" />
+
+Ant Group's frontend projects have long run on Webpack. Existing projects depend heavily on Webpack behavior through code, configuration, and engineering conventions. Therefore, utoopack did not simply adopt Turbopack. It invested heavily in **Webpack compatibility** and **general build capabilities**:
+
+<img src="/blog/utoopack-intro/compatibility-capabilities.png" width="836" alt="@utoo/pack compatibility capabilities" />
+
+For compatibility, utoopack focuses on lowering the migration cost for existing Webpack projects. It covers typical scenarios such as style processing, module and asset references, path resolution, runtime checks, and micro-frontend loading. These efforts are intended to help existing projects move to the Turbopack system more smoothly.
+
+For bundler capabilities, utoopack also fills in a set of general capabilities commonly required by large frontend engineering systems, including output formats, externals, CSS Modules, `resourceQuery`, plugin adaptation, and Node polyfills. These capabilities serve not only Ant Group's internal scenarios but also the common requirements of complex engineering migrations to next-generation bundlers.
+
+Beyond that, utoopack has made lower-level improvements for new development scenarios, such as browser-side WebAssembly builds for vibe coding scenarios, and running Turbopack's `webpack-loaders` support on Node.js `worker_threads` to reduce communication overhead and improve build performance.
+
+## Usage Guide
+
+### Using utoopack in umi
+
+utoopack is currently umi's default bundler. You can enable it directly in umi configuration:
+
+```typescript
+// .umirc.ts
+import { defineConfig } from 'umi';
+
+export default defineConfig({
+  utoopack: {}
+})
+```
+
+You can also create a new umi application that uses utoopack by default:
+
+```bash
+utx create-umi
+```
+
+### Standalone Usage
+
+utoopack provides a standalone CLI:
+
+```bash
+ut i @utoo/pack @utoo/pack-cli -S
+```
+
+Example dependency and script setup:
+
+```json
+{
+  "name": "@utoo/pack-demo",
+  "version": "1.0.0",
+  "description": "utoopack example",
+  "scripts": {
+    "build": "up build",
+    "dev": "up dev"
+  },
+  "dependencies": {
+    "@utoo/pack": "^1.4.6",
+    "@utoo/pack-cli": "^1.4.6"
+  }
+}
+```
+
+See the Utoo documentation for details: [https://utoo.land/en/docs/utoopack/quickstart](https://utoo.land/en/docs/utoopack/quickstart)
+
+### Webpack Compatibility Mode
+
+For Webpack projects, utoopack provides a fast compatibility mode to make adoption easier.
+
+Install the CLI dependencies:
+
+```bash
+ut i @utoo/pack @utoo/pack-cli -S
+```
+
+Update the corresponding `dev` and `build` scripts to use utoopack directly for Webpack projects:
+
+```json
+{
+  "scripts": {
+    "build": "up build --webpack",
+    "dev": "up dev --webpack"
+  }
+}
+```
+
+For usage details, see: [https://utoo.land/en/docs/utoopack/quickstart#webpack-compatibility-mode](https://utoo.land/en/docs/utoopack/quickstart#webpack-compatibility-mode)
+
+## Summary
+
+utoopack is the next-generation Rust bundler in the Utoo toolchain for frontend build scenarios. It is also the continued evolution of Mako, Ant Group's previous Rust build tool.
+
+utoopack has already landed across Ant Group's middle and back-office, H5, and component library build scenarios. Going forward, utoopack will continue to evolve around feature compatibility and build performance: reducing migration cost from Webpack / Mako on one side, and continuing to collaborate with the Turbopack team to upstream reusable capabilities and fixes on the other.
+
+utoopack will also continue to improve its own performance and stability. We welcome you to try it and report issues here: [https://github.com/utooland/utoo/issues](https://github.com/utooland/utoo/issues).
+
+## References
+
+- utoo: [https://github.com/utooland/utoo](https://github.com/utooland/utoo)
+- utoo docs: [https://utoo.land/](https://utoo.land/)
+- Turbopack incremental engine architecture: [https://gitnation.com/contents/the-core-of-turbopack-explained-live-coding](https://gitnation.com/contents/the-core-of-turbopack-explained-live-coding)
+- turbo-tasks introduction: [https://turbopack-rust-docs.vercel.sh/rustdoc/turbo_tasks/](https://turbopack-rust-docs.vercel.sh/rustdoc/turbo_tasks/)
+- umi: [https://github.com/umijs/umi](https://github.com/umijs/umi)
+- father: [https://github.com/umijs/father](https://github.com/umijs/father)
+- dumi: [https://github.com/umijs/dumi](https://github.com/umijs/dumi)

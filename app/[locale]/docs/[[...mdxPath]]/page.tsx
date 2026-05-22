@@ -1,5 +1,5 @@
 import { generateStaticParamsFor, importPage } from 'nextra/pages'
-import { useMDXComponents } from '../../../../mdx-components'
+import { useMDXComponents as getMDXComponents } from '../../../../mdx-components'
 
 const locales = ['en', 'zh']
 
@@ -20,7 +20,7 @@ export async function generateMetadata(props: PageProps) {
   return metadata
 }
 
-const Wrapper = useMDXComponents().wrapper
+const Wrapper = getMDXComponents().wrapper
 
 export default async function Page(props: PageProps) {
   const params = await props.params

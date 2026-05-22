@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 import { I18nProvider } from "./i18n/context";
 import { ThemeProvider } from "./theme/context";
 
