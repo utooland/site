@@ -216,16 +216,133 @@ export default defineConfig({
 
 ### resolve
 
-模块解析配置。
+配置模块解析。`resolve.alias` 会在模块解析前，把导入请求改写到另一个模块或路径，规则采用 [Turbopack 风格的 alias 行为](https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#resolving-aliases)。
 
 ```json
 {
   "resolve": {
     "alias": {
-      "@": "./src",
-      "@components": "./src/components"
+      "react": "preact/compat",
+      "@/*": "./src/*",
+      "legacy/": "./src/legacy/",
+      "runtime/*": ["./src/runtime/*", "./fallback/runtime/*"]
     },
     "extensions": [".ts", ".tsx", ".js", ".jsx"]
+  }
+}
+```
+
+`resolve.alias` 支持以下结构：
+
+```ts
+type ResolveAlias =
+  Record<string, string | string[] | Record<string, string | string[]>>
+```
+
+匹配规则：
+
+| Alias | 会匹配 | 不会匹配 |
+|-------|--------|----------|
+| `"foo": "./src/foo"` | `import "foo"` | `import "foo/bar"` |
+| `"foo/*": "./src/foo/*"` | `import "foo/bar"` 以及更深的子路径 | `import "foo"` |
+| `"foo/": "./src/foo/"` | 等价于 `"foo/*": "./src/foo/*"` | `import "foo"` |
+
+如果需要把匹配到的子路径带入替换结果，使用 `*`。`*` 可以跨路径分隔符，因此 `"@/*": "./src/*"` 可以解析 `@/components/Button` 这样的导入。
+
+alias value 支持以下形式：
+
+| Value | 行为 |
+|-------|------|
+| `string` | 改写到单个包或路径 |
+| `string[]` | 按顺序尝试多个候选路径 |
+| 条件对象 | 按条件选择 value，常用条件是 `browser`，不满足时使用 `default` |
+
+相对路径 value 会从项目根目录解析，例如 `"./src/foo"`。项目内的绝对路径会被规范化为项目相对路径。不要配置指向项目目录之外的 alias。
+
+```js filename="utoopack.config.mjs"
+import { defineConfig } from '@utoo/pack';
+
+export default defineConfig({
+  resolve: {
+    alias: {
+      // 精确替换
+      lodash: 'lodash-es',
+
+      // 子路径替换
+      '@/*': './src/*',
+
+      // 目录简写
+      'components/': './src/components/',
+
+      // 多候选
+      'runtime/*': ['./src/runtime/*', './fallback/runtime/*'],
+
+      // 条件 alias
+      env: {
+        browser: './src/env.browser.ts',
+        default: './src/env.node.ts',
+      },
+    },
+    extensions: ['.ts', '.tsx', '.js', '.jsx'],
+  },
+});
+```
+
+#### 从 Webpack alias 迁移
+
+最容易踩坑的差异是子路径匹配。Webpack 中常见的 `foo: path.resolve(__dirname, 'src/foo')` 通常可以同时覆盖 `foo` 和 `foo/bar`。在 Utoopack 中，普通 key 是精确匹配；如果要覆盖子路径，需要显式加 `/*`，或者使用以 `/` 结尾的目录简写。
+
+| Webpack | Utoopack |
+|---------|----------|
+| `foo: path.resolve(__dirname, 'src/foo')`，用于 `import "foo"` | `"foo": "./src/foo"` |
+| `foo: path.resolve(__dirname, 'src/foo')`，用于 `import "foo/bar"` | `"foo/*": "./src/foo/*"` 或 `"foo/": "./src/foo/"` |
+| `'@': path.resolve(__dirname, 'src')`，用于 `import "@/Button"` | `"@/*": "./src/*"` |
+| `react: 'preact/compat'` | `"react": "preact/compat"` |
+
+Webpack 通过 `$` 后缀表示精确匹配，例如 `foo$: './src/foo'`。Utoopack 不需要这个后缀，因为精确匹配就是默认行为：
+
+```json
+{
+  "resolve": {
+    "alias": {
+      "foo": "./src/foo"
+    }
+  }
+}
+```
+
+这只会影响：
+
+```ts
+import "foo"
+```
+
+不会影响：
+
+```ts
+import "foo/bar"
+```
+
+如果需要覆盖子路径，应该写成：
+
+```json
+{
+  "resolve": {
+    "alias": {
+      "foo/*": "./src/foo/*"
+    }
+  }
+}
+```
+
+或使用目录简写：
+
+```json
+{
+  "resolve": {
+    "alias": {
+      "foo/": "./src/foo/"
+    }
   }
 }
 ```
