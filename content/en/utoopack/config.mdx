@@ -216,16 +216,133 @@ Externals support simple string globals, script/commonjs/esm/global forms, and m
 
 ### resolve
 
-Module resolution configuration.
+Configure module resolution. `resolve.alias` rewrites an import request to another module or path, using [Turbopack-style alias rules](https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#resolving-aliases).
 
 ```json
 {
   "resolve": {
     "alias": {
-      "@": "./src",
-      "@components": "./src/components"
+      "react": "preact/compat",
+      "@/*": "./src/*",
+      "legacy/": "./src/legacy/",
+      "runtime/*": ["./src/runtime/*", "./fallback/runtime/*"]
     },
     "extensions": [".ts", ".tsx", ".js", ".jsx"]
+  }
+}
+```
+
+`resolve.alias` accepts this shape:
+
+```ts
+type ResolveAlias =
+  Record<string, string | string[] | Record<string, string | string[]>>
+```
+
+Matching rules:
+
+| Alias | Matches | Does not match |
+|-------|---------|----------------|
+| `"foo": "./src/foo"` | `import "foo"` | `import "foo/bar"` |
+| `"foo/*": "./src/foo/*"` | `import "foo/bar"` and deeper subpaths | `import "foo"` |
+| `"foo/": "./src/foo/"` | Same as `"foo/*": "./src/foo/*"` | `import "foo"` |
+
+Use `*` when you want to carry the matched subpath into the replacement. The `*` can match across path separators, so `"@/*": "./src/*"` resolves imports such as `@/components/Button`.
+
+Alias values can be:
+
+| Value | Behavior |
+|-------|----------|
+| `string` | Rewrite to a single package or path |
+| `string[]` | Try multiple candidates in order |
+| condition object | Pick a value by condition, commonly `browser`, with `default` as the fallback |
+
+Relative path values are resolved from the project root, for example `"./src/foo"`. Absolute paths inside the project are normalized to project-relative paths. Avoid aliases that point outside the project directory.
+
+```js filename="utoopack.config.mjs"
+import { defineConfig } from '@utoo/pack';
+
+export default defineConfig({
+  resolve: {
+    alias: {
+      // Exact replacement
+      lodash: 'lodash-es',
+
+      // Subpath replacement
+      '@/*': './src/*',
+
+      // Directory shortcut
+      'components/': './src/components/',
+
+      // Multiple candidates
+      'runtime/*': ['./src/runtime/*', './fallback/runtime/*'],
+
+      // Conditional alias
+      env: {
+        browser: './src/env.browser.ts',
+        default: './src/env.node.ts',
+      },
+    },
+    extensions: ['.ts', '.tsx', '.js', '.jsx'],
+  },
+});
+```
+
+#### Migrating from Webpack alias
+
+The biggest difference is subpath matching. In Webpack, an alias such as `foo: path.resolve(__dirname, 'src/foo')` is commonly used to cover both `foo` and `foo/bar`. In Utoopack, a plain key is exact. Add `/*` or use the trailing slash shortcut when you want subpath imports.
+
+| Webpack | Utoopack |
+|---------|----------|
+| `foo: path.resolve(__dirname, 'src/foo')` for `import "foo"` | `"foo": "./src/foo"` |
+| `foo: path.resolve(__dirname, 'src/foo')` for `import "foo/bar"` | `"foo/*": "./src/foo/*"` or `"foo/": "./src/foo/"` |
+| `'@': path.resolve(__dirname, 'src')` for `import "@/Button"` | `"@/*": "./src/*"` |
+| `react: 'preact/compat'` | `"react": "preact/compat"` |
+
+Webpack's `$` suffix marks an exact alias, for example `foo$: './src/foo'`. Utoopack does not need that suffix because exact matching is the default:
+
+```json
+{
+  "resolve": {
+    "alias": {
+      "foo": "./src/foo"
+    }
+  }
+}
+```
+
+This only affects:
+
+```ts
+import "foo"
+```
+
+It does not affect:
+
+```ts
+import "foo/bar"
+```
+
+To cover subpaths, use:
+
+```json
+{
+  "resolve": {
+    "alias": {
+      "foo/*": "./src/foo/*"
+    }
+  }
+}
+```
+
+Or the directory shortcut:
+
+```json
+{
+  "resolve": {
+    "alias": {
+      "foo/": "./src/foo/"
+    }
   }
 }
 ```
