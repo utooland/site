@@ -34,6 +34,18 @@ utx create-react-app my-app
 - **Unified** - One toolchain for all needs
 - **Modern** - Native ESM, TypeScript, and more
 
+## Package-manager benchmark snapshot
+
+These numbers come from the phased install benchmark for the `ant-design` project on poolab Linux x86_64, connected directly to `https://registry.npmmirror.com`. Lower is better.
+
+| Scenario | utoo | Bun | pnpm | aube |
+|----------|------|-----|------|------|
+| Full cold (`p0`) | **7.84s ± 2.17s** | 13.21s ± 2.36s | 39.32s ± 16.56s | 27.63s ± 6.47s |
+| Lock-only cold (`p3`) | 6.64s ± 1.64s | 8.62s ± 3.57s | 15.14s ± 0.77s | **6.42s ± 0.31s** |
+| Warm (`p4`) | **1.09s ± 0.05s** | 2.72s ± 0.05s | 7.89s ± 0.38s | 1.60s ± 0.07s |
+
+In `p3`, the utoo and aube mean difference is within noise. Utoo is clearly ahead in full-cold and warm installs. See [utoo performance benchmarks](/en/docs/utoo/performance) for the GitHub Actions npmjs runs and corrected pnpm validation.
+
 ## Installation
 
 **Package Manager**

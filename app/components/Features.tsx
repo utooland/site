@@ -162,6 +162,239 @@ function getPackages(t: Translations) {
       title: t.packages.utoo.highlight.title,
       description: t.packages.utoo.highlight.description,
     },
+    benchmark: {
+      title: t.packages.utoo.benchmark.title,
+      source: t.packages.utoo.benchmark.source,
+      npmmirror: t.packages.utoo.benchmark.npmmirror,
+      npmjs: t.packages.utoo.benchmark.npmjs,
+      href: "https://github.com/utooland/utoo/issues/3250",
+      scenarios: [
+        {
+          label: t.packages.utoo.benchmark.fullCold,
+          entries: [
+            {
+              name: "utoo",
+              time: "7.84s",
+              score: 20,
+              isFastest: true,
+              barClass: "bg-indigo-500 dark:bg-indigo-400",
+              textClass: "text-indigo-600 dark:text-indigo-300",
+            },
+            {
+              name: "Bun",
+              time: "13.21s",
+              score: 34,
+              isFastest: false,
+              barClass: "bg-amber-500 dark:bg-amber-400",
+              textClass: "text-amber-700 dark:text-amber-300",
+            },
+            {
+              name: "aube",
+              time: "27.63s",
+              score: 70,
+              isFastest: false,
+              barClass: "bg-rose-500 dark:bg-rose-400",
+              textClass: "text-rose-700 dark:text-rose-300",
+            },
+            {
+              name: "pnpm",
+              time: "39.32s",
+              score: 100,
+              isFastest: false,
+              barClass: "bg-teal-500 dark:bg-teal-400",
+              textClass: "text-teal-700 dark:text-teal-300",
+            },
+          ],
+        },
+        {
+          label: t.packages.utoo.benchmark.lockOnlyCold,
+          entries: [
+            {
+              name: "utoo",
+              time: "6.64s",
+              score: 44,
+              isFastest: false,
+              barClass: "bg-indigo-500 dark:bg-indigo-400",
+              textClass: "text-indigo-600 dark:text-indigo-300",
+            },
+            {
+              name: "Bun",
+              time: "8.62s",
+              score: 57,
+              isFastest: false,
+              barClass: "bg-amber-500 dark:bg-amber-400",
+              textClass: "text-amber-700 dark:text-amber-300",
+            },
+            {
+              name: "aube",
+              time: "6.42s",
+              score: 42,
+              isFastest: true,
+              barClass: "bg-rose-500 dark:bg-rose-400",
+              textClass: "text-rose-700 dark:text-rose-300",
+            },
+            {
+              name: "pnpm",
+              time: "15.14s",
+              score: 100,
+              isFastest: false,
+              barClass: "bg-teal-500 dark:bg-teal-400",
+              textClass: "text-teal-700 dark:text-teal-300",
+            },
+          ],
+        },
+        {
+          label: t.packages.utoo.benchmark.warm,
+          entries: [
+            {
+              name: "utoo",
+              time: "1.09s",
+              score: 14,
+              isFastest: true,
+              barClass: "bg-indigo-500 dark:bg-indigo-400",
+              textClass: "text-indigo-600 dark:text-indigo-300",
+            },
+            {
+              name: "Bun",
+              time: "2.72s",
+              score: 34,
+              isFastest: false,
+              barClass: "bg-amber-500 dark:bg-amber-400",
+              textClass: "text-amber-700 dark:text-amber-300",
+            },
+            {
+              name: "aube",
+              time: "1.60s",
+              score: 20,
+              isFastest: false,
+              barClass: "bg-rose-500 dark:bg-rose-400",
+              textClass: "text-rose-700 dark:text-rose-300",
+            },
+            {
+              name: "pnpm",
+              time: "7.89s",
+              score: 100,
+              isFastest: false,
+              barClass: "bg-teal-500 dark:bg-teal-400",
+              textClass: "text-teal-700 dark:text-teal-300",
+            },
+          ],
+        },
+      ],
+      npmjsScenarios: [
+        {
+          label: t.packages.utoo.benchmark.fullCold,
+          entries: [
+            {
+              name: "utoo",
+              time: "8.13s",
+              score: 31,
+              isFastest: true,
+              barClass: "bg-indigo-500 dark:bg-indigo-400",
+              textClass: "text-indigo-600 dark:text-indigo-300",
+            },
+            {
+              name: "Bun",
+              time: "9.70s",
+              score: 37,
+              isFastest: false,
+              barClass: "bg-amber-500 dark:bg-amber-400",
+              textClass: "text-amber-700 dark:text-amber-300",
+            },
+            {
+              name: "aube",
+              time: "17.54s",
+              score: 67,
+              isFastest: false,
+              barClass: "bg-rose-500 dark:bg-rose-400",
+              textClass: "text-rose-700 dark:text-rose-300",
+            },
+            {
+              name: "pnpm",
+              time: "26.20s",
+              score: 100,
+              isFastest: false,
+              barClass: "bg-teal-500 dark:bg-teal-400",
+              textClass: "text-teal-700 dark:text-teal-300",
+            },
+          ],
+        },
+        {
+          label: t.packages.utoo.benchmark.lockOnlyCold,
+          entries: [
+            {
+              name: "utoo",
+              time: "7.22s",
+              score: 40,
+              isFastest: true,
+              barClass: "bg-indigo-500 dark:bg-indigo-400",
+              textClass: "text-indigo-600 dark:text-indigo-300",
+            },
+            {
+              name: "Bun",
+              time: "7.52s",
+              score: 42,
+              isFastest: false,
+              barClass: "bg-amber-500 dark:bg-amber-400",
+              textClass: "text-amber-700 dark:text-amber-300",
+            },
+            {
+              name: "aube",
+              time: "8.37s",
+              score: 46,
+              isFastest: false,
+              barClass: "bg-rose-500 dark:bg-rose-400",
+              textClass: "text-rose-700 dark:text-rose-300",
+            },
+            {
+              name: "pnpm",
+              time: "18.01s",
+              score: 100,
+              isFastest: false,
+              barClass: "bg-teal-500 dark:bg-teal-400",
+              textClass: "text-teal-700 dark:text-teal-300",
+            },
+          ],
+        },
+        {
+          label: t.packages.utoo.benchmark.warm,
+          entries: [
+            {
+              name: "utoo",
+              time: "2.25s",
+              score: 31,
+              isFastest: true,
+              barClass: "bg-indigo-500 dark:bg-indigo-400",
+              textClass: "text-indigo-600 dark:text-indigo-300",
+            },
+            {
+              name: "Bun",
+              time: "3.58s",
+              score: 50,
+              isFastest: false,
+              barClass: "bg-amber-500 dark:bg-amber-400",
+              textClass: "text-amber-700 dark:text-amber-300",
+            },
+            {
+              name: "aube",
+              time: "2.59s",
+              score: 36,
+              isFastest: false,
+              barClass: "bg-rose-500 dark:bg-rose-400",
+              textClass: "text-rose-700 dark:text-rose-300",
+            },
+            {
+              name: "pnpm",
+              time: "7.19s",
+              score: 100,
+              isFastest: false,
+              barClass: "bg-teal-500 dark:bg-teal-400",
+              textClass: "text-teal-700 dark:text-teal-300",
+            },
+          ],
+        },
+      ],
+    },
     features: [
       {
         icon: Download,
@@ -304,6 +537,7 @@ function getPackages(t: Translations) {
       builtInto: t.packages.pack.config.builtInto,
       addConfig: t.packages.pack.config.addConfig,
     },
+    benchmark: null,
     api: {
       description: t.packages.pack.api.description,
       code: `const { build, serve } = require('@utoo/pack');
@@ -362,9 +596,119 @@ await serve({
       { cmd: "project.writeFile(path, content)", desc: t.packages.web.commands.writeFile },
     ],
     config: null,
+    benchmark: null,
     api: null,
   },
 ];
+}
+
+type BenchmarkConfig = NonNullable<ReturnType<typeof getPackages>[number]["benchmark"]>;
+type BenchmarkRegistry = "npmmirror" | "npmjs";
+
+function BenchmarkComparison({
+  benchmark,
+  color,
+}: {
+  benchmark: BenchmarkConfig;
+  color: string;
+}) {
+  const [activeRegistry, setActiveRegistry] = useState<BenchmarkRegistry>("npmmirror");
+  const activeScenarios =
+    activeRegistry === "npmmirror" ? benchmark.scenarios : benchmark.npmjsScenarios;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 14 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay: 0.25 }}
+      viewport={{ once: true }}
+      className="glass-card rounded-2xl p-5 overflow-hidden"
+    >
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+        <h4 className="text-base font-bold text-foreground/90">
+          {benchmark.title}
+        </h4>
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="inline-flex rounded-xl border dark:border-white/[0.08] light:border-black/[0.08] dark:bg-white/[0.03] light:bg-black/[0.02] p-1">
+            {[
+              { key: "npmmirror", label: benchmark.npmmirror },
+              { key: "npmjs", label: benchmark.npmjs },
+            ].map((item) => (
+              <button
+                key={item.key}
+                type="button"
+                onClick={() => setActiveRegistry(item.key as BenchmarkRegistry)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold font-mono transition-all ${
+                  activeRegistry === item.key
+                    ? "bg-white text-black shadow-lg"
+                    : "text-muted-foreground hover:text-foreground hover:bg-white/[0.04]"
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+          <a
+            href={benchmark.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`text-xs font-bold dark:text-${color}-400 light:text-${color}-600 hover:opacity-80 transition-opacity whitespace-nowrap`}
+          >
+            {benchmark.source}
+          </a>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-3">
+        {activeScenarios.map((scenario, scenarioIndex) => (
+          <div
+            key={`${activeRegistry}-${scenario.label}`}
+            className="rounded-xl border dark:border-white/[0.08] light:border-black/[0.08] dark:bg-white/[0.03] light:bg-black/[0.02] p-4 min-h-[190px]"
+          >
+            <div className="mb-4">
+              <div className="text-lg font-bold text-foreground/90 leading-tight">
+                {scenario.label}
+              </div>
+            </div>
+            <div className="space-y-3">
+              {scenario.entries.map((entry, entryIndex) => (
+                <div key={entry.name} className="space-y-1.5">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className={`text-xs font-black font-mono ${entry.textClass}`}>
+                        {entry.name}
+                      </span>
+                    </div>
+                    <span className="text-xs font-bold font-mono text-foreground/80 shrink-0">
+                      {entry.time}
+                    </span>
+                  </div>
+                  <div className="h-2.5 rounded-full bg-black/[0.08] dark:bg-white/[0.08] overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      whileInView={{ width: `${entry.score}%` }}
+                      transition={{
+                        duration: 0.9,
+                        delay: scenarioIndex * 0.12 + entryIndex * 0.06,
+                        ease: [0.16, 1, 0.3, 1],
+                      }}
+                      viewport={{ once: false, amount: 0.6 }}
+                      role="progressbar"
+                      aria-label={`${scenario.label} ${entry.name}`}
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      aria-valuenow={entry.score}
+                      className={`h-full rounded-full ${entry.barClass} shadow-[0_0_18px_currentColor]`}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </motion.div>
+  );
 }
 
 function QuickReference({
@@ -600,6 +944,10 @@ export function Features() {
                         </div>
                       </div>
                     </motion.div>
+                  )}
+
+                  {pkg.benchmark && (
+                    <BenchmarkComparison benchmark={pkg.benchmark} color={pkg.color} />
                   )}
                 </div>
 
