@@ -34,6 +34,18 @@ utx create-react-app my-app
 - **统一** - 一套工具链满足所有需求
 - **现代** - 原生 ESM、TypeScript 等
 
+## 包管理性能快照
+
+以下数据来自 `ant-design` 项目的阶段化安装基准，poolab Linux x86_64 环境直连 `https://registry.npmmirror.com`，耗时越低越好。
+
+| 场景 | utoo | Bun | pnpm | aube |
+|------|------|-----|------|------|
+| 完全冷启动 (`p0`) | **7.84s ± 2.17s** | 13.21s ± 2.36s | 39.32s ± 16.56s | 27.63s ± 6.47s |
+| 仅 lock 冷启动 (`p3`) | 6.64s ± 1.64s | 8.62s ± 3.57s | 15.14s ± 0.77s | **6.42s ± 0.31s** |
+| 热缓存安装 (`p4`) | **1.09s ± 0.05s** | 2.72s ± 0.05s | 7.89s ± 0.38s | 1.60s ± 0.07s |
+
+`p3` 中 utoo 与 aube 的均值差异处于噪声范围；在完全冷启动和热缓存安装场景下，utoo 领先更明显。GitHub Actions npmjs 结果和修正后的 pnpm 验证详见 [utoo 性能基准](/zh/docs/utoo/performance)。
+
 ## 安装
 
 **包管理器**

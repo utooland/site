@@ -1,5 +1,6 @@
 export default {
   index: 'Overview',
+  performance: 'Performance',
   commands: 'Commands',
   specs: 'Package Specs',
   catalog: 'Catalog',

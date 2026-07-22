@@ -62,6 +62,18 @@ ut dev
 utx create-react-app my-app
 ```
 
+## Performance comparison
+
+`utoo` is optimized around dependency resolution, download reuse, and global package-cache reuse. The table below shows a phased install benchmark for the `ant-design` project on poolab Linux x86_64, connected directly to `https://registry.npmmirror.com`. Lower is better.
+
+| Scenario | utoo | Bun | pnpm | aube |
+|----------|------|-----|------|------|
+| Full cold (`p0`) | **7.84s ± 2.17s** | 13.21s ± 2.36s | 39.32s ± 16.56s | 27.63s ± 6.47s |
+| Lock-only cold (`p3`) | 6.64s ± 1.64s | 8.62s ± 3.57s | 15.14s ± 0.77s | **6.42s ± 0.31s** |
+| Warm (`p4`) | **1.09s ± 0.05s** | 2.72s ± 0.05s | 7.89s ± 0.38s | 1.60s ± 0.07s |
+
+In `p3`, the utoo and aube mean difference is within noise and should be treated as a tie. Utoo is more clearly ahead in `p0` and `p4`. Absolute timings vary by platform, registry, and network topology. See [performance benchmarks](/en/docs/utoo/performance) for the full methodology, GitHub Actions npmjs runs, and corrected pnpm validation.
+
 ## Commands
 
 <Cards>
@@ -69,6 +81,7 @@ utx create-react-app my-app
   <Cards.Card title="run" href="/en/docs/utoo/commands#run" />
   <Cards.Card title="execute" href="/en/docs/utoo/commands#execute" />
   <Cards.Card title="view" href="/en/docs/utoo/commands#view" />
+  <Cards.Card title="Performance" href="/en/docs/utoo/performance" />
 </Cards>
 
 **All Commands**

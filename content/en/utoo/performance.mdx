@@ -1,0 +1,88 @@
+# Performance benchmarks
+
+import { Callout } from 'nextra/components'
+
+This page explains the benchmark metrics, methodology, and interpretation for the utoo package manager. The full source data is tracked in [GitHub issue #3250](https://github.com/utooland/utoo/issues/3250).
+
+<Callout type="info">
+  Lower times are better. Platform, registry, network topology, and filesystem behavior affect absolute timings, so results from different environments should not be mixed into one statistical comparison.
+</Callout>
+
+## Metric definitions
+
+| Metric | Name | State before install | What it measures |
+|--------|------|----------------------|------------------|
+| `p0` | Full cold | No lockfile, no manifest cache, no tarball/package store, no `node_modules` | First-install dependency resolution, network requests, download, extraction, and write cost |
+| `p3` | Lock-only cold | Lockfile exists, but tarball/package store and `node_modules` are removed | Restoring dependencies from a locked graph when the package store is cold |
+| `p4` | Warm | Lockfile and tarball/package store exist; only `node_modules` is removed | Rebuilding the project dependency directory from a populated global package store |
+
+Do not use “no lockfile but warm manifest cache” as a comparison state. Bun keeps fresh manifests for a short period without revalidation, so that state gives Bun an extra advantage that does not match the intended cold-install semantics.
+
+## poolab Linux · npmmirror direct connection
+
+- Date: 2026-07-21
+- Project: `ant-design`
+- Host: Linux x86_64 (poolab)
+- Registry: `https://registry.npmmirror.com`
+- Network: direct connection; no `HTTP_PROXY`, `HTTPS_PROXY`, `NO_PROXY`, npm proxy, macmini host entry, or macmini shell configuration
+- Versions: utoo 1.1.3, Bun 1.3.14, pnpm 10.34.5, aube 1.29.1
+- Sampling: 3 interleaved rounds for `p0` / `p3`; 5 interleaved rounds for `p4`
+
+| Scenario | utoo | Bun | pnpm | aube |
+|----------|------|-----|------|------|
+| Full cold (`p0`) | **7.84s ± 2.17s** | 13.21s ± 2.36s | 39.32s ± 16.56s | 27.63s ± 6.47s |
+| Lock-only cold (`p3`) | 6.64s ± 1.64s | 8.62s ± 3.57s | 15.14s ± 0.77s | **6.42s ± 0.31s** |
+| Warm (`p4`) | **1.09s ± 0.05s** | 2.72s ± 0.05s | 7.89s ± 0.38s | 1.60s ± 0.07s |
+
+Interpretation:
+
+- `p0`: utoo is the fastest full-cold result in this environment, taking about 59% of Bun's time and 20% of pnpm's time.
+- `p3`: the utoo and aube means are very close. After 9 paired, order-alternating repeat rounds, the utoo-minus-aube delta was +0.214s with a 0.506s standard error, so this should be treated as a tie.
+- `p4`: utoo's warm install is 1.09s, clearly ahead of Bun, pnpm, and aube. The corrected pnpm warm run had about 4 KB of network RX, confirming it was a valid warm measurement.
+
+## GitHub Actions · npmjs
+
+- Harness branch/commit: `codex/aube-phase-benchmark` / `7a76aa3`
+- Project: `ant-design`
+- Registry: `https://registry.npmjs.org`
+- Workflow: `https://github.com/utooland/utoo/actions/runs/29797404521`
+- Sampling: 3 interleaved rounds for `p0` / `p3`; 5 interleaved rounds for `p4`
+- aube: 1.29.1 with `trustPolicy: off`
+
+### Linux (`ubuntu-latest`)
+
+| Scenario | utoo | Bun | aube |
+|----------|------|-----|------|
+| Full cold (`p0`) | **8.13s ± 0.33s** | 9.70s ± 0.24s | 17.54s ± 0.74s |
+| Lock-only cold (`p3`) | **7.22s ± 1.24s** | 7.52s ± 0.04s | 8.37s ± 1.04s |
+| Warm (`p4`) | **2.25s ± 0.12s** | 3.58s ± 0.05s | 2.59s ± 0.13s |
+
+### macOS (`macos-latest`, Apple Silicon)
+
+| Scenario | utoo | Bun | aube |
+|----------|------|-----|------|
+| Full cold (`p0`) | **19.19s ± 2.43s** | 22.81s ± 1.29s | 55.28s ± 5.78s |
+| Lock-only cold (`p3`) | **12.03s ± 0.53s** | 15.58s ± 3.94s | 31.31s ± 3.12s |
+| Warm (`p4`) | **3.81s ± 0.19s** | 5.37s ± 0.22s | 14.76s ± 0.26s |
+
+The original GitHub Actions workflow intentionally omits pnpm. `ant-design` has `package-lock=false` in `.npmrc`, and pnpm 10 mapped that to `lockfile=false`, so those cells did not have a valid `pnpm-lock.yaml` and should not be cited as `p3` / `p4` measurements.
+
+### Corrected pnpm validation
+
+- Hardened harness commit: `1e88fa2b`
+- Workflow: `https://github.com/utooland/utoo/actions/runs/29809892297`
+
+| Platform | Full cold (`p0`) | Lock-only cold (`p3`) | Warm (`p4`) |
+|----------|------------------|-----------------------|-------------|
+| Linux | 26.20s ± 0.81s | 18.01s ± 1.03s | 7.19s ± 0.02s |
+| macOS | 70.58s ± 13.74s | 57.25s ± 15.07s | 31.88s ± 2.58s |
+
+The Linux warm cell retained a roughly 1 MB `pnpm-lock.yaml` and a roughly 1.45 GB store while transferring only about 7 KB RX / 18 KB TX, confirming it is a genuinely warm measurement. The same run rejected aube `p3` / `p4` because the expected seeded lockfile was absent, rather than timing stale state.
+
+## Methodology notes
+
+The phased harness uses an explicit store for each package manager, restores each package manager's own lockfile, disables lifecycle scripts, and alternates package-manager order between rounds to reduce network and ordering bias.
+
+The harness also records network traffic so accidentally cold warm cells can be rejected. For example, `p4` should primarily reuse the existing lockfile and tarball/package store; if it still performs meaningful downloads, it is not a valid warm result.
+
+The legacy `pm-bench-all` result should not be cited as a utoo-vs-Bun performance comparison. Its warm preparation deletes the generated lockfile while retaining global caches, so it measures fresh resolution with a warm manifest cache instead of the `p4` state defined here.
