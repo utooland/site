@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "next dev",
-    "build": "node scripts/patch-nextra-theme-docs.mjs && next build",
+    "build": "node scripts/patch-nextra-theme-docs.mjs && next build --webpack",
     "postbuild": "pagefind --site .next/server/app --output-path public/_pagefind",
     "start": "next start",
     "lint": "biome lint .",
