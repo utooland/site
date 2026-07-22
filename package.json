@@ -7,7 +7,6 @@
     "dev": "next dev",
     "build": "node scripts/patch-nextra-theme-docs.mjs && next build",
     "postbuild": "pagefind --site .next/server/app --output-path public/_pagefind",
-    "postinstall": "node scripts/patch-nextra-theme-docs.mjs",
     "start": "next start",
     "lint": "biome lint .",
     "format": "biome format --write ."
