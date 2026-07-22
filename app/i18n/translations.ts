@@ -57,6 +57,15 @@ export const translations = {
             description: "One-command migration from pnpm with catalog support",
           },
         },
+        benchmark: {
+          title: "Install benchmark",
+          source: "Methodology",
+          npmmirror: "npmmirror",
+          npmjs: "npmjs",
+          fullCold: "Full cold",
+          lockOnlyCold: "Lock-only cold",
+          warm: "Warm",
+        },
         commands: {
           install: "Install from lockfile",
           add: "Add new dependency",
@@ -257,6 +266,15 @@ export const translations = {
             title: "pnpm 迁移",
             description: "一键从 pnpm 迁移，支持 catalog 协议",
           },
+        },
+        benchmark: {
+          title: "安装基准",
+          source: "测试口径",
+          npmmirror: "npmmirror",
+          npmjs: "npmjs",
+          fullCold: "完全冷启动",
+          lockOnlyCold: "仅 lock 冷启动",
+          warm: "热缓存安装",
         },
         commands: {
           install: "从 lockfile 安装",

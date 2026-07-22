@@ -1,5 +1,6 @@
 export default {
   index: '概述',
+  performance: '性能基准',
   commands: '命令',
   utx: 'utx 别名',
   config: '配置',

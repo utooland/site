@@ -62,6 +62,18 @@ ut dev
 utx create-react-app my-app
 ```
 
+## 性能对比
+
+`utoo` 的性能优势主要体现在依赖解析、下载复用和全局包缓存复用。以下是 `ant-design` 项目的阶段化安装基准，poolab Linux x86_64 环境直连 `https://registry.npmmirror.com`，耗时越低越好：
+
+| 场景 | utoo | Bun | pnpm | aube |
+|------|------|-----|------|------|
+| 完全冷启动 (`p0`) | **7.84s ± 2.17s** | 13.21s ± 2.36s | 39.32s ± 16.56s | 27.63s ± 6.47s |
+| 仅 lock 冷启动 (`p3`) | 6.64s ± 1.64s | 8.62s ± 3.57s | 15.14s ± 0.77s | **6.42s ± 0.31s** |
+| 热缓存安装 (`p4`) | **1.09s ± 0.05s** | 2.72s ± 0.05s | 7.89s ± 0.38s | 1.60s ± 0.07s |
+
+`p3` 中 utoo 与 aube 的均值差异处于噪声范围，可视为基本持平；utoo 在 `p0` 和 `p4` 中领先更明显。不同平台、镜像源和网络拓扑会影响绝对耗时，GitHub Actions npmjs 结果和修正后的 pnpm 验证见[性能基准](/zh/docs/utoo/performance)。
+
 ## 命令
 
 <Cards>
@@ -69,6 +81,7 @@ utx create-react-app my-app
   <Cards.Card title="run" href="/zh/docs/utoo/commands/run" />
   <Cards.Card title="execute" href="/zh/docs/utoo/commands/execute" />
   <Cards.Card title="view" href="/zh/docs/utoo/commands/view" />
+  <Cards.Card title="性能基准" href="/zh/docs/utoo/performance" />
 </Cards>
 
 **所有命令**
