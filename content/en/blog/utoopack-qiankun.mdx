@@ -4,11 +4,11 @@
 
 ## Introduction
 
-Utoo<sup>[1]</sup> is an open-source, Rust-based frontend toolchain from Ant Group. It currently includes a package manager and a build tool.
+[Utoo](https://github.com/utooland/utoo) is an open-source, Rust-based frontend toolchain from Ant Group. It currently includes a package manager and a build tool.
 
-Utoopack is the build tool in the Utoo toolchain. Under the hood, it is built on Turbopack, the Rust bundler behind Next.js.<sup>[2]</sup>
+Utoopack is the build tool in the Utoo toolchain. Under the hood, it is built on [Turbopack](https://github.com/vercel/next.js/tree/canary/turbopack), the Rust bundler behind Next.js.
 
-qiankun<sup>[3]</sup> is Ant Group's open-source micro-frontend framework, built on top of single-spa.
+[qiankun](https://github.com/umijs/qiankun) is Ant Group's open-source micro-frontend framework, built on top of single-spa.
 
 A typical micro-frontend system consists of one host application and multiple micro applications. The host owns routing, layout, and orchestration, while each micro app is loaded, mounted, and unmounted under specific routes.
 
@@ -18,15 +18,15 @@ We recently completed Utoopack support for two major qiankun generations: qianku
 
 The integration has also reached two higher-level frameworks, Umi and evjs.
 
-Umi<sup>[4]</sup> is the open-source version of Ant Group's framework for middle- and back-office applications.
+[Umi](https://github.com/umijs/umi) is the open-source version of Ant Group's framework for middle- and back-office applications.
 
 Its qiankun plugin no longer requires a Utoopack micro app to emit UMD. It exposes lifecycle functions through a browser global instead.
 
-Later work added an asynchronous lifecycle proxy and end-to-end coverage for qiankun 2. See Umi PR #13178<sup>[5]</sup> and PR #13354<sup>[6]</sup>.
+Later work added an asynchronous lifecycle proxy and end-to-end coverage for qiankun 2. See [Umi PR #13178](https://github.com/umijs/umi/pull/13178) and [PR #13354](https://github.com/umijs/umi/pull/13354).
 
-evjs<sup>[7]</sup> is the open-source version of Ant Group's full-stack framework. Its standalone `@evjs/plugin-qiankun` supports both host and micro apps, including qiankun 3 HTML Entry, mount paths, and lifecycle bridging.
+[evjs](https://github.com/afx-team/evjs) is the open-source version of Ant Group's full-stack framework. Its standalone `@evjs/plugin-qiankun` supports both host and micro apps, including qiankun 3 HTML Entry, mount paths, and lifecycle bridging.
 
-For Utoopack micro apps, evjs also connects to qiankun through a global lifecycle object and a Promise Proxy. See evjs PR #35<sup>[8]</sup> and PR #44<sup>[9]</sup>.
+For Utoopack micro apps, evjs also connects to qiankun through a global lifecycle object and a Promise Proxy. See [evjs PR #35](https://github.com/afx-team/evjs/pull/35) and [PR #44](https://github.com/afx-team/evjs/pull/44).
 
 This work is useful beyond Utoopack. If your host is a Next.js application and you want to integrate other frontend applications through qiankun, the same Turbopack Runtime constraints apply.
 
@@ -123,7 +123,7 @@ The Runtime does not embed its full filename. Instead, it reads `document.curren
 
 The Runtime can then identify the current chunk, derive the public path, and load later chunks. This avoids the content-hash cycle while preserving long-term caching with hashed filenames.
 
-Turbopack PR #77773 switched Next.js client chunks from path literals to `document.currentScript`.<sup>[10]</sup> PR #78545 documented and fixed the infinite loop caused by combining `StringLiteral` with content hashes.<sup>[11]</sup>
+[Turbopack PR #77773](https://github.com/vercel/next.js/pull/77773) switched Next.js client chunks from path literals to `document.currentScript`. [PR #78545](https://github.com/vercel/next.js/pull/78545) documented and fixed the infinite loop caused by combining `StringLiteral` with content hashes.
 
 The micro-frontend requirements are now clear: applications must not share one Chunk Loading Queue, and a micro app must not lose the URL of its current script during execution.
 
@@ -190,7 +190,7 @@ Each application then owns an independent chunk registry, set of module factorie
 
 When no name is configured, Utoopack also attempts to derive a namespace from the `name` field in `package.json`, reducing accidental collisions.
 
-See Utoo Issue #2526<sup>[12]</sup> and Utoo PR #2528<sup>[13]</sup>.
+See [Utoo Issue #2526](https://github.com/utooland/utoo/issues/2526) and [Utoo PR #2528](https://github.com/utooland/utoo/pull/2528).
 
 The same runtime isolation works for qiankun 2 and qiankun 3. The difference is how each version starts the entry runtime.
 
@@ -223,9 +223,9 @@ __webpack_public_path__ =
 
 To preserve compatibility with existing code, Utoopack transforms `__webpack_public_path__` and maps it to the `globalThis.publicPath` value consumed by the Utoopack Runtime.
 
-See Utoo PR #2790.<sup>[14]</sup>
+See [Utoo PR #2790](https://github.com/utooland/utoo/pull/2790).
 
-In Umi's<sup>[4]</sup> qiankun plugin, the micro app HTML initializes:
+In [Umi's](https://github.com/umijs/umi) qiankun plugin, the micro app HTML initializes:
 
 ```js
 window.publicPath =
@@ -234,7 +234,7 @@ window.publicPath =
 
 The Utoopack Runtime uses that URL for later JavaScript, CSS, and static assets.
 
-Utoopack also supports `output.publicPath: "auto"`, deriving the asset path from the currently executing script. See Utoo PR #2953.<sup>[15]</sup>
+Utoopack also supports `output.publicPath: "auto"`, deriving the asset path from the currently executing script. See [Utoo PR #2953](https://github.com/utooland/utoo/pull/2953).
 
 However, `publicPath: "auto"` depends on one critical condition: the entry must expose the correct `document.currentScript`.
 
@@ -262,7 +262,7 @@ The element is never inserted into the page, so it does not trigger another netw
 
 After evaluation completes—successfully or not—qiankun restores the original `document.currentScript` behavior so that other page scripts are unaffected.
 
-See qiankun PR #3131.<sup>[16]</sup>
+See [qiankun PR #3131](https://github.com/umijs/qiankun/pull/3131).
 
 **Where the entry script executes determines where its later chunks load from.**
 
@@ -284,7 +284,7 @@ webpack commonly emits a micro app as a UMD library and attaches the entry expor
 window[appName];
 ```
 
-Utoopack once implemented a similar mechanism. `output.entryRootExport` wrapped the entry exports in a configured global variable. See Utoo PR #2550.<sup>[17]</sup>
+Utoopack once implemented a similar mechanism. `output.entryRootExport` wrapped the entry exports in a configured global variable. See [Utoo PR #2550](https://github.com/utooland/utoo/pull/2550).
 
 That solves the entry export, but a full Umi application also relies on asynchronous chunks, code splitting, and HMR.
 
@@ -305,7 +305,7 @@ window[appName] = {
 
 This keeps Turbopack's module system intact while giving qiankun a thin global bridge to the lifecycle functions.
 
-It is the foundation of the current Umi + Utoopack integration. See Umi PR #13178.<sup>[5]</sup>
+It is the foundation of the current Umi + Utoopack integration. See [Umi PR #13178](https://github.com/umijs/umi/pull/13178).
 
 For qiankun 2, however, assigning the lifecycle object to `window` is not sufficient.
 
@@ -347,7 +347,7 @@ The resulting execution flow is:
 
 ![How the Lifecycle Proxy fixes the timing gap](/blog/utoopack-qiankun/qiankun2-lifecycle-proxy-flow-en.png)
 
-See Umi PR #13354 for the implementation and host/micro-app E2E coverage.<sup>[6]</sup>
+See [Umi PR #13354](https://github.com/umijs/umi/pull/13354) for the implementation and host/micro-app E2E coverage.
 
 **For qiankun 2, completion of the entry script does not mean that the application is ready.**
 
@@ -361,7 +361,7 @@ Three pull requests complete this integration.
 
 #### PR #13178: Replace UMD with a Browser Global Bridge
 
-Umi PR #13178<sup>[5]</sup> introduced the first Umi-side integration.
+[Umi PR #13178](https://github.com/umijs/umi/pull/13178) introduced the first Umi-side integration.
 
 In Utoopack mode, the qiankun plugin no longer uses webpack configuration to wrap the micro app as UMD. Once the entry module runs, Umi assigns:
 
@@ -384,7 +384,7 @@ Second, qiankun only consumes browser-side lifecycles. Removing the multi-format
 
 #### PR #13354: Fix qiankun 2 Lifecycle Timing
 
-Umi PR #13354<sup>[6]</sup> builds on the global bridge and fixes qiankun 2's asynchronous timing.
+[Umi PR #13354](https://github.com/umijs/umi/pull/13354) builds on the global bridge and fixes qiankun 2's asynchronous timing.
 
 Umi detects whether an application uses Utoopack and injects the Lifecycle Proxy before the `umi.js` entry.
 
@@ -402,7 +402,7 @@ PR #13354 is more than a proxy. It connects entry injection, lifecycle timing, d
 
 #### PR #13367: Run qiankun E2E on Windows
 
-Umi PR #13367<sup>[18]</sup> extends that E2E coverage to Windows.
+[Umi PR #13367](https://github.com/umijs/umi/pull/13367) extends that E2E coverage to Windows.
 
 Starting `npm.cmd` directly on a Windows runner can fail with `spawn EINVAL`. The PR starts the preview command through a shell instead, allowing the Utoopack host/micro-app regression suite to reach Cypress on Windows.
 
@@ -471,7 +471,7 @@ In this mode, qiankun can read lifecycles directly from the entry Module Namespa
 
 This path is closer to Turbopack's native module model and provides a possible next step for Umi + Utoopack.
 
-The current implementation described here still uses classic script mode. See the qiankun 3 ESM Sandbox RFC for the native design.<sup>[19]</sup>
+The current implementation described here still uses classic script mode. See the [qiankun 3 ESM Sandbox RFC](https://github.com/umijs/qiankun/blob/next/docs/rfcs/esm-sandbox.md) for the native design.
 
 ## HMR Isolation Shared by Both Versions
 
@@ -500,7 +500,7 @@ utooChunk_slave_CHUNK_UPDATE_LISTENERS
 
 When Utoopack emits the HMR bootstrap, it passes the listener namespace to the HMR Client. The host and micro apps can then maintain independent update listeners, module state, and HMR WebSockets.
 
-Runtime isolation now covers both production and development. See Utoo PR #3251.<sup>[20]</sup>
+Runtime isolation now covers both production and development. See [Utoo PR #3251](https://github.com/utooland/utoo/pull/3251).
 
 **An isolated production runtime does not imply an isolated development runtime.**
 
@@ -514,7 +514,7 @@ Umi records whether the socket ever connected successfully.
 
 Only a disconnect after a successful connection reloads the page. An HMR Client that never connected does not reload the host.
 
-This looks like a small change, but it directly determines whether local micro-frontend development is stable. The behavior is also included in Umi PR #13354.<sup>[6]</sup>
+This looks like a small change, but it directly determines whether local micro-frontend development is stable. The behavior is also included in [Umi PR #13354](https://github.com/umijs/umi/pull/13354).
 
 ## From Utoopack to Turbopack Upstream
 
@@ -528,11 +528,11 @@ We first validated the fixes in a real Utoopack application, then extracted the 
 
 After finding the `globalThis.TURBOPACK` collision, we implemented `output.chunkLoadingGlobal` in Utoopack and verified that independent chunk registries removed host/micro-app runtime conflicts.
 
-We then moved the capability into Turbopack. vercel/next.js PR #88790<sup>[21]</sup> added a configurable `chunk_loading_global` to the Browser Chunking Context.
+We then moved the capability into Turbopack. [vercel/next.js PR #88790](https://github.com/vercel/next.js/pull/88790) added a configurable `chunk_loading_global` to the Browser Chunking Context.
 
 Regular browser chunks, evaluate chunks, and the Browser Runtime now use the same configurable name instead of a fixed `globalThis.TURBOPACK`. The PR landed in Next.js canary in February 2026.
 
-vercel/next.js PR #93488<sup>[22]</sup> later exposed the capability as a Next.js option:
+[vercel/next.js PR #93488](https://github.com/vercel/next.js/pull/93488) later exposed the capability as a Next.js option:
 
 ```js
 module.exports = {
@@ -548,11 +548,11 @@ Next.js applications can now configure independent namespaces for separate Turbo
 
 `chunkLoadingGlobal` resolves production Runtime collisions. During qiankun integration, however, we found that Turbopack HMR still depended on the fixed `TURBOPACK_CHUNK_UPDATE_LISTENERS`.
 
-We implemented the low-level change in Utoo's Next.js branch through utooland/next.js PR #168<sup>[23]</sup>, then integrated it into Utoopack through utooland/utoo PR #3251.<sup>[20]</sup>
+We implemented the low-level change in Utoo's Next.js branch through [utooland/next.js PR #168](https://github.com/utooland/next.js/pull/168), then integrated it into Utoopack through [utooland/utoo PR #3251](https://github.com/utooland/utoo/pull/3251).
 
 We validated the change in a browser with a host and micro app running simultaneously. Both runtimes created independent Listener Providers and HMR WebSockets.
 
-After validation, we submitted vercel/next.js PR #95997<sup>[24]</sup>, deriving the HMR Listener from the Chunk Loading Global:
+After validation, we submitted [vercel/next.js PR #95997](https://github.com/vercel/next.js/pull/95997), deriving the HMR Listener from the Chunk Loading Global:
 
 ```text
 <chunkLoadingGlobal>_CHUNK_UPDATE_LISTENERS
@@ -619,53 +619,3 @@ Low-level Chunk Loading Global support is already in Next.js canary. HMR Listene
 Micro frontends were the scenario that exposed these problems. The reusable result is Turbopack support for multiple runtimes on one page.
 
 We will continue collaborating with the Next.js, Turbopack, Umi, and qiankun communities and upstreaming capabilities proven in real applications.
-
-## References
-
-[1] Utoo / Utoopack: https://github.com/utooland/utoo
-
-[2] Turbopack in the Next.js repository: https://github.com/vercel/next.js/tree/canary/turbopack
-
-[3] qiankun: https://github.com/umijs/qiankun
-
-[4] Umi: https://github.com/umijs/umi
-
-[5] Umi PR #13178: https://github.com/umijs/umi/pull/13178
-
-[6] Umi PR #13354: https://github.com/umijs/umi/pull/13354
-
-[7] evjs: https://github.com/afx-team/evjs
-
-[8] evjs PR #35 — add `@evjs/plugin-qiankun` for host/micro-app bridging: https://github.com/afx-team/evjs/pull/35
-
-[9] evjs PR #44 — connect Utoopack micro apps through global lifecycles and a Promise Proxy: https://github.com/afx-team/evjs/pull/44
-
-[10] Turbopack PR #77773 — use `document.currentScript` instead of a chunk path literal: https://github.com/vercel/next.js/pull/77773
-
-[11] Turbopack PR #78545 — fix the build hang caused by content hashes with `StringLiteral`: https://github.com/vercel/next.js/pull/78545
-
-[12] Utoo Issue #2526: https://github.com/utooland/utoo/issues/2526
-
-[13] Utoo PR #2528: https://github.com/utooland/utoo/pull/2528
-
-[14] Utoo PR #2790: https://github.com/utooland/utoo/pull/2790
-
-[15] Utoo PR #2953: https://github.com/utooland/utoo/pull/2953
-
-[16] qiankun PR #3131: https://github.com/umijs/qiankun/pull/3131
-
-[17] Utoo PR #2550: https://github.com/utooland/utoo/pull/2550
-
-[18] Umi PR #13367: https://github.com/umijs/umi/pull/13367
-
-[19] qiankun 3 ESM Sandbox RFC: https://github.com/umijs/qiankun/blob/next/docs/rfcs/esm-sandbox.md
-
-[20] Utoo PR #3251: https://github.com/utooland/utoo/pull/3251
-
-[21] Turbopack support for `chunk_loading_global`: https://github.com/vercel/next.js/pull/88790
-
-[22] Next.js support for `turbopack.chunkLoadingGlobal`: https://github.com/vercel/next.js/pull/93488
-
-[23] HMR Listener isolation in Utoo's Next.js branch: https://github.com/utooland/next.js/pull/168
-
-[24] Turbopack HMR Listener isolation: https://github.com/vercel/next.js/pull/95997

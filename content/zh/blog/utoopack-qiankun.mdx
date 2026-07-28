@@ -4,11 +4,11 @@
 
 ## 前言
 
-Utoo<sup>[1]</sup> 是蚂蚁集团开源的一套基于 Rust 的前端工具链，目前主要包含包管理器和构建工具两部分。
+[Utoo](https://github.com/utooland/utoo) 是蚂蚁集团开源的一套基于 Rust 的前端工具链，目前主要包含包管理器和构建工具两部分。
 
-其中，Utoopack 是 Utoo 工具链中负责前端构建的工具，底层基于 Next.js 背后的 Rust Bundler Turbopack<sup>[2]</sup>。
+其中，Utoopack 是 Utoo 工具链中负责前端构建的工具，底层基于 Next.js 背后的 Rust Bundler [Turbopack](https://github.com/vercel/next.js/tree/canary/turbopack)。
 
-qiankun<sup>[3]</sup> 是蚂蚁集团开源的微前端框架，底层基于 single-spa。
+[qiankun](https://github.com/umijs/qiankun) 是蚂蚁集团开源的微前端框架，底层基于 single-spa。
 
 一个典型的微前端系统，通常由一个主应用和多个子应用组成。主应用负责路由、布局和应用调度，子应用则在特定路由下被动态加载、挂载和卸载。
 
@@ -18,13 +18,13 @@ qiankun<sup>[3]</sup> 是蚂蚁集团开源的微前端框架，底层基于 sin
 
 这套能力也已经进入 Umi 和 evjs 两个上层框架：
 
-Umi<sup>[4]</sup> 是蚂蚁中后台前端框架的开源版本。它的 qiankun 插件不再要求 Utoopack 子应用输出 UMD，而是通过浏览器全局变量暴露生命周期。
+[Umi](https://github.com/umijs/umi) 是蚂蚁中后台前端框架的开源版本。它的 qiankun 插件不再要求 Utoopack 子应用输出 UMD，而是通过浏览器全局变量暴露生命周期。
 
-后续适配又补齐了 qiankun 2 的异步生命周期代理和端到端测试，相关实现可以参考 Umi PR #13178<sup>[5]</sup> 和 PR #13354<sup>[6]</sup>。
+后续适配又补齐了 qiankun 2 的异步生命周期代理和端到端测试，相关实现可以参考 [Umi PR #13178](https://github.com/umijs/umi/pull/13178) 和 [PR #13354](https://github.com/umijs/umi/pull/13354)。
 
-evjs<sup>[7]</sup> 是蚂蚁全栈框架的开源版本。它提供了独立的 `@evjs/plugin-qiankun`，支持 qiankun 主应用和子应用接入，并针对 qiankun 3 的 HTML Entry、挂载路径和生命周期桥进行了适配。
+[evjs](https://github.com/afx-team/evjs) 是蚂蚁全栈框架的开源版本。它提供了独立的 `@evjs/plugin-qiankun`，支持 qiankun 主应用和子应用接入，并针对 qiankun 3 的 HTML Entry、挂载路径和生命周期桥进行了适配。
 
-在 Utoopack 子应用中，evjs 同样通过全局变量和 Promise Proxy 与 qiankun 对接，相关实现可以参考 evjs PR #35<sup>[8]</sup> 和 PR #44<sup>[9]</sup>。
+在 Utoopack 子应用中，evjs 同样通过全局变量和 Promise Proxy 与 qiankun 对接，相关实现可以参考 [evjs PR #35](https://github.com/afx-team/evjs/pull/35) 和 [PR #44](https://github.com/afx-team/evjs/pull/44)。
 
 这项工作并不只对 Utoopack 用户有意义。如果你的主应用是 Next.js，也正在考虑通过 qiankun 接入其他前端应用，本文同样提供了一条来自 Turbopack Runtime 底层的适配思路。
 
@@ -121,7 +121,7 @@ Runtime 不再把自己的完整文件名写进产物，而是在脚本真正执
 
 拿到这个 URL 后，Runtime 才能定位当前 Chunk，并以它为基准计算 Public Path、加载后续 Chunk。这样既避开了 Content Hash 的自引用，也保留了带 Hash 文件名的长期缓存能力。
 
-Turbopack PR #77773 将 Next.js 客户端 Chunk 从路径字面量切换到了 `document.currentScript`<sup>[10]</sup>；PR #78545 则直接记录并修复了 `StringLiteral` 与 Content Hash 组合导致的无限循环<sup>[11]</sup>。
+[Turbopack PR #77773](https://github.com/vercel/next.js/pull/77773) 将 Next.js 客户端 Chunk 从路径字面量切换到了 `document.currentScript`；[PR #78545](https://github.com/vercel/next.js/pull/78545) 则直接记录并修复了 `StringLiteral` 与 Content Hash 组合导致的无限循环。
 
 理解这套流程后，微前端适配需要解决的问题就很清楚了：多个应用不能共用同一个 Chunk Loading Queue，子应用执行时也不能丢失当前 Script 的 URL。
 
@@ -188,7 +188,7 @@ globalThis.utooChunk_slave;
 
 如果用户没有显式配置，Utoopack 还会尝试根据 `package.json` 中的 `name` 字段生成 Namespace，避免多个应用意外使用同一个名称。
 
-相关实现可以参考 Utoo Issue #2526<sup>[12]</sup> 和 Utoo PR #2528<sup>[13]</sup>。
+相关实现可以参考 [Utoo Issue #2526](https://github.com/utooland/utoo/issues/2526) 和 [Utoo PR #2528](https://github.com/utooland/utoo/pull/2528)。
 
 这套 Runtime 隔离能力同时适用于 qiankun 2 和 qiankun 3，区别主要发生在入口脚本如何启动 Runtime。
 
@@ -221,9 +221,9 @@ __webpack_public_path__ =
 
 为了兼容这类存量代码，Utoopack 增加了对 `__webpack_public_path__` 的转换。编译阶段会将它映射到 Utoopack Runtime 使用的 `globalThis.publicPath`。
 
-相关实现可以参考 Utoo PR #2790<sup>[14]</sup>。
+相关实现可以参考 [Utoo PR #2790](https://github.com/utooland/utoo/pull/2790)。
 
-在 Umi<sup>[4]</sup> 的 qiankun 插件中，子应用 HTML 会提前写入：
+在 [Umi](https://github.com/umijs/umi) 的 qiankun 插件中，子应用 HTML 会提前写入：
 
 ```js
 window.publicPath =
@@ -232,7 +232,7 @@ window.publicPath =
 
 Utoopack Runtime 会使用这个地址加载后续的 JavaScript、CSS 和其他静态资源。
 
-除此之外，Utoopack 还支持 `output.publicPath: "auto"`，根据当前执行脚本的 URL 自动计算资源路径，相关实现可以参考 Utoo PR #2953<sup>[15]</sup>。
+除此之外，Utoopack 还支持 `output.publicPath: "auto"`，根据当前执行脚本的 URL 自动计算资源路径，相关实现可以参考 [Utoo PR #2953](https://github.com/utooland/utoo/pull/2953)。
 
 但 `publicPath: "auto"` 依赖一个关键前提：入口执行时必须能够得到正确的 `document.currentScript`。
 
@@ -260,7 +260,7 @@ chunk path empty but not in a worker
 
 入口执行结束后，无论成功还是失败，qiankun 都会恢复原来的 `document.currentScript`，避免影响页面中的其他脚本。
 
-相关修复可以参考 qiankun PR #3131<sup>[16]</sup>。
+相关修复可以参考 [qiankun PR #3131](https://github.com/umijs/qiankun/pull/3131)。
 
 **入口脚本从哪里执行，决定了后续 Chunk 去哪里加载。**
 
@@ -282,7 +282,7 @@ webpack 通常会把子应用构建成 UMD Library，再把入口导出的生命
 window[appName];
 ```
 
-Utoopack 早期也实现过类似能力，通过 `output.entryRootExport` 将入口模块导出包装到指定的全局变量中，相关实现可以参考 Utoo PR #2550<sup>[17]</sup>。
+Utoopack 早期也实现过类似能力，通过 `output.entryRootExport` 将入口模块导出包装到指定的全局变量中，相关实现可以参考 [Utoo PR #2550](https://github.com/utooland/utoo/pull/2550)。
 
 这套方案可以解决入口导出问题。但完整的 Umi 应用还涉及异步 Chunk、Code Splitting 和 HMR。
 
@@ -303,7 +303,7 @@ window[appName] = {
 
 这样一方面保留了 Turbopack 自身的模块系统，另一方面也让 qiankun 可以通过一层很薄的全局桥获得生命周期。
 
-这也是目前 Umi + Utoopack 微前端集成的基础，相关实现可以参考 Umi PR #13178<sup>[5]</sup>。
+这也是目前 Umi + Utoopack 微前端集成的基础，相关实现可以参考 [Umi PR #13178](https://github.com/umijs/umi/pull/13178)。
 
 不过在 qiankun 2 中，仅仅把生命周期写入 `window` 仍然不够。
 
@@ -345,7 +345,7 @@ const proxy = {
 
 ![Lifecycle Proxy 如何补齐时序](/blog/utoopack-qiankun/qiankun2-lifecycle-proxy-flow.png)
 
-相关实现和主子应用 E2E 用例可以参考 Umi PR #13354<sup>[6]</sup>。
+相关实现和主子应用 E2E 用例可以参考 [Umi PR #13354](https://github.com/umijs/umi/pull/13354)。
 
 **对于 qiankun 2，入口脚本执行完成，并不等于应用已经准备完成。**
 
@@ -359,7 +359,7 @@ Umi 的 qiankun 插件负责生成子应用入口、修改 HTML 和暴露生命�
 
 #### PR #13178：取消 UMD，改用浏览器全局桥
 
-Umi PR #13178<sup>[5]</sup> 是 Umi 侧最早的一层适配。
+[Umi PR #13178](https://github.com/umijs/umi/pull/13178) 是 Umi 侧最早的一层适配。
 
 在 Utoopack 模式下，qiankun 插件不再通过 webpack 配置把子应用包装成 UMD。入口模块执行完成后，Umi 会使用应用名直接写入：
 
@@ -382,7 +382,7 @@ window[appName] = {
 
 #### PR #13354：补齐 qiankun 2 生命周期时序
 
-Umi PR #13354<sup>[6]</sup> 在前一个 PR 的全局桥之上，补齐了 qiankun 2 的异步时序。
+[Umi PR #13354](https://github.com/umijs/umi/pull/13354) 在前一个 PR 的全局桥之上，补齐了 qiankun 2 的异步时序。
 
 Umi 会先判断当前应用是否使用 Utoopack，再在 `umi.js` 入口之前插入 Lifecycle Proxy。
 
@@ -398,7 +398,7 @@ Utoopack HMR Client 会记录 WebSocket 是否真正连接成功。只有成功�
 
 #### PR #13367：让 qiankun E2E 在 Windows 运行
 
-Umi PR #13367<sup>[18]</sup> 是对上述 E2E 的跨平台补充。
+[Umi PR #13367](https://github.com/umijs/umi/pull/13367) 是对上述 E2E 的跨平台补充。
 
 Windows Runner 直接启动 `npm.cmd` 时可能出现 `spawn EINVAL`。这个 PR 改为通过 Shell 启动预览命令，让 Utoopack 主子应用的 qiankun 2 回归测试可以在 Windows 环境中正常进入 Cypress 阶段。
 
@@ -467,7 +467,7 @@ qiankun 3 可以从沙箱最后写入的全局属性，或者直接从 `window[a
 
 这条路径更接近 Turbopack 原生模块系统，也是 Umi + Utoopack 后续可以继续演进的方向。
 
-本文介绍的现有实现仍然以经典脚本模式为主。qiankun 3 ESM Sandbox 的设计可以参考相关 RFC<sup>[19]</sup>。
+本文介绍的现有实现仍然以经典脚本模式为主。qiankun 3 ESM Sandbox 的设计可以参考[相关 RFC](https://github.com/umijs/qiankun/blob/next/docs/rfcs/esm-sandbox.md)。
 
 ## 两个版本共通的开发环境 HMR 隔离
 
@@ -496,7 +496,7 @@ utooChunk_slave_CHUNK_UPDATE_LISTENERS
 
 Utoopack 在生成 HMR Bootstrap 时，会把 Listener Namespace 传给 HMR Client。主应用和子应用因此可以分别维护更新监听器、模块状态和 HMR WebSocket。
 
-至此，Runtime 隔离才真正覆盖生产环境和开发环境，相关实现可以参考 Utoo PR #3251<sup>[20]</sup>。
+至此，Runtime 隔离才真正覆盖生产环境和开发环境，相关实现可以参考 [Utoo PR #3251](https://github.com/utooland/utoo/pull/3251)。
 
 **生产 Runtime 已经隔离，不代表开发 Runtime 也已经隔离。**
 
@@ -510,7 +510,7 @@ Umi 的处理方式是记录 Socket 是否真正连接成功。
 
 只有建立过连接，后续异常断开才会触发页面刷新。对于从未连接成功的子应用 HMR Client，则不会直接刷新整个主应用。
 
-这个修改看起来不大，却会直接决定微前端本地开发是否稳定。相关实现同样包含在 Umi PR #13354<sup>[6]</sup> 中。
+这个修改看起来不大，却会直接决定微前端本地开发是否稳定。相关实现同样包含在 [Umi PR #13354](https://github.com/umijs/umi/pull/13354) 中。
 
 ## 从 Utoopack 到 Turbopack 上游
 
@@ -524,11 +524,11 @@ Utoopack 完成 qiankun 适配之后，这项工作并没有结束。
 
 发现 `globalThis.TURBOPACK` 冲突后，我们先在 Utoopack 中实现了 `output.chunkLoadingGlobal`，验证独立 Chunk 注册表可以解决主应用和子应用的 Runtime 冲突。
 
-验证通过后，笔者将这项能力下沉到 Turbopack，并通过 vercel/next.js PR #88790<sup>[21]</sup> 为 Browser Chunking Context 增加可配置的 `chunk_loading_global`。
+验证通过后，笔者将这项能力下沉到 Turbopack，并通过 [vercel/next.js PR #88790](https://github.com/vercel/next.js/pull/88790) 为 Browser Chunking Context 增加可配置的 `chunk_loading_global`。
 
 这项改动让普通浏览器 Chunk、Evaluate Chunk 和 Browser Runtime 使用同一个可配置名称，不再直接依赖固定的 `globalThis.TURBOPACK`。该 PR 已于 2026 年 2 月合入 Next.js canary。
 
-在这个底层能力之上，后续的 vercel/next.js PR #93488<sup>[22]</sup> 又将它暴露为 Next.js 配置：
+在这个底层能力之上，后续的 [vercel/next.js PR #93488](https://github.com/vercel/next.js/pull/93488) 又将它暴露为 Next.js 配置：
 
 ```js
 module.exports = {
@@ -544,11 +544,11 @@ module.exports = {
 
 `chunkLoadingGlobal` 解决了生产 Runtime 的冲突。但在 qiankun 联调中，我们又发现 Turbopack HMR 仍然依赖固定的 `TURBOPACK_CHUNK_UPDATE_LISTENERS`。
 
-笔者先在 Utoo 的 Next.js 分支通过 utooland/next.js PR #168<sup>[23]</sup> 完成底层修改，再通过 utooland/utoo PR #3251<sup>[20]</sup> 接入 Utoopack。
+笔者先在 Utoo 的 Next.js 分支通过 [utooland/next.js PR #168](https://github.com/utooland/next.js/pull/168) 完成底层修改，再通过 [utooland/utoo PR #3251](https://github.com/utooland/utoo/pull/3251) 接入 Utoopack。
 
 在 Utoopack 中，我们使用主应用和子应用同时运行的方式完成浏览器验证，确认两个 Runtime 可以创建独立 Listener Provider 和 HMR WebSocket。
 
-验证通过后，笔者继续向 Next.js 上游提交了 vercel/next.js PR #95997<sup>[24]</sup>，让 HMR Listener 从 Chunk Loading Global 派生：
+验证通过后，笔者继续向 Next.js 上游提交了 [vercel/next.js PR #95997](https://github.com/vercel/next.js/pull/95997)，让 HMR Listener 从 Chunk Loading Global 派生：
 
 ```text
 <chunkLoadingGlobal>_CHUNK_UPDATE_LISTENERS
@@ -615,53 +615,3 @@ Utoopack 最终没有选择完整模拟 webpack Runtime，而是保留 Turbopack
 微前端只是这次问题出现的场景。真正沉淀下来的，是 Turbopack 同一页面多 Runtime 共存的能力。
 
 后续笔者也会继续和 Next.js、Turbopack、Umi、qiankun 社区共建，把真实业务落地过程中验证过的通用能力反馈回上游。
-
-## 参考链接
-
-[1] Utoo / Utoopack：https://github.com/utooland/utoo
-
-[2] Turbopack（Next.js 仓库）：https://github.com/vercel/next.js/tree/canary/turbopack
-
-[3] qiankun：https://github.com/umijs/qiankun
-
-[4] Umi：https://github.com/umijs/umi
-
-[5] Umi PR #13178：https://github.com/umijs/umi/pull/13178
-
-[6] Umi PR #13354：https://github.com/umijs/umi/pull/13354
-
-[7] evjs：https://github.com/afx-team/evjs
-
-[8] evjs PR #35：新增 `@evjs/plugin-qiankun` 主/子应用桥接插件：https://github.com/afx-team/evjs/pull/35
-
-[9] evjs PR #44：Utoopack 子应用通过全局生命周期和 Promise Proxy 接入 qiankun：https://github.com/afx-team/evjs/pull/44
-
-[10] Turbopack PR #77773：使用 `document.currentScript` 替代 Chunk 路径字面量：https://github.com/vercel/next.js/pull/77773
-
-[11] Turbopack PR #78545：修复 Content Hash 与 `StringLiteral` 组合导致的构建挂起：https://github.com/vercel/next.js/pull/78545
-
-[12] Utoo Issue #2526：https://github.com/utooland/utoo/issues/2526
-
-[13] Utoo PR #2528：https://github.com/utooland/utoo/pull/2528
-
-[14] Utoo PR #2790：https://github.com/utooland/utoo/pull/2790
-
-[15] Utoo PR #2953：https://github.com/utooland/utoo/pull/2953
-
-[16] qiankun PR #3131：https://github.com/umijs/qiankun/pull/3131
-
-[17] Utoo PR #2550：https://github.com/utooland/utoo/pull/2550
-
-[18] Umi PR #13367：https://github.com/umijs/umi/pull/13367
-
-[19] qiankun 3 ESM Sandbox RFC：https://github.com/umijs/qiankun/blob/next/docs/rfcs/esm-sandbox.md
-
-[20] Utoo PR #3251：https://github.com/utooland/utoo/pull/3251
-
-[21] Turbopack 支持 `chunk_loading_global`：https://github.com/vercel/next.js/pull/88790
-
-[22] Next.js 支持 `turbopack.chunkLoadingGlobal`：https://github.com/vercel/next.js/pull/93488
-
-[23] Utoo Next.js 分支支持 HMR Listener 隔离：https://github.com/utooland/next.js/pull/168
-
-[24] Turbopack HMR Listener 隔离：https://github.com/vercel/next.js/pull/95997
