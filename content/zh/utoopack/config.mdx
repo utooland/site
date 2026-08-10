@@ -59,7 +59,7 @@ export default defineConfig({
   </Tabs.Tab>
 </Tabs>
 
-如果配置完全可 JSON 序列化，推荐使用 `utoopack.json`。如果需要类型提示，或者要在 JS 里组合配置，推荐使用 `utoopack.config.*`。配置文件形式还可以承载 `UserConfig` 里的运行时字段，例如 `processEnv`、`watch`、`dev`、`buildId`、`tracing`、`projectPath` 和 `rootPath`。
+如果配置完全可 JSON 序列化，推荐使用 `utoopack.json`。如果需要类型提示，或者要在 JS 里组合配置，推荐使用 `utoopack.config.*`。配置文件形式还可以承载 `UserConfig` 里的运行时字段，例如 `processEnv`、`watch`、`dev`、`buildId`、`tracing`、`packPath`、`projectPath` 和 `rootPath`。
 
 ## 顶层选项
 
@@ -77,13 +77,19 @@ export default defineConfig({
 | `styles` | CSS Modules、Less、Sass、PostCSS、Emotion、styled-components、styled-jsx |
 | `images` | 图片内联行为 |
 | `react` | JSX runtime 和 React transform 相关配置 |
+| `mdx` | Rust MDX transform 配置 |
+| `reactCompiler` | Rust React Compiler 配置 |
 | `optimization` | 压缩、tree shaking、split chunks、import 转换 |
 | `devServer` | host、port、HTTPS、HMR、proxy |
+| `server` | 服务端入口、Server Functions 和服务端输出 |
 | `sourceMaps` | 是否生成 source map |
 | `stats` | 是否输出构建统计信息 |
 | `persistentCaching` | 是否跨次构建复用缓存 |
+| `turbopackMemoryEviction` | 持久缓存的内存回收模式 |
 | `nodePolyfill` | 浏览器构建时是否补齐 Node.js 内置能力 |
-| `experimental` | 包里暴露的实验性选项 |
+| `swcPlugins` | 自定义 SWC 插件 |
+| `pluginRuntimeStrategy` | loader / plugin 的运行进程模型 |
+| `experimental` | `reactCompiler`、`swcPlugins` 的兼容配置入口 |
 
 ## 核心配置
 
@@ -162,12 +168,14 @@ export default defineConfig({
 | `cssFilename` | 主 CSS 文件名模板 |
 | `cssChunkFilename` | CSS chunk 文件名模板 |
 | `assetModuleFilename` | 资源文件名模板 |
-| `publicPath` | 资源的公共 URL 路径 |
+| `publicPath` | 资源的公共 URL 前缀；也支持 `runtime` 和 `auto` |
 | `crossOriginLoading` | 懒加载 chunk 的 crossorigin 配置 |
 | `copy` | 将静态文件复制到输出目录 |
 | `chunkLoadingGlobal` | 运行时加载 chunk 使用的全局变量名 |
 | `clean` | 构建前清理输出目录 |
 | `entryRootExport` | 将入口导出挂到 `window` / `globalThis` 上 |
+
+`publicPath: "runtime"` 会从 `globalThis.publicPath` 读取运行时前缀；`publicPath: "auto"` 会根据当前加载的脚本地址自动推断前缀。
 
 ### define
 
@@ -212,7 +220,7 @@ export default defineConfig({
 }
 ```
 
-`externals` 支持简单字符串全局变量，也支持 script/commonjs/esm/global 形式以及更复杂的子路径配置。
+`externals` 支持简单字符串全局变量，也支持 `script`、`commonjs`、`esm`、`global`、`promise` 形式以及更复杂的子路径配置。
 
 ### resolve
 
@@ -381,8 +389,12 @@ import "foo/bar"
 {
   "styles": {
     "autoCssModules": true,
+    "cssModules": {
+      "localIdentName": "[local]__[hash:base64:6]"
+    },
     "postcss": {},
     "less": {
+      "loader": "less-loader",
       "implementation": "less"
     },
     "sass": {
@@ -404,6 +416,8 @@ import "foo/bar"
   }
 }
 ```
+
+`styles.cssModules.localIdentName` 用于自定义 CSS Modules 类名模板。`styles.less.loader` 用于指定自定义 Less loader；`implementation` 指定实际使用的 Less 实现，其他字段会继续传给 loader。
 
 ### images
 
@@ -431,12 +445,50 @@ React transform 相关配置。
 }
 ```
 
+### mdx
+
+`mdx` 启用 Rust MDX transform。可以直接传布尔值，也可以传对象配置编译模式、JSX runtime 和 MDX 语法模式。
+
+```json
+{
+  "mdx": {
+    "development": false,
+    "jsx": false,
+    "jsxRuntime": "automatic",
+    "jsxImportSource": "react",
+    "providerImportSource": "@mdx-js/react",
+    "mdxType": "gfm"
+  }
+}
+```
+
+`mdxType` 支持 `commonmark` 和 `gfm`。使用默认配置时可以简写为 `"mdx": true`。
+
+### React Compiler 和 SWC 插件
+
+`reactCompiler` 可以是布尔值，也可以通过 `compilationMode` 和 `target` 配置 Rust React Compiler。`compilationMode` 支持 `infer`、`annotation` 和 `all`，`target` 支持 React `18` 和 `19`。
+
+```json
+{
+  "reactCompiler": {
+    "compilationMode": "infer",
+    "target": "19"
+  },
+  "swcPlugins": [
+    ["swc-plugin-name", {}]
+  ]
+}
+```
+
+`experimental.reactCompiler` 和 `experimental.swcPlugins` 仍然可用。顶层 `reactCompiler` 优先于 `experimental.reactCompiler`；顶层和 `experimental` 中的 `swcPlugins` 会合并执行。
+
 ### optimization
 
 ```json
 {
   "optimization": {
     "minify": true,
+    "extractComments": true,
     "treeShaking": true,
     "moduleIds": "deterministic",
     "splitChunks": {
@@ -446,13 +498,14 @@ React transform 相关配置。
         "maxMergeChunkSize": 200000
       }
     },
+    "cssChunking": "graph",
     "modularizeImports": {
       "lodash": {
         "transform": "lodash/{{member}}",
         "preventFullImport": true
       }
     },
-    "packageImports": ["lodash-es"],
+    "packageImports": ["package-name"],
     "transpilePackages": ["shared-ui"],
     "removeConsole": {
       "exclude": ["error"]
@@ -464,16 +517,99 @@ React transform 相关配置。
 }
 ```
 
-当前包还暴露了 `compress`、`noMangling`、`nestedAsyncChunking` 和 `wasmAsAsset` 等优化项。
+| 选项 | 类型 | 描述 |
+|------|------|------|
+| `moduleIds` | `named \| deterministic` | 模块 ID 生成策略 |
+| `noMangling` | `boolean` | 压缩时保留变量、函数等局部名称 |
+| `compress` | `boolean \| object` | 控制压缩优化；对象支持 `passes`、`sequences`、`keepClassnames`、`keepFnames` |
+| `minify` | `boolean` | 压缩输出代码 |
+| `extractComments` | `boolean` | 库构建压缩时将 legal comments 提取到 `[file].LICENSE.txt` |
+| `treeShaking` | `boolean` | 移除未使用代码 |
+| `splitChunks` | `object` | 分别配置 `js` / `css` chunk 的尺寸和数量限制 |
+| `cssChunking` | `boolean \| string \| object` | CSS chunk 分组算法 |
+| `modularizeImports` | `object` | 按模板转换包导入，类似 `babel-plugin-import` |
+| `packageImports` | `string[]` | 优化具有大量导出的包入口 |
+| `transpilePackages` | `string[]` | 转译指定依赖包 |
+| `removeConsole` | `boolean \| object` | 移除 console 调用，可通过 `exclude` 保留方法 |
+| `concatenateModules` | `boolean` | 合并模块以减少 chunk 数量 |
+| `removeUnusedExports` | `boolean` | 移除未使用导出；开发环境默认关闭，生产环境默认开启 |
+| `removeUnusedImports` | `boolean` | 移除未使用导入；开发环境默认关闭，生产环境默认开启 |
+| `nestedAsyncChunking` | `boolean` | 启用嵌套异步 chunk |
+| `wasmAsAsset` | `boolean` | 将 WASM 内联到 bundle；默认关闭并作为静态资源输出 |
+
+#### optimization.packageImports
+
+`optimization.packageImports` 用于优化导出大量模块的包的具名导入。将包名加入配置后，业务代码仍可从包的根入口导入，Utoopack 只加载实际使用的模块，从而减少开发和生产构建中的模块解析与编译开销。该选项的类型为 `string[]`，用法类似 Next.js 的 [`optimizePackageImports`](https://nextjs.org/docs/app/api-reference/config/next-config-js/optimizePackageImports)。
+
+```json filename="utoopack.json"
+{
+  "optimization": {
+    "packageImports": ["package-name"]
+  }
+}
+```
+
+Utoopack 的内置列表参考 Next.js 维护，但以 [`DEFAULT_OPTIMIZE_PACKAGE_IMPORTS`](https://github.com/utooland/utoo/blob/next/packages/pack/src/core/project.ts#L107-L181) 的实现为准。当前共包含 74 个包或包子路径：
+
+```json
+[
+  "lucide-react", "date-fns", "lodash-es", "ramda",
+  "react-bootstrap", "ahooks", "@ant-design/icons",
+  "@headlessui/react", "@headlessui-float/react",
+  "@heroicons/react/20/solid", "@heroicons/react/24/solid",
+  "@heroicons/react/24/outline", "@visx/visx", "@tremor/react",
+  "rxjs", "@mui/material", "@mui/icons-material", "recharts", "react-use",
+
+  "effect", "@effect/schema", "@effect/platform",
+  "@effect/platform-node", "@effect/platform-browser", "@effect/platform-bun",
+  "@effect/sql", "@effect/sql-mssql", "@effect/sql-mysql2", "@effect/sql-pg",
+  "@effect/sql-sqlite-node", "@effect/sql-sqlite-bun",
+  "@effect/sql-sqlite-wasm", "@effect/sql-sqlite-react-native",
+  "@effect/rpc", "@effect/rpc-http", "@effect/typeclass",
+  "@effect/experimental", "@effect/opentelemetry",
+
+  "@material-ui/core", "@material-ui/icons", "@tabler/icons-react", "mui-core",
+
+  "react-icons/ai", "react-icons/bi", "react-icons/bs", "react-icons/cg",
+  "react-icons/ci", "react-icons/di", "react-icons/fa", "react-icons/fa6",
+  "react-icons/fc", "react-icons/fi", "react-icons/gi", "react-icons/go",
+  "react-icons/gr", "react-icons/hi", "react-icons/hi2", "react-icons/im",
+  "react-icons/io", "react-icons/io5", "react-icons/lia", "react-icons/lib",
+  "react-icons/lu", "react-icons/md", "react-icons/pi", "react-icons/ri",
+  "react-icons/rx", "react-icons/si", "react-icons/sl", "react-icons/tb",
+  "react-icons/tfi", "react-icons/ti", "react-icons/vsc", "react-icons/wi"
+]
+```
+
+通过 `optimization.packageImports` 配置的包会与这份内置列表合并并去重。
+
+#### optimization.cssChunking
+
+`optimization.cssChunking` 支持 `true`、`loose` 和 `graph`。`loose`（以及 `true`）使用默认分组算法；`graph` 使用基于图的算法，也可以通过对象调整额外请求的估算成本和权重分布。
+
+```json filename="utoopack.json"
+{
+  "optimization": {
+    "cssChunking": {
+      "type": "graph",
+      "requestCost": 100000,
+      "weightDistribution": 0.1
+    }
+  }
+}
+```
+
+`false`、`strict` 和 `{ "type": "strict" }` 当前不受 Utoopack 支持，使用时构建会报错。
 
 ### devServer
 
-本地仓库当前支持的字段包括 `hot`、`host`、`port`、`https` 和 `proxy`。
+本地仓库当前支持的字段包括 `hot`、`dynamicHmrChunkLists`、`host`、`port`、`https` 和 `proxy`。
 
 ```json
 {
   "devServer": {
     "hot": true,
+    "dynamicHmrChunkLists": true,
     "host": "0.0.0.0",
     "port": 3000,
     "https": false,
@@ -491,6 +627,40 @@ React transform 相关配置。
 }
 ```
 
+`dynamicHmrChunkLists` 开启后，运行时会随着动态 chunk 加载注册对应的 HMR chunk list。
+
+### server
+
+`server` 配置服务端入口、Server Functions 边界和服务端 chunk 输出。`entry` 可以是单个入口字符串，也可以是具名入口数组；数组中的第一个入口是主服务端运行时，并接收 Server Functions。
+
+```json filename="utoopack.json"
+{
+  "server": {
+    "entry": [
+      {
+        "name": "server",
+        "import": "./src/server.ts"
+      },
+      {
+        "name": "admin-server",
+        "import": "./src/admin.server.ts"
+      }
+    ],
+    "function": {
+      "clientProxy": "./src/transport.ts",
+      "serverRegister": "./src/register.ts"
+    },
+    "output": {
+      "path": "./dist/server",
+      "filename": "[name].[contenthash:8].js",
+      "chunkFilename": "chunks/[name].[contenthash:8].js"
+    }
+  }
+}
+```
+
+单入口可以简写为 `"entry": "./src/server.ts"`。`clientProxy` 模块需要导出 `createServerReference(actionId, name)`，`serverRegister` 模块需要导出 `registerServerReference(action, actionId, name)`。
+
 ## 高级选项
 
 | 选项 | 类型 | 描述 |
@@ -498,8 +668,42 @@ React transform 相关配置。
 | `sourceMaps` | `boolean` | 启用 source map |
 | `stats` | `boolean` | 启用构建统计输出 |
 | `nodePolyfill` | `boolean` | 为浏览器补齐 Node.js 内置模块 |
-| `persistentCaching` | `boolean` | 启用持久化构建缓存 |
-| `experimental` | `object` | 实验性包配置 |
+| `persistentCaching` | `boolean` | 启用持久化构建缓存，默认开启 |
+| `turbopackMemoryEviction` | `boolean \| auto \| full` | 持久缓存的内存回收模式，默认 `auto`；`false` 关闭，`true` 等价于 `full` |
+| `swcPlugins` | `[string, any][]` | 自定义 SWC 插件及其选项 |
+| `pluginRuntimeStrategy` | `workerThreads \| childProcesses` | loader / plugin 使用 worker thread 或子进程运行 |
+| `experimental` | `object` | `reactCompiler` 和 `swcPlugins` 的兼容配置入口 |
+
+### 配置文件运行时字段
+
+这些字段属于 `UserConfig`，可在 `utoopack.config.*` 中控制构建运行过程。
+
+| 选项 | 类型 | 描述 |
+|------|------|------|
+| `processEnv` | `Record<string, string>` | 编译时使用的环境变量 |
+| `watch` | `object` | 文件监听配置 |
+| `dev` | `boolean` | 是否以开发模式运行 |
+| `buildId` | `string` | 当前构建 ID |
+| `tracing` | `boolean` | 是否启用默认 tracing 日志，默认开启 |
+| `packPath` | `string` | `@utoo/pack` 的绝对路径 |
+| `projectPath` | `string` | 项目路径 |
+| `rootPath` | `string` | 根路径，monorepo 中可与项目路径不同 |
+
+`watch` 支持 `enable`、`pollIntervalMs`、`ignored` 和 `nodeModulesRegexes`。默认忽略 `node_modules`；`ignored` 中的 `!node_modules/<regex>` 或 `nodeModulesRegexes` 中的包名正则可以重新纳入需要监听的依赖。
+
+```js filename="utoopack.config.mjs"
+import { defineConfig } from '@utoo/pack';
+
+export default defineConfig({
+  entry: [{ import: './src/index.ts' }],
+  watch: {
+    enable: true,
+    pollIntervalMs: 500,
+    ignored: ['node_modules'],
+    nodeModulesRegexes: ['rc-.*', '@rc-component/.*'],
+  },
+});
+```
 
 ## 编程 API
 
