@@ -59,7 +59,7 @@ export default defineConfig({
   </Tabs.Tab>
 </Tabs>
 
-Use `utoopack.json` when your config is fully JSON-serializable. Use `utoopack.config.*` when you want type inference or JS-based composition. The config-file form can also carry runtime-only `UserConfig` fields such as `processEnv`, `watch`, `dev`, `buildId`, `tracing`, `projectPath`, and `rootPath`.
+Use `utoopack.json` when your config is fully JSON-serializable. Use `utoopack.config.*` when you want type inference or JS-based composition. The config-file form can also carry runtime-only `UserConfig` fields such as `processEnv`, `watch`, `dev`, `buildId`, `tracing`, `packPath`, `projectPath`, and `rootPath`.
 
 ## Top-level Options
 
@@ -77,13 +77,19 @@ Use `utoopack.json` when your config is fully JSON-serializable. Use `utoopack.c
 | `styles` | CSS Modules, Less, Sass, PostCSS, Emotion, styled-components, styled-jsx |
 | `images` | Asset inlining behavior |
 | `react` | JSX runtime and React transform options |
+| `mdx` | Rust MDX transform options |
+| `reactCompiler` | Rust React Compiler options |
 | `optimization` | Minification, tree shaking, split chunks, import transforms |
 | `devServer` | Host, port, HTTPS, HMR, proxy |
+| `server` | Server entries, Server Functions, and server output |
 | `sourceMaps` | Enable source maps |
 | `stats` | Emit build stats |
 | `persistentCaching` | Reuse cache across runs |
+| `turbopackMemoryEviction` | Memory eviction mode for the persistent cache |
 | `nodePolyfill` | Polyfill Node.js built-ins for browser builds |
-| `experimental` | Experimental flags exposed by the package |
+| `swcPlugins` | Custom SWC plugins |
+| `pluginRuntimeStrategy` | Loader / plugin process model |
+| `experimental` | Compatibility entry for `reactCompiler` and `swcPlugins` |
 
 ## Core Configuration
 
@@ -162,12 +168,14 @@ Configure output path, file naming, static copying, and runtime asset URLs.
 | `cssFilename` | Main CSS filename template |
 | `cssChunkFilename` | CSS chunk filename template |
 | `assetModuleFilename` | Asset filename template |
-| `publicPath` | Public URL path for assets |
+| `publicPath` | Public URL prefix for assets; also supports `runtime` and `auto` |
 | `crossOriginLoading` | Cross-origin attribute for lazy chunks |
 | `copy` | Copy static files into the output directory |
 | `chunkLoadingGlobal` | Global variable used by the runtime to load chunks |
 | `clean` | Clean output directory before build |
 | `entryRootExport` | Expose entry exports on `window` / `globalThis` |
+
+Use `publicPath: "runtime"` to read the runtime prefix from `globalThis.publicPath`, or `publicPath: "auto"` to infer it from the currently loaded script URL.
 
 ### define
 
@@ -212,7 +220,7 @@ Exclude dependencies from the bundle.
 }
 ```
 
-Externals support simple string globals, script/commonjs/esm/global forms, and more advanced subpath configuration.
+Externals support simple string globals, `script`, `commonjs`, `esm`, `global`, and `promise` forms, plus more advanced subpath configuration.
 
 ### resolve
 
@@ -381,8 +389,12 @@ Configure built-in style processing.
 {
   "styles": {
     "autoCssModules": true,
+    "cssModules": {
+      "localIdentName": "[local]__[hash:base64:6]"
+    },
     "postcss": {},
     "less": {
+      "loader": "less-loader",
       "implementation": "less"
     },
     "sass": {
@@ -404,6 +416,8 @@ Configure built-in style processing.
   }
 }
 ```
+
+Use `styles.cssModules.localIdentName` to customize the CSS Modules class-name template. Use `styles.less.loader` to select a custom Less loader; `implementation` selects the Less implementation, and additional fields are forwarded to the loader.
 
 ### images
 
@@ -431,12 +445,50 @@ React transform options.
 }
 ```
 
+### mdx
+
+`mdx` enables the Rust MDX transform. It accepts a boolean or an object that configures compilation, the JSX runtime, and the MDX syntax mode.
+
+```json
+{
+  "mdx": {
+    "development": false,
+    "jsx": false,
+    "jsxRuntime": "automatic",
+    "jsxImportSource": "react",
+    "providerImportSource": "@mdx-js/react",
+    "mdxType": "gfm"
+  }
+}
+```
+
+`mdxType` supports `commonmark` and `gfm`. Use `"mdx": true` to enable the default configuration.
+
+### React Compiler and SWC plugins
+
+`reactCompiler` accepts a boolean or an object with `compilationMode` and `target` for the Rust React Compiler. `compilationMode` supports `infer`, `annotation`, and `all`; `target` supports React `18` and `19`.
+
+```json
+{
+  "reactCompiler": {
+    "compilationMode": "infer",
+    "target": "19"
+  },
+  "swcPlugins": [
+    ["swc-plugin-name", {}]
+  ]
+}
+```
+
+`experimental.reactCompiler` and `experimental.swcPlugins` remain supported. Top-level `reactCompiler` takes precedence over `experimental.reactCompiler`; `swcPlugins` from the top level and `experimental` are merged.
+
 ### optimization
 
 ```json
 {
   "optimization": {
     "minify": true,
+    "extractComments": true,
     "treeShaking": true,
     "moduleIds": "deterministic",
     "splitChunks": {
@@ -446,13 +498,14 @@ React transform options.
         "maxMergeChunkSize": 200000
       }
     },
+    "cssChunking": "graph",
     "modularizeImports": {
       "lodash": {
         "transform": "lodash/{{member}}",
         "preventFullImport": true
       }
     },
-    "packageImports": ["lodash-es"],
+    "packageImports": ["package-name"],
     "transpilePackages": ["shared-ui"],
     "removeConsole": {
       "exclude": ["error"]
@@ -464,16 +517,99 @@ React transform options.
 }
 ```
 
-Common optimization fields exposed by the current package also include `compress`, `noMangling`, `nestedAsyncChunking`, and `wasmAsAsset`.
+| Option | Type | Description |
+|--------|------|-------------|
+| `moduleIds` | `named \| deterministic` | Module ID generation strategy |
+| `noMangling` | `boolean` | Preserve local variable and function names during minification |
+| `compress` | `boolean \| object` | Control compression; object options include `passes`, `sequences`, `keepClassnames`, and `keepFnames` |
+| `minify` | `boolean` | Minify output code |
+| `extractComments` | `boolean` | Extract legal comments to `[file].LICENSE.txt` when minifying library output |
+| `treeShaking` | `boolean` | Remove unused code |
+| `splitChunks` | `object` | Configure size and count limits for `js` / `css` chunks |
+| `cssChunking` | `boolean \| string \| object` | CSS chunk grouping algorithm |
+| `modularizeImports` | `object` | Transform package imports with templates, similar to `babel-plugin-import` |
+| `packageImports` | `string[]` | Optimize package entry points with many exports |
+| `transpilePackages` | `string[]` | Transpile selected dependencies |
+| `removeConsole` | `boolean \| object` | Remove console calls, with optional methods retained through `exclude` |
+| `concatenateModules` | `boolean` | Concatenate modules to reduce chunk count |
+| `removeUnusedExports` | `boolean` | Remove unused exports; defaults off in development and on in production |
+| `removeUnusedImports` | `boolean` | Remove unused imports; defaults off in development and on in production |
+| `nestedAsyncChunking` | `boolean` | Enable nested async chunks |
+| `wasmAsAsset` | `boolean` | Inline WASM into the bundle; defaults off and emits static assets instead |
+
+#### optimization.packageImports
+
+`optimization.packageImports` optimizes named imports from packages that export many modules. After adding a package, application code can keep importing from the package root while Utoopack loads only the modules that are actually used, reducing module parsing and compilation overhead in development and production builds. The option accepts a `string[]` and behaves similarly to Next.js [`optimizePackageImports`](https://nextjs.org/docs/app/api-reference/config/next-config-js/optimizePackageImports).
+
+```json filename="utoopack.json"
+{
+  "optimization": {
+    "packageImports": ["package-name"]
+  }
+}
+```
+
+Utoopack's built-in list is maintained with reference to Next.js, but the [`DEFAULT_OPTIMIZE_PACKAGE_IMPORTS`](https://github.com/utooland/utoo/blob/next/packages/pack/src/core/project.ts#L107-L181) implementation is the source of truth. It currently contains 74 packages or package subpaths:
+
+```json
+[
+  "lucide-react", "date-fns", "lodash-es", "ramda",
+  "react-bootstrap", "ahooks", "@ant-design/icons",
+  "@headlessui/react", "@headlessui-float/react",
+  "@heroicons/react/20/solid", "@heroicons/react/24/solid",
+  "@heroicons/react/24/outline", "@visx/visx", "@tremor/react",
+  "rxjs", "@mui/material", "@mui/icons-material", "recharts", "react-use",
+
+  "effect", "@effect/schema", "@effect/platform",
+  "@effect/platform-node", "@effect/platform-browser", "@effect/platform-bun",
+  "@effect/sql", "@effect/sql-mssql", "@effect/sql-mysql2", "@effect/sql-pg",
+  "@effect/sql-sqlite-node", "@effect/sql-sqlite-bun",
+  "@effect/sql-sqlite-wasm", "@effect/sql-sqlite-react-native",
+  "@effect/rpc", "@effect/rpc-http", "@effect/typeclass",
+  "@effect/experimental", "@effect/opentelemetry",
+
+  "@material-ui/core", "@material-ui/icons", "@tabler/icons-react", "mui-core",
+
+  "react-icons/ai", "react-icons/bi", "react-icons/bs", "react-icons/cg",
+  "react-icons/ci", "react-icons/di", "react-icons/fa", "react-icons/fa6",
+  "react-icons/fc", "react-icons/fi", "react-icons/gi", "react-icons/go",
+  "react-icons/gr", "react-icons/hi", "react-icons/hi2", "react-icons/im",
+  "react-icons/io", "react-icons/io5", "react-icons/lia", "react-icons/lib",
+  "react-icons/lu", "react-icons/md", "react-icons/pi", "react-icons/ri",
+  "react-icons/rx", "react-icons/si", "react-icons/sl", "react-icons/tb",
+  "react-icons/tfi", "react-icons/ti", "react-icons/vsc", "react-icons/wi"
+]
+```
+
+Packages configured through `optimization.packageImports` are merged with this built-in list and de-duplicated.
+
+#### optimization.cssChunking
+
+`optimization.cssChunking` supports `true`, `loose`, and `graph`. `loose` (and `true`) uses the default grouping algorithm. `graph` uses graph-based grouping and can be configured with estimated request cost and weight distribution.
+
+```json filename="utoopack.json"
+{
+  "optimization": {
+    "cssChunking": {
+      "type": "graph",
+      "requestCost": 100000,
+      "weightDistribution": 0.1
+    }
+  }
+}
+```
+
+`false`, `strict`, and `{ "type": "strict" }` are not currently supported by Utoopack and cause the build to fail.
 
 ### devServer
 
-The local repo currently supports `hot`, `host`, `port`, `https`, and `proxy` here.
+The local repo currently supports `hot`, `dynamicHmrChunkLists`, `host`, `port`, `https`, and `proxy` here.
 
 ```json
 {
   "devServer": {
     "hot": true,
+    "dynamicHmrChunkLists": true,
     "host": "0.0.0.0",
     "port": 3000,
     "https": false,
@@ -491,6 +627,40 @@ The local repo currently supports `hot`, `host`, `port`, `https`, and `proxy` he
 }
 ```
 
+When `dynamicHmrChunkLists` is enabled, the runtime registers the corresponding HMR chunk lists as dynamic chunks load.
+
+### server
+
+`server` configures server entries, Server Functions boundaries, and server chunk output. `entry` accepts a single entry string or an array of named entries. The first item in an entry array is the primary server runtime and receives Server Functions.
+
+```json filename="utoopack.json"
+{
+  "server": {
+    "entry": [
+      {
+        "name": "server",
+        "import": "./src/server.ts"
+      },
+      {
+        "name": "admin-server",
+        "import": "./src/admin.server.ts"
+      }
+    ],
+    "function": {
+      "clientProxy": "./src/transport.ts",
+      "serverRegister": "./src/register.ts"
+    },
+    "output": {
+      "path": "./dist/server",
+      "filename": "[name].[contenthash:8].js",
+      "chunkFilename": "chunks/[name].[contenthash:8].js"
+    }
+  }
+}
+```
+
+For a single entry, use the shorthand `"entry": "./src/server.ts"`. The `clientProxy` module must export `createServerReference(actionId, name)`, and the `serverRegister` module must export `registerServerReference(action, actionId, name)`.
+
 ## Advanced Options
 
 | Option | Type | Description |
@@ -498,8 +668,42 @@ The local repo currently supports `hot`, `host`, `port`, `https`, and `proxy` he
 | `sourceMaps` | `boolean` | Enable source maps |
 | `stats` | `boolean` | Enable build statistics output |
 | `nodePolyfill` | `boolean` | Polyfill Node.js built-ins for browser |
-| `persistentCaching` | `boolean` | Enable persistent build cache |
-| `experimental` | `object` | Experimental package options |
+| `persistentCaching` | `boolean` | Enable persistent build cache; enabled by default |
+| `turbopackMemoryEviction` | `boolean \| auto \| full` | Persistent-cache memory eviction; defaults to `auto`; `false` disables it and `true` is equivalent to `full` |
+| `swcPlugins` | `[string, any][]` | Custom SWC plugins and their options |
+| `pluginRuntimeStrategy` | `workerThreads \| childProcesses` | Run loaders / plugins in worker threads or child processes |
+| `experimental` | `object` | Compatibility entry for `reactCompiler` and `swcPlugins` |
+
+### Config-file runtime fields
+
+These `UserConfig` fields can be used in `utoopack.config.*` to control the build process.
+
+| Option | Type | Description |
+|--------|------|-------------|
+| `processEnv` | `Record<string, string>` | Environment variables used during compilation |
+| `watch` | `object` | File-watching options |
+| `dev` | `boolean` | Run in development mode |
+| `buildId` | `string` | Current build ID |
+| `tracing` | `boolean` | Enable default tracing logs; enabled by default |
+| `packPath` | `string` | Absolute path to `@utoo/pack` |
+| `projectPath` | `string` | Project path |
+| `rootPath` | `string` | Root path, which may differ from the project path in a monorepo |
+
+`watch` supports `enable`, `pollIntervalMs`, `ignored`, and `nodeModulesRegexes`. `node_modules` is ignored by default. Use `!node_modules/<regex>` entries in `ignored`, or package-name regular expressions in `nodeModulesRegexes`, to include selected dependencies in watching.
+
+```js filename="utoopack.config.mjs"
+import { defineConfig } from '@utoo/pack';
+
+export default defineConfig({
+  entry: [{ import: './src/index.ts' }],
+  watch: {
+    enable: true,
+    pollIntervalMs: 500,
+    ignored: ['node_modules'],
+    nodeModulesRegexes: ['rc-.*', '@rc-component/.*'],
+  },
+});
+```
 
 ## Programmatic API
 
