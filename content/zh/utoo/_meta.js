@@ -13,5 +13,6 @@ export default {
   stores: '存储路径',
   workspaces: '工作区',
   migration: '从 pnpm 迁移',
+  'self-pin': 'Self Pin',
   'auto-update': '自动更新'
 }

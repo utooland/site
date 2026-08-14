@@ -1,0 +1,88 @@
+# Self Pin
+
+import { Callout } from 'nextra/components'
+
+Self Pin lets a project select the exact Utoo release used for dependency operations. The lockfile pins project dependencies; the standard `packageManager` field pins Utoo itself.
+
+## Enable Self Pin
+
+Add an exact Utoo version to the nearest `package.json`:
+
+```json filename="package.json" copy
+{
+  "packageManager": "utoo@1.1.8"
+}
+```
+
+Self Pin is available in Utoo 1.1.8 and newer. The version must be an exact, canonical version such as `utoo@1.1.8`; ranges, tags such as `latest`, a leading `v`, and versions older than 1.1.8 are rejected.
+
+<Callout type="warning">
+  The Utoo executable that starts the command must also be version 1.1.8 or newer so it can discover and honor the pin. If necessary, bootstrap it once with `ut install utoo@1.1.8 -g`.
+</Callout>
+
+## How It Works
+
+When a supported dependency command starts, Utoo:
+
+1. Finds the nearest ancestor `package.json` that declares `packageManager`.
+2. Selects the supported platform package for the pinned version.
+3. Downloads it from the configured registry and verifies its SRI integrity or shasum.
+4. Stores it under `~/.cache/nm.utoo-self-pin/<platform>/<version>` by default.
+5. Revalidates the cached package identity, executable checksum, and reported version before every handoff.
+6. Runs the pinned executable with the same arguments, working directory, standard streams, and exit status.
+
+If the pinned release is already cached and valid, the handoff works offline. An invalid cache entry is never executed: Utoo attempts to replace it with a newly downloaded and verified release, and fails closed if recovery is unavailable.
+
+The self-pinned child also skips automatic updates, so the project pin remains authoritative.
+
+## Command Scope
+
+Only commands that modify or inspect the local dependency state use Self Pin:
+
+| Uses the pinned Utoo | Keeps using the current executable |
+|----------------------|------------------------------------|
+| Default command / `ut install` / `ut add` | Package scripts such as `ut test` and `ut run build` |
+| `ut uninstall` / `ut remove` | `ut x` and executable commands |
+| `ut update` | Registry query and view commands |
+| `ut rebuild` | `ut clean` |
+| `ut deps` | Global installs |
+
+`ut --version` reports the executable you invoked; it does not trigger a handoff. Run a dependency command such as `ut deps` when verifying Self Pin behavior.
+
+## Monorepo Resolution
+
+Utoo walks upward from the current directory and stops at the nearest `package.json` containing `packageManager`. A closer declaration for another package manager, such as `pnpm@...` or `yarn@...`, is a boundary: Utoo does not continue upward to use a parent project's Utoo pin.
+
+## Cache Management
+
+The platform component reflects the package that actually runs, for example `darwin-arm64`, `darwin-x64`, `linux-arm64`, `linux-x64`, or `win32-x64`. Windows on ARM64 uses the `win32-x64` package through emulation.
+
+Self Pin honors the configured registry and cache directory. When `UTOO_CACHE_DIR` or `cache-dir` changes the package cache location, the Self Pin cache is stored in a sibling directory ending in `.utoo-self-pin`.
+
+Self-pinned releases also appear in `ut clean` under the logical name `_utoo-self-<platform>`:
+
+```bash filename="Terminal" copy
+ut clean _utoo-self-darwin-arm64@1.1.8
+```
+
+## Temporary Bypass
+
+Set `UTOO_SELF_PIN=0` for a single command to keep using the currently installed Utoo:
+
+```bash filename="Terminal" copy
+UTOO_SELF_PIN=0 ut install
+```
+
+## CI
+
+CI needs a Self Pin-aware launcher too. Install Utoo 1.1.8 or newer before running dependency commands; keeping the bootstrap version exact makes the job reproducible:
+
+```yaml filename=".github/workflows/ci.yml" copy
+- uses: utooland/setup-utoo@v1
+  with:
+    utoo-version: 1.1.8
+
+- run: ut install
+```
+
+The bootstrap version may match the project pin. In that case Utoo takes the same-version fast path without downloading or handing off to another executable.

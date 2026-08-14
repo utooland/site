@@ -1,0 +1,88 @@
+# Self Pin（版本自固定）
+
+import { Callout } from 'nextra/components'
+
+Self Pin 允许项目指定执行依赖操作时使用的 Utoo 精确版本。`package-lock.json` 固定项目依赖，标准的 `packageManager` 字段则固定 Utoo 本身。
+
+## 启用 Self Pin
+
+在最近的 `package.json` 中填写 Utoo 的精确版本：
+
+```json filename="package.json" copy
+{
+  "packageManager": "utoo@1.1.8"
+}
+```
+
+Self Pin 从 Utoo 1.1.8 开始提供。版本必须是 `utoo@1.1.8` 这种规范的精确版本；版本范围、`latest` 等 tag、带 `v` 前缀的版本以及低于 1.1.8 的版本都会报错。
+
+<Callout type="warning">
+  启动命令的 Utoo 也必须是 1.1.8 或更高版本，才能发现并执行项目 pin。需要时先运行一次 `ut install utoo@1.1.8 -g` 完成引导安装。
+</Callout>
+
+## 工作流程
+
+执行支持的依赖命令时，Utoo 会：
+
+1. 查找最近一个声明了 `packageManager` 的上级 `package.json`。
+2. 为固定版本选择受支持的平台包。
+3. 从当前配置的 registry 下载，并校验 SRI integrity 或 shasum。
+4. 默认缓存到 `~/.cache/nm.utoo-self-pin/<platform>/<version>`。
+5. 每次 handoff 前重新校验包身份、可执行文件校验和与实际版本。
+6. 使用相同的参数、工作目录、标准输入输出和退出状态运行固定版本。
+
+缓存存在且校验通过时，handoff 可以离线完成。无效缓存绝不会被执行：Utoo 会尝试用重新下载并校验过的版本替换它；无法恢复时则直接报错。
+
+被 Self Pin 启动的子进程还会跳过自动更新，因此项目声明的版本始终优先。
+
+## 生效的命令
+
+只有修改或检查本地依赖状态的命令会使用 Self Pin：
+
+| 使用固定版本 | 继续使用当前可执行文件 |
+|-------------|----------------------|
+| 默认命令 / `ut install` / `ut add` | `ut test`、`ut run build` 等 package scripts |
+| `ut uninstall` / `ut remove` | `ut x` 和可执行命令 |
+| `ut update` | Registry 查询和 view 命令 |
+| `ut rebuild` | `ut clean` |
+| `ut deps` | 全局安装 |
+
+`ut --version` 只会显示当前调用的可执行文件版本，不会触发 handoff。验证 Self Pin 时，请运行 `ut deps` 等依赖命令。
+
+## Monorepo 中的解析规则
+
+Utoo 会从当前目录向上查找，并在遇到最近一个包含 `packageManager` 的 `package.json` 时停止。如果更近的项目声明了 `pnpm@...`、`yarn@...` 等其他包管理器，它会成为边界；Utoo 不会继续向上采用父项目的 Utoo pin。
+
+## 缓存管理
+
+平台名表示实际执行的平台包，例如 `darwin-arm64`、`darwin-x64`、`linux-arm64`、`linux-x64` 或 `win32-x64`。Windows ARM64 会通过模拟运行 `win32-x64` 包。
+
+Self Pin 会沿用当前配置的 registry 和缓存目录。通过 `UTOO_CACHE_DIR` 或 `cache-dir` 修改普通包缓存位置时，Self Pin 缓存会放在以 `.utoo-self-pin` 结尾的同级目录中。
+
+固定版本也会以 `_utoo-self-<platform>` 这个逻辑名称出现在 `ut clean` 中：
+
+```bash filename="Terminal" copy
+ut clean _utoo-self-darwin-arm64@1.1.8
+```
+
+## 临时跳过
+
+为单次命令设置 `UTOO_SELF_PIN=0`，即可继续使用当前安装的 Utoo：
+
+```bash filename="Terminal" copy
+UTOO_SELF_PIN=0 ut install
+```
+
+## CI
+
+CI 同样需要一个能够识别 Self Pin 的启动版本。执行依赖命令前先安装 Utoo 1.1.8 或更高版本；将引导版本固定下来可以让任务保持可复现：
+
+```yaml filename=".github/workflows/ci.yml" copy
+- uses: utooland/setup-utoo@v1
+  with:
+    utoo-version: 1.1.8
+
+- run: ut install
+```
+
+引导版本可以与项目 pin 相同。此时 Utoo 会直接走同版本快速路径，不会再下载或 handoff 到另一个可执行文件。

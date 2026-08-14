@@ -13,5 +13,6 @@ export default {
   stores: 'Storage Paths',
   workspaces: 'Workspaces',
   migration: 'Migrating from pnpm',
+  'self-pin': 'Self Pin',
   'auto-update': 'Auto Update'
 }
