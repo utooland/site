@@ -1,8 +1,5 @@
-import type { ConfigObject } from "@utoo/lint";
 import { defineConfig } from "@utoo/lint/config";
 import frontend from "@utoo/lint/configs/frontend";
-
-const frontendRules = frontend.rules as NonNullable<ConfigObject["rules"]>;
 
 export default defineConfig(
   {
@@ -21,13 +18,8 @@ export default defineConfig(
       "tailwind.config.js",
     ],
     rules: {
-      ...frontendRules,
+      ...frontend.rules,
       "@typescript-eslint/consistent-type-definitions": "off",
-      "@typescript-eslint/no-unused-vars": [
-        "warn",
-        { varsIgnorePattern: "^motion$" },
-      ],
-      "no-unused-vars": ["warn", { varsIgnorePattern: "^motion$" }],
     },
   },
   {

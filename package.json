@@ -30,7 +30,7 @@
     "@shikijs/core": "^3.21.0"
   },
   "devDependencies": {
-    "@utoo/lint": "0.2.5",
+    "@utoo/lint": "0.2.6",
     "@biomejs/biome": "^2.2.0",
     "@tailwindcss/typography": "^0.5.18",
     "@types/node": "^24.0.8",
