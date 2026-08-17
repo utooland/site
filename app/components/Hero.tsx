@@ -1,12 +1,11 @@
 "use client";
 
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
-import { Zap, ArrowRight, Github, Star } from "lucide-react";
+import { Zap, ArrowRight, Github, Star, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TerminalDemo } from "./TerminalDemo";
 import { useEffect, useState, useRef } from "react";
 import { useI18n } from "../i18n/context";
-import { ChevronDown } from "lucide-react";
 
 function GitHubButton() {
   const { t } = useI18n();

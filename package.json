@@ -8,7 +8,7 @@
     "build": "node scripts/patch-nextra-theme-docs.mjs && next build --webpack",
     "postbuild": "pagefind --site .next/server/app --output-path public/_pagefind",
     "start": "next start",
-    "lint": "biome lint .",
+    "lint": "utoo-lint",
     "format": "biome format --write ."
   },
   "dependencies": {
@@ -30,6 +30,7 @@
     "@shikijs/core": "^3.21.0"
   },
   "devDependencies": {
+    "@utoo/lint": "0.2.5",
     "@biomejs/biome": "^2.2.0",
     "@tailwindcss/typography": "^0.5.18",
     "@types/node": "^24.0.8",

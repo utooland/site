@@ -149,7 +149,7 @@ export function TerminalDemo() {
     setIsTyping(true);
 
     let lineIndex = 0;
-    const showNextLine = () => {
+    function showNextLine() {
       if (lineIndex < demo.lines.length) {
         setVisibleLines(lineIndex + 1);
         lineIndex++;
@@ -161,7 +161,7 @@ export function TerminalDemo() {
           setCurrentDemo((prev) => (prev + 1) % demos.length);
         }, 3000);
       }
-    };
+    }
 
     timeoutRef.current = setTimeout(showNextLine, 500);
 
@@ -258,9 +258,9 @@ export function TerminalDemo() {
 
       {/* Demo indicators */}
       <div className="flex justify-center gap-2 mt-4">
-        {demos.map((demo, index) => (
+        {demos.map((demoItem, index) => (
           <button
-            key={demo.title}
+            key={demoItem.title}
             type="button"
             onClick={() => setCurrentDemo(index)}
             className={`w-2 h-2 rounded-full transition-all ${
