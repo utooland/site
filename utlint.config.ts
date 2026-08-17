@@ -23,8 +23,11 @@ export default defineConfig(
     rules: {
       ...frontendRules,
       "@typescript-eslint/consistent-type-definitions": "off",
-      "@typescript-eslint/no-unused-vars": "off",
-      "no-unused-vars": "off",
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        { varsIgnorePattern: "^motion$" },
+      ],
+      "no-unused-vars": ["warn", { varsIgnorePattern: "^motion$" }],
     },
   },
   {
