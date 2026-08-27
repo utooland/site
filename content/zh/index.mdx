@@ -36,15 +36,15 @@ utx create-react-app my-app
 
 ## 包管理性能快照
 
-以下数据来自 `ant-design` 项目的阶段化安装基准，poolab Linux x86_64 环境直连 `https://registry.npmmirror.com`，耗时越低越好。
+以下数据来自 2026-08-27 的 `ant-design` 阶段化安装基准，Linux China x86_64 环境直连 `https://registry.npmmirror.com`，耗时越低越好。
 
-| 场景 | utoo | Bun | pnpm | aube |
-|------|------|-----|------|------|
-| 完全冷启动 (`p0`) | **7.84s ± 2.17s** | 13.21s ± 2.36s | 39.32s ± 16.56s | 27.63s ± 6.47s |
-| 仅 lock 冷启动 (`p3`) | 6.64s ± 1.64s | 8.62s ± 3.57s | 15.14s ± 0.77s | **6.42s ± 0.31s** |
-| 热缓存安装 (`p4`) | **1.09s ± 0.05s** | 2.72s ± 0.05s | 7.89s ± 0.38s | 1.60s ± 0.07s |
+| 场景 | utoo | Bun | pnpm 10 | pnpm 12 | aube |
+|------|------|-----|---------|---------|------|
+| 完全冷启动 (`p0`) | **12.04s ± 1.25s** | 19.63s ± 1.32s | 33.88s ± 0.64s | 18.50s ± 6.22s | 26.47s ± 7.65s |
+| 仅 lock 冷启动 (`p3`) | **22.28s ± 12.71s** | 31.75s ± 15.11s | 40.70s ± 11.64s | 31.67s ± 10.09s | — |
+| 热缓存安装 (`p4`) | **1.22s ± 0.07s** | 4.58s ± 0.32s | 9.86s ± 0.48s | 2.60s ± 0.09s | — |
 
-`p3` 中 utoo 与 aube 的均值差异处于噪声范围；在完全冷启动和热缓存安装场景下，utoo 领先更明显。GitHub Actions npmjs 结果和修正后的 pnpm 验证详见 [utoo 性能基准](/zh/docs/utoo/performance)。
+utoo 在三个有效安装场景中的均值都最快；`p0` / `p3` 是高方差的方向性结果，`p4` 的领先信号最稳定。aube 的 `p3` / `p4` 因缺少预期 lockfile 被拒绝。GitHub Actions npmjs 全量结果详见 [utoo 性能基准](/zh/docs/utoo/performance)。
 
 ## 安装
 

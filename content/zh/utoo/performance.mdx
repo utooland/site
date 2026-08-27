@@ -2,7 +2,7 @@
 
 import { Callout } from 'nextra/components'
 
-本文说明 utoo 包管理器基准测试中的不同指标、测试口径和如何解读结果。完整数据来源见 [GitHub issue #3250](https://github.com/utooland/utoo/issues/3250)。
+本文说明 utoo 包管理器基准测试中的不同指标、测试口径和如何解读结果。完整数据与历史记录见 [GitHub issue #3250](https://github.com/utooland/utoo/issues/3250)。
 
 <Callout type="info">
   表中的耗时越低越好。不同平台、镜像源、网络拓扑和文件系统会影响绝对耗时，因此不同环境的结果不应直接混合做统计比较。
@@ -18,66 +18,57 @@ import { Callout } from 'nextra/components'
 
 不要使用“无 lockfile 但 manifest 缓存是热的”作为对比场景。Bun 会在短时间内保留较新的 manifest 且不重新校验，这个状态会让 Bun 获得不符合真实冷启动语义的额外优势。
 
-## poolab Linux · npmmirror 直连
+## 2026-08-27
 
-- 日期：2026-07-21
+### `registry.npmjs.org` · GitHub Actions
+
+- Harness branch/commit：`codex/pm-bench-pnpm12` / `2204fd0f4`
 - 项目：`ant-design`
-- 环境：Linux x86_64 (poolab)
+- 镜像源：`https://registry.npmjs.org`
+- 工作流：[GitHub Actions #33039114486](https://github.com/utooland/utoo/actions/runs/33039114486)
+- 版本：utoo 基于 `2204fd0f4` 构建、Bun 1.4.0、pnpm 10.34.5、pnpm 12.0.0、aube 1.29.1
+- 采样：`p0` / `p3` 各 1 次正式采样，`p4` 5 轮交错采样；`p0` / `p3` 仅作为 smoke 方向性证据
+
+#### Linux (`ubuntu-latest`)
+
+| 场景 | utoo | Bun | pnpm 10 | pnpm 12 | aube |
+|------|------|-----|---------|---------|------|
+| 完全冷启动 (`p0`) | **7.87s** | 9.62s | 29.56s | 10.14s | 16.13s |
+| 仅 lock 冷启动 (`p3`) | **9.66s** | 10.40s | 18.32s | 10.58s | — |
+| 热缓存安装 (`p4`) | **2.35s ± 0.04s** | 3.65s ± 0.34s | 6.14s ± 0.07s | 3.39s ± 0.24s | — |
+
+#### macOS (`macos-latest`, Apple Silicon)
+
+| 场景 | utoo | Bun | pnpm 10 | pnpm 12 | aube |
+|------|------|-----|---------|---------|------|
+| 完全冷启动 (`p0`) | **20.46s** | 23.42s | 57.19s | 30.32s | 51.44s |
+| 仅 lock 冷启动 (`p3`) | **15.80s** | 25.31s | 60.12s | 31.55s | — |
+| 热缓存安装 (`p4`) | **4.76s ± 0.20s** | 6.43s ± 0.42s | 24.69s ± 3.67s | 21.89s ± 2.63s | — |
+
+这轮 smoke 中，utoo 在 Linux 和 macOS 的三个用户可见安装场景里均最快。aube 完成了 `p0`，但其 seed 步骤没有生成预期的 `aube-lock.yaml`，因此 harness 拒绝了 `p3` / `p4` 单元，没有记录无锁或陈旧状态的耗时。
+
+### `registry.npmmirror.com` · Linux China
+
+- Harness branch/commit：`codex/pm-bench-pnpm12` / `2204fd0f4`
+- 项目：`ant-design` at `e8fbc23658a323812864d56d53b5d25b73784dd1`
+- 环境：Linux China x86_64，96 logical CPUs、16 GiB RAM、Node.js 22.18.0
 - 镜像源：`https://registry.npmmirror.com`
-- 网络：直连，无 `HTTP_PROXY`、`HTTPS_PROXY`、`NO_PROXY`、npm proxy、macmini host entry 或 macmini shell 配置
-- 版本：utoo 1.1.3、Bun 1.3.14、pnpm 10.34.5、aube 1.29.1
+- 网络：直连；代理环境变量未设置，benchmark 命令显式指定 npmmirror
+- 版本：utoo 基于 `2204fd0f4` 构建、Bun 1.3.14、pnpm 10.34.5、pnpm 12.0.0、aube 1.29.1
 - 采样：`p0` / `p3` 各 3 轮交错采样，`p4` 5 轮交错采样
 
-| 场景 | utoo | Bun | pnpm | aube |
-|------|------|-----|------|------|
-| 完全冷启动 (`p0`) | **7.84s ± 2.17s** | 13.21s ± 2.36s | 39.32s ± 16.56s | 27.63s ± 6.47s |
-| 仅 lock 冷启动 (`p3`) | 6.64s ± 1.64s | 8.62s ± 3.57s | 15.14s ± 0.77s | **6.42s ± 0.31s** |
-| 热缓存安装 (`p4`) | **1.09s ± 0.05s** | 2.72s ± 0.05s | 7.89s ± 0.38s | 1.60s ± 0.07s |
+| 场景 | utoo | Bun | pnpm 10 | pnpm 12 | aube |
+|------|------|-----|---------|---------|------|
+| 完全冷启动 (`p0`) | **12.04s ± 1.25s** | 19.63s ± 1.32s | 33.88s ± 0.64s | 18.50s ± 6.22s | 26.47s ± 7.65s |
+| 仅 lock 冷启动 (`p3`) | **22.28s ± 12.71s** | 31.75s ± 15.11s | 40.70s ± 11.64s | 31.67s ± 10.09s | — |
+| 热缓存安装 (`p4`) | **1.22s ± 0.07s** | 4.58s ± 0.32s | 9.86s ± 0.48s | 2.60s ± 0.09s | — |
 
 解读：
 
-- `p0`：utoo 是该环境中最快的完全冷启动结果，约为 Bun 耗时的 59%、pnpm 的 20%。
-- `p3`：utoo 与 aube 的均值差异很小；9 轮配对复测后，utoo-minus-aube 的差值为 +0.214s，标准误为 0.506s，属于噪声范围，应视为基本持平。
-- `p4`：utoo 的热缓存安装为 1.09s，明显快于 Bun、pnpm 和 aube。修正后的 pnpm warm run 网络接收约 4 KB，确认是有效的热缓存测量。
-
-## GitHub Actions · npmjs
-
-- Harness branch/commit：`codex/aube-phase-benchmark` / `7a76aa3`
-- 项目：`ant-design`
-- 镜像源：`https://registry.npmjs.org`
-- 工作流：`https://github.com/utooland/utoo/actions/runs/29797404521`
-- 采样：`p0` / `p3` 各 3 轮交错采样，`p4` 5 轮交错采样
-- aube：1.29.1，`trustPolicy: off`
-
-### Linux (`ubuntu-latest`)
-
-| 场景 | utoo | Bun | aube |
-|------|------|-----|------|
-| 完全冷启动 (`p0`) | **8.13s ± 0.33s** | 9.70s ± 0.24s | 17.54s ± 0.74s |
-| 仅 lock 冷启动 (`p3`) | **7.22s ± 1.24s** | 7.52s ± 0.04s | 8.37s ± 1.04s |
-| 热缓存安装 (`p4`) | **2.25s ± 0.12s** | 3.58s ± 0.05s | 2.59s ± 0.13s |
-
-### macOS (`macos-latest`, Apple Silicon)
-
-| 场景 | utoo | Bun | aube |
-|------|------|-----|------|
-| 完全冷启动 (`p0`) | **19.19s ± 2.43s** | 22.81s ± 1.29s | 55.28s ± 5.78s |
-| 仅 lock 冷启动 (`p3`) | **12.03s ± 0.53s** | 15.58s ± 3.94s | 31.31s ± 3.12s |
-| 热缓存安装 (`p4`) | **3.81s ± 0.19s** | 5.37s ± 0.22s | 14.76s ± 0.26s |
-
-原始 GitHub Actions 工作流有意省略 pnpm：`ant-design` 的 `.npmrc` 包含 `package-lock=false`，pnpm 10 将其映射为 `lockfile=false`，导致对应单元没有有效的 `pnpm-lock.yaml`，不能作为 `p3` / `p4` 结果引用。
-
-### 修正后的 pnpm 验证
-
-- 加固后的 harness commit：`1e88fa2b`
-- 工作流：`https://github.com/utooland/utoo/actions/runs/29809892297`
-
-| 平台 | 完全冷启动 (`p0`) | 仅 lock 冷启动 (`p3`) | 热缓存安装 (`p4`) |
-|------|-------------------|-----------------------|-------------------|
-| Linux | 26.20s ± 0.81s | 18.01s ± 1.03s | 7.19s ± 0.02s |
-| macOS | 70.58s ± 13.74s | 57.25s ± 15.07s | 31.88s ± 2.58s |
-
-Linux 的热缓存单元保留了约 1 MB 的 `pnpm-lock.yaml` 和约 1.45 GB 的 store，同时网络传输只有约 7 KB RX / 18 KB TX，确认这是有效的热缓存测量。同一轮也拒绝了 aube 的 `p3` / `p4`，原因是缺少预期的 seeded lockfile，而不是继续记录陈旧状态的耗时。
+- `p0`：utoo 的均值最快；pnpm 12 的均值比 utoo 慢约 54%，但两者波动都应结合原始样本解读。
+- `p3`：utoo 的均值最快，pnpm 12 慢约 42%；该阶段方差较高，只适合作为方向性结论。
+- `p4`：utoo 为 1.22s，pnpm 12 为 2.60s；两组方差都较小，是本轮最稳定的领先信号。
+- aube 的 `p3` / `p4` 因没有生成预期 lockfile 被拒绝，不参与排名。
 
 ## 测试口径
 
