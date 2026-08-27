@@ -64,15 +64,15 @@ utx create-react-app my-app
 
 ## Performance comparison
 
-`utoo` is optimized around dependency resolution, download reuse, and global package-cache reuse. The table below shows a phased install benchmark for the `ant-design` project on poolab Linux x86_64, connected directly to `https://registry.npmmirror.com`. Lower is better.
+`utoo` is optimized around dependency resolution, download reuse, and global package-cache reuse. The table below shows the `ant-design` phased install benchmark measured on 2026-08-27 in a Linux China x86_64 environment connected directly to `https://registry.npmmirror.com`. Lower is better.
 
-| Scenario | utoo | Bun | pnpm | aube |
-|----------|------|-----|------|------|
-| Full cold (`p0`) | **7.84s ± 2.17s** | 13.21s ± 2.36s | 39.32s ± 16.56s | 27.63s ± 6.47s |
-| Lock-only cold (`p3`) | 6.64s ± 1.64s | 8.62s ± 3.57s | 15.14s ± 0.77s | **6.42s ± 0.31s** |
-| Warm (`p4`) | **1.09s ± 0.05s** | 2.72s ± 0.05s | 7.89s ± 0.38s | 1.60s ± 0.07s |
+| Scenario | utoo | Bun | pnpm 10 | pnpm 12 | aube |
+|----------|------|-----|---------|---------|------|
+| Full cold (`p0`) | **12.04s ± 1.25s** | 19.63s ± 1.32s | 33.88s ± 0.64s | 18.50s ± 6.22s | 26.47s ± 7.65s |
+| Lock-only cold (`p3`) | **22.28s ± 12.71s** | 31.75s ± 15.11s | 40.70s ± 11.64s | 31.67s ± 10.09s | — |
+| Warm (`p4`) | **1.22s ± 0.07s** | 4.58s ± 0.32s | 9.86s ± 0.48s | 2.60s ± 0.09s | — |
 
-In `p3`, the utoo and aube mean difference is within noise and should be treated as a tie. Utoo is more clearly ahead in `p0` and `p4`. Absolute timings vary by platform, registry, and network topology. See [performance benchmarks](/en/docs/utoo/performance) for the full methodology, GitHub Actions npmjs runs, and corrected pnpm validation.
+Utoo has the fastest mean in all three valid install states. Variance is high in `p0` / `p3`, so those are directional results; the low-variance `p4` signal is the strongest. Aube's `p3` / `p4` cells were rejected because the expected lockfile was missing. See [performance benchmarks](/en/docs/utoo/performance) for the full GitHub Actions npmjs results.
 
 ## Commands
 
