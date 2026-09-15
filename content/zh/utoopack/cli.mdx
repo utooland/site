@@ -52,6 +52,7 @@ utx up dev --webpack
 | `-p, --project <path>` | 设置项目路径 |
 | `-r, --root <path>` | 设置根路径 |
 | `--webpack` | 启用 webpack 兼容模式 |
+| `--tracing`、`--no-tracing` | 显示或隐藏编译进度；默认取配置文件中的 `tracing`，未设置时开启 |
 
 **`up dev`**
 
@@ -62,6 +63,7 @@ utx up dev --webpack
 | `-p, --project <path>` | 设置项目路径 |
 | `-r, --root <path>` | 设置根路径 |
 | `--webpack` | 启用 webpack 兼容模式 |
+| `--tracing`、`--no-tracing` | 显示或隐藏编译进度；默认取配置文件中的 `tracing`，未设置时开启 |
 
 ## 配置
 
@@ -72,6 +74,10 @@ CLI 按以下顺序查找配置文件：
 3. `utoopack.config.js`
 
 详见 [@utoo/pack 配置](/zh/docs/utoopack/config)。
+
+`processEnv`、`watch`、`dev`、`buildId`、`tracing`、`packPath`、`projectPath`、`rootPath` 等运行时字段同样从该文件读取；`--project` 和 `--root` 优先于 `projectPath` 和 `rootPath`。
+
+构建前 CLI 会补齐几个默认值：未显式设置时 `persistentCaching` 默认开启；生产构建（`mode` 不是 `development` 且 `dev` 不为 `true`）下，`optimization.concatenateModules`、`optimization.removeUnusedExports` 和 `optimization.removeUnusedImports` 默认为 `true`。
 
 **示例**
 

@@ -2,7 +2,7 @@
 
 import { Callout, Tabs } from 'nextra/components'
 
-`@utoo/pack` can be configured with `utoopack.json`, `utoopack.config.mjs`, or the Node API.
+`@utoo/pack` can be configured with `utoopack.json`, `utoopack.config.mjs`, `utoopack.config.js`, or the Node API.
 
 ## Configuration Files
 
@@ -95,12 +95,12 @@ Use `utoopack.json` when your config is fully JSON-serializable. Use `utoopack.c
 
 ### mode and target
 
-Build mode affects optimizations and defaults. `target` selects the output runtime.
+Build mode affects optimizations and defaults.
 
 ```json
 {
   "mode": "production",
-  "target": "browser"
+  "target": "chrome >= 80"
 }
 ```
 
@@ -108,6 +108,8 @@ Build mode affects optimizations and defaults. `target` selects the output runti
 |-------|-------------|
 | `development` | Faster builds, better debugging, HMR enabled |
 | `production` | Optimized output, minification, tree shaking |
+
+`target` is a [Browserslist](https://browsersl.ist) query. Omit it for a browser build. When the first resolved distribution is `node`, for example `"node 20"` or the shorthand `"node"`, the build targets the Node.js platform.
 
 ### entry
 
@@ -176,6 +178,10 @@ Configure output path, file naming, static copying, and runtime asset URLs.
 | `entryRootExport` | Expose entry exports on `window` / `globalThis` |
 
 Use `publicPath: "runtime"` to read the runtime prefix from `globalThis.publicPath`, or `publicPath: "auto"` to infer it from the currently loaded script URL.
+
+`copy` accepts source path strings or `{ "from": "./public", "to": "static" }` objects; `to` defaults to the source path.
+
+In production, client JS and CSS chunks default to short content-hashed names using Turbopack's 13-character hash, while development builds keep readable names. Explicit `output.filename`, `output.chunkFilename`, and `output.cssFilename` templates take precedence; use `"filename": "[name].js"` when consumers need stable entry filenames.
 
 ### define
 
@@ -419,6 +425,8 @@ Configure built-in style processing.
 
 Use `styles.cssModules.localIdentName` to customize the CSS Modules class-name template. Use `styles.less.loader` to select a custom Less loader; `implementation` selects the Less implementation, and additional fields are forwarded to the loader.
 
+`styles.postcss` runs after the plugins from a discovered `postcss.config.*` file in the same PostCSS pass. Set `styles.postcss.implementation` to an absolute path such as `require.resolve("postcss")` to pin the PostCSS module used at build time.
+
 ### images
 
 Configure image inlining.
@@ -466,7 +474,7 @@ React transform options.
 
 ### React Compiler and SWC plugins
 
-`reactCompiler` accepts a boolean or an object with `compilationMode` and `target` for the Rust React Compiler. `compilationMode` supports `infer`, `annotation`, and `all`; `target` supports React `18` and `19`.
+`reactCompiler` accepts a boolean or an object with `compilationMode` and `target` for the Rust React Compiler. `compilationMode` supports `infer`, `annotation`, and `all`; `target` supports React `17`, `18`, and `19` and defaults to `19`. React `17` and `18` require `react-compiler-runtime`.
 
 ```json
 {
@@ -525,13 +533,14 @@ React transform options.
 | `minify` | `boolean` | Minify output code |
 | `extractComments` | `boolean` | Extract legal comments to `[file].LICENSE.txt` when minifying library output |
 | `treeShaking` | `boolean` | Remove unused code |
+| `inferModuleSideEffects` | `boolean` | Infer side-effect-free modules from source when package metadata does not declare `sideEffects`; defaults to `true` |
 | `splitChunks` | `object` | Configure size and count limits for `js` / `css` chunks |
 | `cssChunking` | `boolean \| string \| object` | CSS chunk grouping algorithm |
 | `modularizeImports` | `object` | Transform package imports with templates, similar to `babel-plugin-import` |
 | `packageImports` | `string[]` | Optimize package entry points with many exports |
 | `transpilePackages` | `string[]` | Transpile selected dependencies |
 | `removeConsole` | `boolean \| object` | Remove console calls, with optional methods retained through `exclude` |
-| `concatenateModules` | `boolean` | Concatenate modules to reduce chunk count |
+| `concatenateModules` | `boolean` | Concatenate modules to reduce chunk count; the CLI enables it by default in production |
 | `removeUnusedExports` | `boolean` | Remove unused exports; defaults off in development and on in production |
 | `removeUnusedImports` | `boolean` | Remove unused imports; defaults off in development and on in production |
 | `nestedAsyncChunking` | `boolean` | Enable nested async chunks |
@@ -549,7 +558,7 @@ React transform options.
 }
 ```
 
-Utoopack's built-in list is maintained with reference to Next.js, but the [`DEFAULT_OPTIMIZE_PACKAGE_IMPORTS`](https://github.com/utooland/utoo/blob/next/packages/pack/src/core/project.ts#L107-L181) implementation is the source of truth. It currently contains 74 packages or package subpaths:
+Utoopack's built-in list is maintained with reference to Next.js, but the [`DEFAULT_OPTIMIZE_PACKAGE_IMPORTS`](https://github.com/utooland/utoo/blob/next/packages/pack/src/core/project.ts#L107-L182) implementation is the source of truth. It currently contains 74 packages or package subpaths:
 
 ```json
 [
@@ -603,7 +612,7 @@ Packages configured through `optimization.packageImports` are merged with this b
 
 ### devServer
 
-The local repo currently supports `hot`, `dynamicHmrChunkLists`, `host`, `port`, `https`, and `proxy` here.
+`devServer` supports `hot`, `dynamicHmrChunkLists`, `host`, `port`, `https`, `browserToTerminal`, and `proxy`.
 
 ```json
 {
@@ -613,6 +622,7 @@ The local repo currently supports `hot`, `dynamicHmrChunkLists`, `host`, `port`,
     "host": "0.0.0.0",
     "port": 3000,
     "https": false,
+    "browserToTerminal": "error",
     "proxy": [
       {
         "context": ["/api"],
@@ -629,9 +639,21 @@ The local repo currently supports `hot`, `dynamicHmrChunkLists`, `host`, `port`,
 
 When `dynamicHmrChunkLists` is enabled, the runtime registers the corresponding HMR chunk lists as dynamic chunks load.
 
+`browserToTerminal` forwards browser console output to the development terminal: `"error"` forwards errors, `"warn"` also forwards warnings, and `true` forwards all supported console output. It defaults to `false`.
+
+Each `proxy` rule supports:
+
+| Field | Description |
+|-------|-------------|
+| `context` | Path prefix or prefixes to match; a value starting with `^` is treated as a regular expression |
+| `target` | Target server URL |
+| `pathRewrite` | Object of regex-to-replacement pairs where the first match wins, or a `(path) => string` function in JS configs |
+| `changeOrigin` | Rewrite the `Host` header to match the target; defaults to `true` |
+| `secure` | Verify the target's TLS certificate; set `false` to accept self-signed certificates |
+
 ### server
 
-`server` configures server entries, Server Functions boundaries, and server chunk output. `entry` accepts a single entry string or an array of named entries. The first item in an entry array is the primary server runtime and receives Server Functions.
+`server` configures server entries, Server Functions boundaries, server chunk output, and server-only `resolve` / `externals` overrides. `entry` accepts a single entry string or an array of named entries. The first item in an entry array is the primary server runtime and receives Server Functions.
 
 ```json filename="utoopack.json"
 {
@@ -646,6 +668,17 @@ When `dynamicHmrChunkLists` is enabled, the runtime registers the corresponding 
         "import": "./src/admin.server.ts"
       }
     ],
+    "resolve": {
+      "alias": {
+        "@/*": "./src/*"
+      }
+    },
+    "externals": {
+      "pg": {
+        "root": "pg",
+        "type": "commonjs"
+      }
+    },
     "function": {
       "clientProxy": "./src/transport.ts",
       "serverRegister": "./src/register.ts"
@@ -660,6 +693,8 @@ When `dynamicHmrChunkLists` is enabled, the runtime registers the corresponding 
 ```
 
 For a single entry, use the shorthand `"entry": "./src/server.ts"`. The `clientProxy` module must export `createServerReference(actionId, name)`, and the `serverRegister` module must export `registerServerReference(action, actionId, name)`.
+
+`server.resolve` is applied only to server builds: its `alias` entries override matching top-level `resolve.alias` entries, and its `extensions` replace `resolve.extensions` when set. `server.externals` replaces the top-level `externals` map for server entries and Server Functions when provided; omit it to keep using top-level `externals`, or set it to `{}` to disable externals for server builds.
 
 ## Advanced Options
 
@@ -684,7 +719,7 @@ These `UserConfig` fields can be used in `utoopack.config.*` to control the buil
 | `watch` | `object` | File-watching options |
 | `dev` | `boolean` | Run in development mode |
 | `buildId` | `string` | Current build ID |
-| `tracing` | `boolean` | Enable default tracing logs; enabled by default |
+| `tracing` | `boolean` | Show compilation progress; enabled by default. Rust tracing logs are controlled by `RUST_LOG` |
 | `packPath` | `string` | Absolute path to `@utoo/pack` |
 | `projectPath` | `string` | Project path |
 | `rootPath` | `string` | Root path, which may differ from the project path in a monorepo |
@@ -746,6 +781,8 @@ export default defineConfig({
 ```
   </Tabs.Tab>
 </Tabs>
+
+`build(options, projectPath?, rootPath?)` and `serve(options, projectPath?, rootPath?, serverOptions?)` accept either `BundleOptions`, which is the `config` object plus runtime fields such as `processEnv`, `watch`, `dev`, `buildId`, `tracing`, and `packPath`, or a `WebpackConfig` in compatibility mode. When `rootPath` is omitted it is discovered from the project path. `serverOptions` for `serve()` supports `port`, `hostname`, `https`, `logServerInfo`, `selfSignedCertificate`, and an `onReady` callback that fires once the first build is written and the server is listening.
 
 <Callout type="info">
   For the full configuration schema, see [config_schema.json](https://github.com/utooland/utoo/blob/next/packages/pack/config_schema.json).

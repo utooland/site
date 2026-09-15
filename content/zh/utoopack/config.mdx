@@ -2,7 +2,7 @@
 
 import { Callout, Tabs } from 'nextra/components'
 
-`@utoo/pack` 支持通过 `utoopack.json`、`utoopack.config.mjs` 和 Node API 进行配置。
+`@utoo/pack` 支持通过 `utoopack.json`、`utoopack.config.mjs`、`utoopack.config.js` 和 Node API 进行配置。
 
 ## 配置文件
 
@@ -95,12 +95,12 @@ export default defineConfig({
 
 ### mode 和 target
 
-`mode` 会影响默认优化策略，`target` 用来指定输出运行环境。
+`mode` 会影响默认优化策略。
 
 ```json
 {
   "mode": "production",
-  "target": "browser"
+  "target": "chrome >= 80"
 }
 ```
 
@@ -108,6 +108,8 @@ export default defineConfig({
 |----|------|
 | `development` | 更快构建，更好调试，启用 HMR |
 | `production` | 优化输出，压缩，tree shaking |
+
+`target` 是一个 [Browserslist](https://browsersl.ist) 查询。不设置时按浏览器构建；当解析出的第一个目标是 `node`（例如 `"node 20"` 或简写 `"node"`）时，会按 Node.js 平台构建。
 
 ### entry
 
@@ -176,6 +178,10 @@ export default defineConfig({
 | `entryRootExport` | 将入口导出挂到 `window` / `globalThis` 上 |
 
 `publicPath: "runtime"` 会从 `globalThis.publicPath` 读取运行时前缀；`publicPath: "auto"` 会根据当前加载的脚本地址自动推断前缀。
+
+`copy` 支持源路径字符串，也支持 `{ "from": "./public", "to": "static" }` 对象；`to` 默认与源路径相同。
+
+生产环境下，客户端 JS 和 CSS chunk 默认使用 Turbopack 的 13 位内容哈希短文件名，开发环境保留可读文件名。显式设置的 `output.filename`、`output.chunkFilename` 和 `output.cssFilename` 模板优先；需要稳定入口文件名时可使用 `"filename": "[name].js"`。
 
 ### define
 
@@ -419,6 +425,8 @@ import "foo/bar"
 
 `styles.cssModules.localIdentName` 用于自定义 CSS Modules 类名模板。`styles.less.loader` 用于指定自定义 Less loader；`implementation` 指定实际使用的 Less 实现，其他字段会继续传给 loader。
 
+`styles.postcss` 中的插件会在发现的 `postcss.config.*` 之后、同一轮 PostCSS 处理中执行。可以通过 `styles.postcss.implementation` 指定构建时使用的 PostCSS 模块绝对路径（例如 `require.resolve("postcss")`）。
+
 ### images
 
 配置图片内联行为。
@@ -466,7 +474,7 @@ React transform 相关配置。
 
 ### React Compiler 和 SWC 插件
 
-`reactCompiler` 可以是布尔值，也可以通过 `compilationMode` 和 `target` 配置 Rust React Compiler。`compilationMode` 支持 `infer`、`annotation` 和 `all`，`target` 支持 React `18` 和 `19`。
+`reactCompiler` 可以是布尔值，也可以通过 `compilationMode` 和 `target` 配置 Rust React Compiler。`compilationMode` 支持 `infer`、`annotation` 和 `all`，`target` 支持 React `17`、`18` 和 `19`，默认 `19`；React `17` 和 `18` 需要安装 `react-compiler-runtime`。
 
 ```json
 {
@@ -525,13 +533,14 @@ React transform 相关配置。
 | `minify` | `boolean` | 压缩输出代码 |
 | `extractComments` | `boolean` | 库构建压缩时将 legal comments 提取到 `[file].LICENSE.txt` |
 | `treeShaking` | `boolean` | 移除未使用代码 |
+| `inferModuleSideEffects` | `boolean` | 当包元数据未声明 `sideEffects` 时，从源码推断无副作用模块；默认开启 |
 | `splitChunks` | `object` | 分别配置 `js` / `css` chunk 的尺寸和数量限制 |
 | `cssChunking` | `boolean \| string \| object` | CSS chunk 分组算法 |
 | `modularizeImports` | `object` | 按模板转换包导入，类似 `babel-plugin-import` |
 | `packageImports` | `string[]` | 优化具有大量导出的包入口 |
 | `transpilePackages` | `string[]` | 转译指定依赖包 |
 | `removeConsole` | `boolean \| object` | 移除 console 调用，可通过 `exclude` 保留方法 |
-| `concatenateModules` | `boolean` | 合并模块以减少 chunk 数量 |
+| `concatenateModules` | `boolean` | 合并模块以减少 chunk 数量；CLI 在生产环境默认开启 |
 | `removeUnusedExports` | `boolean` | 移除未使用导出；开发环境默认关闭，生产环境默认开启 |
 | `removeUnusedImports` | `boolean` | 移除未使用导入；开发环境默认关闭，生产环境默认开启 |
 | `nestedAsyncChunking` | `boolean` | 启用嵌套异步 chunk |
@@ -549,7 +558,7 @@ React transform 相关配置。
 }
 ```
 
-Utoopack 的内置列表参考 Next.js 维护，但以 [`DEFAULT_OPTIMIZE_PACKAGE_IMPORTS`](https://github.com/utooland/utoo/blob/next/packages/pack/src/core/project.ts#L107-L181) 的实现为准。当前共包含 74 个包或包子路径：
+Utoopack 的内置列表参考 Next.js 维护，但以 [`DEFAULT_OPTIMIZE_PACKAGE_IMPORTS`](https://github.com/utooland/utoo/blob/next/packages/pack/src/core/project.ts#L107-L182) 的实现为准。当前共包含 74 个包或包子路径：
 
 ```json
 [
@@ -603,7 +612,7 @@ Utoopack 的内置列表参考 Next.js 维护，但以 [`DEFAULT_OPTIMIZE_PACKAG
 
 ### devServer
 
-本地仓库当前支持的字段包括 `hot`、`dynamicHmrChunkLists`、`host`、`port`、`https` 和 `proxy`。
+`devServer` 支持 `hot`、`dynamicHmrChunkLists`、`host`、`port`、`https`、`browserToTerminal` 和 `proxy`。
 
 ```json
 {
@@ -613,6 +622,7 @@ Utoopack 的内置列表参考 Next.js 维护，但以 [`DEFAULT_OPTIMIZE_PACKAG
     "host": "0.0.0.0",
     "port": 3000,
     "https": false,
+    "browserToTerminal": "error",
     "proxy": [
       {
         "context": ["/api"],
@@ -629,9 +639,21 @@ Utoopack 的内置列表参考 Next.js 维护，但以 [`DEFAULT_OPTIMIZE_PACKAG
 
 `dynamicHmrChunkLists` 开启后，运行时会随着动态 chunk 加载注册对应的 HMR chunk list。
 
+`browserToTerminal` 会把浏览器控制台输出转发到开发终端：`"error"` 只转发错误，`"warn"` 同时转发警告，`true` 转发所有支持的控制台输出。默认关闭。
+
+每条 `proxy` 规则支持以下字段：
+
+| 字段 | 描述 |
+|------|------|
+| `context` | 需要代理的路径前缀，可以是数组；以 `^` 开头时按正则匹配 |
+| `target` | 目标服务地址 |
+| `pathRewrite` | 正则到替换串的对象，命中第一条即生效；JS 配置中也可以传 `(path) => string` 函数 |
+| `changeOrigin` | 是否把 `Host` 头改写为目标地址，默认 `true` |
+| `secure` | 是否校验目标的 TLS 证书；自签名证书可设为 `false` |
+
 ### server
 
-`server` 配置服务端入口、Server Functions 边界和服务端 chunk 输出。`entry` 可以是单个入口字符串，也可以是具名入口数组；数组中的第一个入口是主服务端运行时，并接收 Server Functions。
+`server` 配置服务端入口、Server Functions 边界、服务端 chunk 输出，以及服务端专用的 `resolve` / `externals` 覆盖。`entry` 可以是单个入口字符串，也可以是具名入口数组；数组中的第一个入口是主服务端运行时，并接收 Server Functions。
 
 ```json filename="utoopack.json"
 {
@@ -646,6 +668,17 @@ Utoopack 的内置列表参考 Next.js 维护，但以 [`DEFAULT_OPTIMIZE_PACKAG
         "import": "./src/admin.server.ts"
       }
     ],
+    "resolve": {
+      "alias": {
+        "@/*": "./src/*"
+      }
+    },
+    "externals": {
+      "pg": {
+        "root": "pg",
+        "type": "commonjs"
+      }
+    },
     "function": {
       "clientProxy": "./src/transport.ts",
       "serverRegister": "./src/register.ts"
@@ -660,6 +693,8 @@ Utoopack 的内置列表参考 Next.js 维护，但以 [`DEFAULT_OPTIMIZE_PACKAG
 ```
 
 单入口可以简写为 `"entry": "./src/server.ts"`。`clientProxy` 模块需要导出 `createServerReference(actionId, name)`，`serverRegister` 模块需要导出 `registerServerReference(action, actionId, name)`。
+
+`server.resolve` 只作用于服务端构建：其中的 `alias` 会覆盖同名的顶层 `resolve.alias`，`extensions` 设置后会整体替换 `resolve.extensions`。`server.externals` 设置后会替换服务端入口和 Server Functions 使用的顶层 `externals`；不设置时继续沿用顶层 `externals`，设为 `{}` 可以让服务端构建不使用任何 externals。
 
 ## 高级选项
 
@@ -684,7 +719,7 @@ Utoopack 的内置列表参考 Next.js 维护，但以 [`DEFAULT_OPTIMIZE_PACKAG
 | `watch` | `object` | 文件监听配置 |
 | `dev` | `boolean` | 是否以开发模式运行 |
 | `buildId` | `string` | 当前构建 ID |
-| `tracing` | `boolean` | 是否启用默认 tracing 日志，默认开启 |
+| `tracing` | `boolean` | 是否显示编译进度，默认开启；Rust tracing 日志由 `RUST_LOG` 环境变量控制 |
 | `packPath` | `string` | `@utoo/pack` 的绝对路径 |
 | `projectPath` | `string` | 项目路径 |
 | `rootPath` | `string` | 根路径，monorepo 中可与项目路径不同 |
@@ -746,6 +781,8 @@ export default defineConfig({
 ```
   </Tabs.Tab>
 </Tabs>
+
+`build(options, projectPath?, rootPath?)` 和 `serve(options, projectPath?, rootPath?, serverOptions?)` 接收 `BundleOptions`（即 `config` 对象加上 `processEnv`、`watch`、`dev`、`buildId`、`tracing`、`packPath` 等运行时字段），或者兼容模式下的 `WebpackConfig`。不传 `rootPath` 时会从项目路径自动向上查找。`serve()` 的 `serverOptions` 支持 `port`、`hostname`、`https`、`logServerInfo`、`selfSignedCertificate`，以及在首次构建写出、服务开始监听后触发的 `onReady` 回调。
 
 <Callout type="info">
   完整配置 schema 见 [config_schema.json](https://github.com/utooland/utoo/blob/next/packages/pack/config_schema.json)。
