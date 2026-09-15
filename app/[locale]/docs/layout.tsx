@@ -4,6 +4,7 @@ import 'nextra-theme-docs/style.css'
 import type { ReactNode } from 'react'
 import { DocsPrimaryNav } from '../../components/DocsPrimaryNav'
 import { SharedFooter } from '../../components/SharedFooter'
+import { UtooLogo } from '../../components/Logo'
 
 import { Search } from 'nextra/components'
 
@@ -28,7 +29,7 @@ export default async function DocsLayout({ children, params }: LayoutProps) {
     <Layout
       navbar={
         <Navbar
-          logo={<span className="x:font-bold x:text-xl">Utoo</span>}
+          logo={<UtooLogo />}
           logoLink="/"
         />
       }

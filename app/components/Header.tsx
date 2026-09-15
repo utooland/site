@@ -4,6 +4,7 @@ import { Moon, Sun, Globe, BookOpen, Search } from "lucide-react";
 import { useTheme } from "../theme/context";
 import { useI18n } from "../i18n/context";
 import Link from "next/link";
+import { UtooMark, UtooWordmark } from "./Logo";
 
 export function Header() {
   const { theme, toggleTheme } = useTheme();
@@ -12,11 +13,9 @@ export function Header() {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/[0.03] backdrop-blur-xl bg-black/5">
       <div className="max-w-[1600px] mx-auto px-6 md:px-12 h-16 flex justify-between items-center">
-        <Link href="/" className="flex items-center gap-2 group">
-          <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center group-hover:rotate-12 transition-transform duration-300">
-            <span className="text-black font-black text-xl">U</span>
-          </div>
-          <span className="font-black text-xl tracking-tighter">UTOO</span>
+        <Link href="/" className="flex items-end gap-[9px] group" aria-label="Utoo">
+          <UtooMark className="h-[38px] w-auto shrink-0 group-hover:rotate-12 transition-transform duration-300" />
+          <UtooWordmark className="h-[14px] w-auto mb-[5px]" />
         </Link>
         <div className="flex items-center gap-2">
           {/* Docs link */}

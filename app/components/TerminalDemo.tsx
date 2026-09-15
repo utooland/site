@@ -202,7 +202,7 @@ export function TerminalDemo() {
           </div>
           <div className="flex items-center gap-3">
             <div className="h-4 w-px bg-black/10 dark:bg-white/10" />
-            <span className="text-[10px] text-black/30 dark:text-white/30 font-black uppercase tracking-[0.2em]">
+            <span className="text-xs font-semibold text-black/40 dark:text-white/40">
               {demo.title}
             </span>
             <span
