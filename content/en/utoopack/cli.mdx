@@ -52,6 +52,7 @@ Build the project for production.
 | `-p, --project <path>` | Set the project path |
 | `-r, --root <path>` | Set the root path |
 | `--webpack` | Enable webpack compatibility mode |
+| `--tracing`, `--no-tracing` | Show or hide compilation progress; defaults to `tracing` from the config file, otherwise on |
 
 **`up dev`**
 
@@ -62,6 +63,7 @@ Start the development server with HMR on port 3000.
 | `-p, --project <path>` | Set the project path |
 | `-r, --root <path>` | Set the root path |
 | `--webpack` | Enable webpack compatibility mode |
+| `--tracing`, `--no-tracing` | Show or hide compilation progress; defaults to `tracing` from the config file, otherwise on |
 
 ## Configuration
 
@@ -72,6 +74,10 @@ The CLI looks for configuration files in the following order:
 3. `utoopack.config.js`
 
 See [@utoo/pack Configuration](/en/docs/utoopack/config) for full configuration options.
+
+Runtime fields such as `processEnv`, `watch`, `dev`, `buildId`, `tracing`, `packPath`, `projectPath`, and `rootPath` are read from the same file; `--project` and `--root` take precedence over `projectPath` and `rootPath`.
+
+Before building, the CLI fills in a few defaults: `persistentCaching` is enabled unless set explicitly, and for production builds (`mode` is not `development` and `dev` is not `true`) `optimization.concatenateModules`, `optimization.removeUnusedExports`, and `optimization.removeUnusedImports` default to `true`.
 
 **Example**
 
