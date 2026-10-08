@@ -79,13 +79,15 @@ export default defineConfig({
 | `react` | JSX runtime 和 React transform 相关配置 |
 | `mdx` | Rust MDX transform 配置 |
 | `reactCompiler` | Rust React Compiler 配置 |
-| `optimization` | 压缩、tree shaking、split chunks、import 转换 |
-| `devServer` | host、port、HTTPS、HMR、proxy |
+| `optimization` | 压缩、tree shaking、split chunks、共享 runtime、import 转换 |
+| `devServer` | host、port、HTTPS、HMR、按需编译、浏览器日志转发、proxy |
 | `server` | 服务端入口、Server Functions 和服务端输出 |
 | `sourceMaps` | 是否生成 source map |
 | `stats` | 是否输出构建统计信息 |
 | `persistentCaching` | 是否跨次构建复用缓存 |
+| `cacheDirectory` | 持久缓存、锁文件和 trace 的存放目录 |
 | `turbopackMemoryEviction` | 持久缓存的内存回收模式 |
+| `turbopackGc` | 回收不再可达的 turbo-tasks 任务 |
 | `nodePolyfill` | 浏览器构建时是否补齐 Node.js 内置能力 |
 | `swcPlugins` | 自定义 SWC 插件 |
 | `pluginRuntimeStrategy` | loader / plugin 的运行进程模型 |
@@ -425,7 +427,29 @@ import "foo/bar"
 
 `styles.cssModules.localIdentName` 用于自定义 CSS Modules 类名模板。`styles.less.loader` 用于指定自定义 Less loader；`implementation` 指定实际使用的 Less 实现，其他字段会继续传给 loader。
 
-`styles.postcss` 中的插件会在发现的 `postcss.config.*` 之后、同一轮 PostCSS 处理中执行。可以通过 `styles.postcss.implementation` 指定构建时使用的 PostCSS 模块绝对路径（例如 `require.resolve("postcss")`）。
+`styles.postcss` 中的插件会在发现的 `postcss.config.*` 插件之后、同一轮 PostCSS 处理中执行。
+
+#### styles.postcss.implementation
+
+指定构建时使用的 PostCSS 模块，类型为 `string | null`，值必须是模块的绝对路径。未配置或设为 `null` 时，默认在运行时解析 `postcss`。此字段不会传给 PostCSS 插件配置。
+
+可以在 JS 配置文件中通过 `require.resolve()` 获取路径：
+
+```js filename="utoopack.config.mjs"
+import { createRequire } from 'node:module';
+import { defineConfig } from '@utoo/pack';
+
+const require = createRequire(import.meta.url);
+
+export default defineConfig({
+  entry: [{ import: './src/index.ts' }],
+  styles: {
+    postcss: {
+      implementation: require.resolve('postcss'),
+    },
+  },
+});
+```
 
 ### images
 
@@ -528,7 +552,7 @@ React transform 相关配置。
 | 选项 | 类型 | 描述 |
 |------|------|------|
 | `moduleIds` | `named \| deterministic` | 模块 ID 生成策略 |
-| `noMangling` | `boolean` | 压缩时保留变量、函数等局部名称 |
+| `noMangling` | `boolean` | 压缩时保留变量、函数等局部名称，并保留生产构建的导出名 |
 | `compress` | `boolean \| object` | 控制压缩优化；对象支持 `passes`、`sequences`、`keepClassnames`、`keepFnames` |
 | `minify` | `boolean` | 压缩输出代码 |
 | `extractComments` | `boolean` | 库构建压缩时将 legal comments 提取到 `[file].LICENSE.txt` |
@@ -541,10 +565,50 @@ React transform 相关配置。
 | `transpilePackages` | `string[]` | 转译指定依赖包 |
 | `removeConsole` | `boolean \| object` | 移除 console 调用，可通过 `exclude` 保留方法 |
 | `concatenateModules` | `boolean` | 合并模块以减少 chunk 数量；CLI 在生产环境默认开启 |
+| `sharedRuntime` | `boolean` | 生产浏览器应用入口共享 runtime 资源；默认关闭 |
 | `removeUnusedExports` | `boolean` | 移除未使用导出；开发环境默认关闭，生产环境默认开启 |
 | `removeUnusedImports` | `boolean` | 移除未使用导入；开发环境默认关闭，生产环境默认开启 |
 | `nestedAsyncChunking` | `boolean` | 启用嵌套异步 chunk |
 | `wasmAsAsset` | `boolean` | 将 WASM 内联到 bundle；默认关闭并作为静态资源输出 |
+
+#### optimization.sharedRuntime
+
+设置 `optimization.sharedRuntime: true`，将浏览器 runtime 提取为多个生产应用入口共用的资源，每个入口保留独立的 bootstrap 脚本。共享 runtime 可减少重复的运行时代码，让不同页面复用缓存。
+
+```json filename="utoopack.json"
+{
+  "mode": "production",
+  "entry": [
+    {
+      "name": "main",
+      "import": "./src/index.ts",
+      "html": {
+        "template": "./index.html",
+        "filename": "index.html"
+      }
+    },
+    {
+      "name": "admin",
+      "import": "./src/admin.ts",
+      "html": {
+        "template": "./admin.html",
+        "filename": "admin.html"
+      }
+    }
+  ],
+  "optimization": {
+    "sharedRuntime": true
+  }
+}
+```
+
+默认 `false`，开发模式、Node.js 目标和库构建会忽略此项。单入口应用则会比默认内嵌 runtime 多一次请求。
+
+内置 HTML 生成会自动注入入口 bootstrap 和共享 runtime。自行生成 HTML 时，可开启 `stats: true`，按 `stats.entrypoints[入口名].assets` 中的 JS 资源顺序加载脚本，其中入口 bootstrap 位于共享 runtime 之前。
+
+#### optimization.inferModuleSideEffects
+
+当包没有声明 `sideEffects` 元数据时，Utoopack 可以根据源码推断无副作用模块，并将结果用于 tree shaking。默认 `true`，设置 `optimization.inferModuleSideEffects: false` 可关闭源码推断。
 
 #### optimization.packageImports
 
@@ -612,17 +676,18 @@ Utoopack 的内置列表参考 Next.js 维护，但以 [`DEFAULT_OPTIMIZE_PACKAG
 
 ### devServer
 
-`devServer` 支持 `hot`、`dynamicHmrChunkLists`、`host`、`port`、`https`、`browserToTerminal` 和 `proxy`。
+配置本地开发服务器、HMR、动态导入按需编译、浏览器日志转发和 HTTP 代理。
 
 ```json
 {
   "devServer": {
     "hot": true,
     "dynamicHmrChunkLists": true,
+    "lazyDynamicImports": true,
+    "browserToTerminal": "warn",
     "host": "0.0.0.0",
     "port": 3000,
     "https": false,
-    "browserToTerminal": "error",
     "proxy": [
       {
         "context": ["/api"],
@@ -637,9 +702,46 @@ Utoopack 的内置列表参考 Next.js 维护，但以 [`DEFAULT_OPTIMIZE_PACKAG
 }
 ```
 
-`dynamicHmrChunkLists` 开启后，运行时会随着动态 chunk 加载注册对应的 HMR chunk list。
+| 选项 | 类型 | 默认值 | 描述 |
+|------|------|--------|------|
+| `hot` | `boolean` | 开发服务器中为 `true` | 启用 HMR |
+| `dynamicHmrChunkLists` | `boolean` | `false` | 随动态 chunk 加载注册对应的 HMR chunk list；需要开启 `hot` |
+| `lazyDynamicImports` | `boolean` | `false` | 浏览器首次请求时才编译客户端 `import()` 目标；仅开发模式生效 |
+| `browserToTerminal` | `boolean \| "error" \| "warn"` | `false` | 将浏览器 console 输出转发到开发终端 |
+| `host` | `string` | `"localhost"` | 开发服务器监听地址 |
+| `port` | `number` | `3000` | 优先使用的端口；占用时选择可用端口 |
+| `https` | `boolean` | `false` | 使用 HTTPS，可自动生成自签名证书 |
+| `proxy` | `object[]` | 无代理规则 | HTTP 代理规则 |
 
-`browserToTerminal` 会把浏览器控制台输出转发到开发终端：`"error"` 只转发错误，`"warn"` 同时转发警告，`true` 转发所有支持的控制台输出。默认关闭。
+#### devServer.lazyDynamicImports
+
+将客户端 `import()` 目标的编译延后到浏览器首次请求时，减少开发启动阶段需要编译的模块。仅开发模式生效，默认 `false`；首次加载对应模块时需要等待编译完成。
+
+```json filename="utoopack.json"
+{
+  "devServer": {
+    "hot": true,
+    "dynamicHmrChunkLists": true,
+    "lazyDynamicImports": true
+  }
+}
+```
+
+建议同时开启 `hot` 和 `dynamicHmrChunkLists`，让按需加载的模块继续接收 HMR 更新。`lazyDynamicImports` 不会自动开启这两个 HMR 选项。
+
+#### devServer.browserToTerminal
+
+使用 `"error"` 转发错误，`"warn"` 额外转发警告，`true` 转发全部受支持的 console 输出，默认 `false`。错误级别也包括失败断言、未捕获错误和未处理的 Promise rejection。
+
+```json filename="utoopack.json"
+{
+  "devServer": {
+    "browserToTerminal": "warn"
+  }
+}
+```
+
+#### devServer.proxy
 
 每条 `proxy` 规则支持以下字段：
 
@@ -704,10 +806,26 @@ Utoopack 的内置列表参考 Next.js 维护，但以 [`DEFAULT_OPTIMIZE_PACKAG
 | `stats` | `boolean` | 启用构建统计输出 |
 | `nodePolyfill` | `boolean` | 为浏览器补齐 Node.js 内置模块 |
 | `persistentCaching` | `boolean` | 启用持久化构建缓存，默认开启 |
+| `cacheDirectory` | `string` | 持久缓存、锁文件和 trace 的目录，默认 `.turbopack`；相对路径基于项目路径解析，也支持绝对路径 |
 | `turbopackMemoryEviction` | `boolean \| auto \| full` | 持久缓存的内存回收模式，默认 `auto`；`false` 关闭，`true` 等价于 `full` |
+| `turbopackGc` | `boolean` | 启用 turbo-tasks 引用计数垃圾回收，释放不再可达的任务；未配置时遵循 `TURBO_ENGINE_GC` 环境变量，默认关闭 |
 | `swcPlugins` | `[string, any][]` | 自定义 SWC 插件及其选项 |
 | `pluginRuntimeStrategy` | `workerThreads \| childProcesses` | loader / plugin 使用 worker thread 或子进程运行 |
 | `experimental` | `object` | `reactCompiler` 和 `swcPlugins` 的兼容配置入口 |
+
+### 缓存目录与任务回收
+
+`cacheDirectory` 统一控制持久缓存、锁文件和 trace 的存放位置。请将自定义缓存目录加入 `.gitignore`。
+
+```json filename="utoopack.json"
+{
+  "persistentCaching": true,
+  "cacheDirectory": ".cache/utoopack",
+  "turbopackGc": true
+}
+```
+
+`turbopackGc` 可在长时间运行的开发会话中回收不再可达的任务，不要求开启持久缓存。`turbopackMemoryEviction` 控制持久缓存的内存回收，两者可以分别配置。
 
 ### 配置文件运行时字段
 
