@@ -37,6 +37,7 @@ import { Callout } from 'nextra/components'
 | 功能 | 状态 | 描述 |
 |------|------|------|
 | `concatenateModules` | ✅ | 模块合并 (scope hoisting) |
+| `sharedRuntime` | ✅ | [生产浏览器应用入口共享运行时](/zh/docs/utoopack/config#optimizationsharedruntime) |
 | `moduleIds` | ✅ | 支持 "named" 或 "deterministic" |
 | `minify` | ✅ | 代码压缩 |
 | `treeShaking` | ✅ | 移除未使用代码 |
@@ -74,7 +75,7 @@ import { Callout } from 'nextra/components'
 | Source Maps | ✅ | 完整 devtool 支持 |
 | HMR | ✅ | 热模块替换 |
 | Dev Server | ✅ | 内置开发服务器 |
-| Lazy Compiling | 🟠 | 按需编译 |
+| Lazy Compiling | ✅ | [开发模式下动态导入按需编译](/zh/docs/utoopack/config#devserverlazydynamicimports) |
 
 ## 工具和分析
 

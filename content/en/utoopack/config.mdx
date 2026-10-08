@@ -79,13 +79,15 @@ Use `utoopack.json` when your config is fully JSON-serializable. Use `utoopack.c
 | `react` | JSX runtime and React transform options |
 | `mdx` | Rust MDX transform options |
 | `reactCompiler` | Rust React Compiler options |
-| `optimization` | Minification, tree shaking, split chunks, import transforms |
-| `devServer` | Host, port, HTTPS, HMR, proxy |
+| `optimization` | Minification, tree shaking, split chunks, shared runtime, import transforms |
+| `devServer` | Host, port, HTTPS, HMR, lazy compilation, browser console forwarding, proxy |
 | `server` | Server entries, Server Functions, and server output |
 | `sourceMaps` | Enable source maps |
 | `stats` | Emit build stats |
 | `persistentCaching` | Reuse cache across runs |
+| `cacheDirectory` | Directory for the persistent cache, lock, and trace files |
 | `turbopackMemoryEviction` | Memory eviction mode for the persistent cache |
+| `turbopackGc` | Garbage collection of unreachable tasks |
 | `nodePolyfill` | Polyfill Node.js built-ins for browser builds |
 | `swcPlugins` | Custom SWC plugins |
 | `pluginRuntimeStrategy` | Loader / plugin process model |
@@ -425,7 +427,29 @@ Configure built-in style processing.
 
 Use `styles.cssModules.localIdentName` to customize the CSS Modules class-name template. Use `styles.less.loader` to select a custom Less loader; `implementation` selects the Less implementation, and additional fields are forwarded to the loader.
 
-`styles.postcss` runs after the plugins from a discovered `postcss.config.*` file in the same PostCSS pass. Set `styles.postcss.implementation` to an absolute path such as `require.resolve("postcss")` to pin the PostCSS module used at build time.
+Inline `styles.postcss` plugins run after plugins from a discovered `postcss.config.*` file in the same PostCSS pass.
+
+#### styles.postcss.implementation
+
+`styles.postcss.implementation` accepts an absolute path to the PostCSS module as a `string`, or `null`. When omitted or set to `null`, Utoopack resolves `postcss` at runtime. Use a JavaScript config to resolve a specific installed implementation:
+
+```js filename="utoopack.config.mjs"
+import { createRequire } from 'node:module';
+import { defineConfig } from '@utoo/pack';
+
+const require = createRequire(import.meta.url);
+
+export default defineConfig({
+  entry: [{ import: './src/index.ts' }],
+  styles: {
+    postcss: {
+      implementation: require.resolve('postcss'),
+    },
+  },
+});
+```
+
+This field selects the implementation and is not forwarded to PostCSS plugins.
 
 ### images
 
@@ -528,7 +552,7 @@ React transform options.
 | Option | Type | Description |
 |--------|------|-------------|
 | `moduleIds` | `named \| deterministic` | Module ID generation strategy |
-| `noMangling` | `boolean` | Preserve local variable and function names during minification |
+| `noMangling` | `boolean` | Disable local-name minifier mangling and production export-name mangling |
 | `compress` | `boolean \| object` | Control compression; object options include `passes`, `sequences`, `keepClassnames`, and `keepFnames` |
 | `minify` | `boolean` | Minify output code |
 | `extractComments` | `boolean` | Extract legal comments to `[file].LICENSE.txt` when minifying library output |
@@ -541,10 +565,50 @@ React transform options.
 | `transpilePackages` | `string[]` | Transpile selected dependencies |
 | `removeConsole` | `boolean \| object` | Remove console calls, with optional methods retained through `exclude` |
 | `concatenateModules` | `boolean` | Concatenate modules to reduce chunk count; the CLI enables it by default in production |
+| `sharedRuntime` | `boolean` | Share one runtime asset across production browser application entries; defaults to `false` |
 | `removeUnusedExports` | `boolean` | Remove unused exports; defaults off in development and on in production |
 | `removeUnusedImports` | `boolean` | Remove unused imports; defaults off in development and on in production |
 | `nestedAsyncChunking` | `boolean` | Enable nested async chunks |
 | `wasmAsAsset` | `boolean` | Inline WASM into the bundle; defaults off and emits static assets instead |
+
+#### optimization.sharedRuntime
+
+Set `optimization.sharedRuntime: true` to emit one browser runtime asset shared across production application entries. Each entry keeps its own small bootstrap script. Sharing reduces duplicated runtime code and lets separate pages reuse the cached runtime.
+
+```json filename="utoopack.json"
+{
+  "mode": "production",
+  "entry": [
+    {
+      "name": "main",
+      "import": "./src/index.ts",
+      "html": {
+        "template": "./index.html",
+        "filename": "index.html"
+      }
+    },
+    {
+      "name": "admin",
+      "import": "./src/admin.ts",
+      "html": {
+        "template": "./admin.html",
+        "filename": "admin.html"
+      }
+    }
+  ],
+  "optimization": {
+    "sharedRuntime": true
+  }
+}
+```
+
+The option defaults to `false` and is ignored in development, Node.js, and library builds. For a single entry, separating the runtime adds a request compared with the default embedded runtime.
+
+Generated HTML automatically includes the entry bootstrap followed by the shared runtime. If you maintain HTML yourself, enable `stats: true` and load JavaScript assets in the order returned by `stats.entrypoints[entry].assets`, including the bootstrap before the runtime. Preserve that order when adding script tags.
+
+#### optimization.inferModuleSideEffects
+
+When a package does not declare `sideEffects` metadata, Utoopack can infer side-effect-free modules from their source and use that information for tree shaking. This option defaults to `true`. Set `optimization.inferModuleSideEffects: false` to disable source-based inference.
 
 #### optimization.packageImports
 
@@ -612,17 +676,18 @@ Packages configured through `optimization.packageImports` are merged with this b
 
 ### devServer
 
-`devServer` supports `hot`, `dynamicHmrChunkLists`, `host`, `port`, `https`, `browserToTerminal`, and `proxy`.
+Configure the development server, HMR, on-demand compilation, browser console forwarding, and HTTP proxies.
 
 ```json
 {
   "devServer": {
     "hot": true,
     "dynamicHmrChunkLists": true,
+    "lazyDynamicImports": true,
+    "browserToTerminal": "warn",
     "host": "0.0.0.0",
     "port": 3000,
     "https": false,
-    "browserToTerminal": "error",
     "proxy": [
       {
         "context": ["/api"],
@@ -637,9 +702,46 @@ Packages configured through `optimization.packageImports` are merged with this b
 }
 ```
 
-When `dynamicHmrChunkLists` is enabled, the runtime registers the corresponding HMR chunk lists as dynamic chunks load.
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `hot` | `boolean` | `true` in the dev server | Enable Hot Module Replacement |
+| `dynamicHmrChunkLists` | `boolean` | `false` | Register HMR chunk lists as dynamic chunks load; requires `hot: true` |
+| `lazyDynamicImports` | `boolean` | `false` | Compile client `import()` targets when the browser first requests them; development only |
+| `browserToTerminal` | `boolean \| "error" \| "warn"` | `false` | Forward browser console output to the development terminal |
+| `host` | `string` | `"localhost"` | Host to bind |
+| `port` | `number` | `3000` | Preferred port; an available port is selected if it is in use |
+| `https` | `boolean` | `false` | Enable HTTPS; a self-signed certificate may be generated |
+| `proxy` | `object[]` | No proxy rules | HTTP proxy rules |
 
-`browserToTerminal` forwards browser console output to the development terminal: `"error"` forwards errors, `"warn"` also forwards warnings, and `true` forwards all supported console output. It defaults to `false`.
+#### devServer.lazyDynamicImports
+
+`lazyDynamicImports` defers compiling the targets of client `import()` calls until the browser first requests them. It only applies in development and defaults to `false`. This can reduce the modules compiled at startup; the first request for an imported module waits for its compilation.
+
+```json filename="utoopack.json"
+{
+  "devServer": {
+    "hot": true,
+    "dynamicHmrChunkLists": true,
+    "lazyDynamicImports": true
+  }
+}
+```
+
+Pair this option with `dynamicHmrChunkLists: true` and keep `hot: true` so modules loaded on demand continue receiving HMR updates. Enabling `lazyDynamicImports` does not automatically enable either HMR option.
+
+#### devServer.browserToTerminal
+
+Use `"error"` to forward errors, `"warn"` to include warnings, or `true` to forward all supported console output. The default is `false`. Error-level output also includes failed assertions, uncaught errors, and unhandled Promise rejections.
+
+```json filename="utoopack.json"
+{
+  "devServer": {
+    "browserToTerminal": "warn"
+  }
+}
+```
+
+#### devServer.proxy
 
 Each `proxy` rule supports:
 
@@ -704,10 +806,26 @@ For a single entry, use the shorthand `"entry": "./src/server.ts"`. The `clientP
 | `stats` | `boolean` | Enable build statistics output |
 | `nodePolyfill` | `boolean` | Polyfill Node.js built-ins for browser |
 | `persistentCaching` | `boolean` | Enable persistent build cache; enabled by default |
+| `cacheDirectory` | `string` | Persistent cache, lock, and trace directory; defaults to `.turbopack`, relative to `projectPath` |
 | `turbopackMemoryEviction` | `boolean \| auto \| full` | Persistent-cache memory eviction; defaults to `auto`; `false` disables it and `true` is equivalent to `full` |
+| `turbopackGc` | `boolean` | Collect unreachable tasks to free memory; when omitted, follows `TURBO_ENGINE_GC` (off by default) |
 | `swcPlugins` | `[string, any][]` | Custom SWC plugins and their options |
 | `pluginRuntimeStrategy` | `workerThreads \| childProcesses` | Run loaders / plugins in worker threads or child processes |
 | `experimental` | `object` | Compatibility entry for `reactCompiler` and `swcPlugins` |
+
+### Cache directory and task garbage collection
+
+`cacheDirectory` sets the directory used for persistent cache data, lock files, and trace files. It defaults to `.turbopack`. Relative paths are resolved from `projectPath`; absolute paths are also supported. Add a custom cache directory to `.gitignore`.
+
+```json filename="utoopack.json"
+{
+  "persistentCaching": true,
+  "cacheDirectory": ".cache/utoopack",
+  "turbopackGc": true
+}
+```
+
+`turbopackGc` collects unreachable tasks to release memory. When the option is omitted, it follows the `TURBO_ENGINE_GC` environment variable, which is off by default. Task garbage collection is independent of `persistentCaching` and `turbopackMemoryEviction`.
 
 ### Config-file runtime fields
 
