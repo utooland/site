@@ -808,7 +808,7 @@ For a single entry, use the shorthand `"entry": "./src/server.ts"`. The `clientP
 | `persistentCaching` | `boolean` | Enable persistent build cache; enabled by default |
 | `cacheDirectory` | `string` | Persistent cache, lock, and trace directory; defaults to `.turbopack`, relative to `projectPath` |
 | `turbopackMemoryEviction` | `boolean \| auto \| full` | Persistent-cache memory eviction; defaults to `auto`; `false` disables it and `true` is equivalent to `full` |
-| `turbopackGc` | `boolean` | Collect unreachable tasks to free memory; when omitted, follows `TURBO_ENGINE_GC` (off by default) |
+| `turbopackGc` | `boolean` | Collect unreachable tasks during persistent-cache snapshots; defaults to `false` |
 | `swcPlugins` | `[string, any][]` | Custom SWC plugins and their options |
 | `pluginRuntimeStrategy` | `workerThreads \| childProcesses` | Run loaders / plugins in worker threads or child processes |
 | `experimental` | `object` | Compatibility entry for `reactCompiler` and `swcPlugins` |
@@ -821,11 +821,14 @@ For a single entry, use the shorthand `"entry": "./src/server.ts"`. The `clientP
 {
   "persistentCaching": true,
   "cacheDirectory": ".cache/utoopack",
+  "turbopackMemoryEviction": "auto",
   "turbopackGc": true
 }
 ```
 
-`turbopackGc` collects unreachable tasks to release memory. When the option is omitted, it follows the `TURBO_ENGINE_GC` environment variable, which is off by default. Task garbage collection is independent of `persistentCaching` and `turbopackMemoryEviction`.
+`turbopackGc` defaults to `false` and does not read the `TURBO_ENGINE_GC` environment variable. Garbage collection runs during persistent-cache snapshots, so setting `persistentCaching: false` prevents it from running in the normal build and development workflow.
+
+In development with read/write persistent caching, setting `turbopackMemoryEviction: false` disables garbage collection even if `turbopackGc: true`; the backend emits a warning. Enable persistent caching and use `turbopackMemoryEviction: "auto"` or `"full"` when enabling garbage collection.
 
 ### Config-file runtime fields
 

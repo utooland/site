@@ -808,7 +808,7 @@ Utoopack 的内置列表参考 Next.js 维护，但以 [`DEFAULT_OPTIMIZE_PACKAG
 | `persistentCaching` | `boolean` | 启用持久化构建缓存，默认开启 |
 | `cacheDirectory` | `string` | 持久缓存、锁文件和 trace 的目录，默认 `.turbopack`；相对路径基于项目路径解析，也支持绝对路径 |
 | `turbopackMemoryEviction` | `boolean \| auto \| full` | 持久缓存的内存回收模式，默认 `auto`；`false` 关闭，`true` 等价于 `full` |
-| `turbopackGc` | `boolean` | 启用 turbo-tasks 引用计数垃圾回收，释放不再可达的任务；未配置时遵循 `TURBO_ENGINE_GC` 环境变量，默认关闭 |
+| `turbopackGc` | `boolean` | 在持久缓存快照阶段回收不再可达的 turbo-tasks 任务；默认 `false` |
 | `swcPlugins` | `[string, any][]` | 自定义 SWC 插件及其选项 |
 | `pluginRuntimeStrategy` | `workerThreads \| childProcesses` | loader / plugin 使用 worker thread 或子进程运行 |
 | `experimental` | `object` | `reactCompiler` 和 `swcPlugins` 的兼容配置入口 |
@@ -821,11 +821,14 @@ Utoopack 的内置列表参考 Next.js 维护，但以 [`DEFAULT_OPTIMIZE_PACKAG
 {
   "persistentCaching": true,
   "cacheDirectory": ".cache/utoopack",
+  "turbopackMemoryEviction": "auto",
   "turbopackGc": true
 }
 ```
 
-`turbopackGc` 可在长时间运行的开发会话中回收不再可达的任务，不要求开启持久缓存。`turbopackMemoryEviction` 控制持久缓存的内存回收，两者可以分别配置。
+`turbopackGc` 默认 `false`，不读取 `TURBO_ENGINE_GC` 环境变量。垃圾回收在持久缓存快照阶段执行，因此设置 `persistentCaching: false` 后，常规构建和开发流程不会触发垃圾回收。
+
+开发模式使用可读写持久缓存时，若设置 `turbopackMemoryEviction: false`，即使 `turbopackGc: true`，后端也会发出警告并强制关闭垃圾回收。开启垃圾回收时，建议同时开启持久缓存，并将 `turbopackMemoryEviction` 设为 `"auto"` 或 `"full"`。
 
 ### 配置文件运行时字段
 
