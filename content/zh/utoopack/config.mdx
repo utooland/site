@@ -715,6 +715,8 @@ Utoopack 的内置列表参考 Next.js 维护，但以 [`DEFAULT_OPTIMIZE_PACKAG
 
 #### devServer.lazyDynamicImports
 
+这是 utoopack 的懒编译 / 按需编译（lazy compilation，常写作 `lazyCompilation`）开关；原生配置字段名为 `devServer.lazyDynamicImports`。
+
 将客户端 `import()` 目标的编译延后到浏览器首次请求时，减少开发启动阶段需要编译的模块。仅开发模式生效，默认 `false`；首次加载对应模块时需要等待编译完成。
 
 ```json filename="utoopack.json"

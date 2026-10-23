@@ -715,6 +715,8 @@ Configure the development server, HMR, on-demand compilation, browser console fo
 
 #### devServer.lazyDynamicImports
 
+This is utoopack's lazy compilation / on-demand compilation feature, often referred to as `lazyCompilation`. The native configuration field is `devServer.lazyDynamicImports`.
+
 `lazyDynamicImports` defers compiling the targets of client `import()` calls until the browser first requests them. It only applies in development and defaults to `false`. This can reduce the modules compiled at startup; the first request for an imported module waits for its compilation.
 
 ```json filename="utoopack.json"
