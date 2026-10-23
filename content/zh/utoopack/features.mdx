@@ -75,7 +75,13 @@ import { Callout } from 'nextra/components'
 | Source Maps | ✅ | 完整 devtool 支持 |
 | HMR | ✅ | 热模块替换 |
 | Dev Server | ✅ | 内置开发服务器 |
-| Lazy Compiling | ✅ | [开发模式下动态导入按需编译](/zh/docs/utoopack/config#devserverlazydynamicimports) |
+| Lazy Compilation | ✅ | [开发模式下动态导入按需编译（`lazyDynamicImports`）](/zh/docs/utoopack/config#devserverlazydynamicimports) |
+
+### 按需编译（lazyCompilation）
+
+按需编译也称懒编译或 lazy compilation。在 utoopack 原生配置中，通过 `devServer.lazyDynamicImports` 开启，默认 `false`。它仅在开发模式下将客户端 `import()` 目标的编译延后到浏览器首次请求时，减少启动阶段需要编译的模块；入口本身仍正常编译，首次加载动态模块时需要等待编译完成。
+
+`lazyCompilation` 是这里使用的功能叫法，原生配置字段是 `lazyDynamicImports`。开启方式及 HMR 配套选项见 [`devServer.lazyDynamicImports`](/zh/docs/utoopack/config#devserverlazydynamicimports)。
 
 ## 工具和分析
 

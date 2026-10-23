@@ -75,7 +75,13 @@ import { Callout } from 'nextra/components'
 | Source Maps | ✅ | Full devtool support |
 | HMR | ✅ | Hot Module Replacement |
 | Dev Server | ✅ | Built-in development server |
-| Lazy Compiling | ✅ | [Compile client dynamic imports on demand in development](/en/docs/utoopack/config#devserverlazydynamicimports) |
+| Lazy Compilation | ✅ | [Compile client dynamic imports on demand in development (`lazyDynamicImports`)](/en/docs/utoopack/config#devserverlazydynamicimports) |
+
+### Lazy compilation (lazyCompilation)
+
+Lazy compilation, also called on-demand compilation, is enabled through `devServer.lazyDynamicImports` in native utoopack configuration and defaults to `false`. In development, it defers compiling client `import()` targets until the browser first requests them, reducing the modules compiled at startup. Entries still compile normally, and the first request for a dynamic module waits for compilation.
+
+`lazyCompilation` names the feature here; the native configuration field is `lazyDynamicImports`. See [`devServer.lazyDynamicImports`](/en/docs/utoopack/config#devserverlazydynamicimports) for configuration and the accompanying HMR options.
 
 ## Tools & Analysis
 
