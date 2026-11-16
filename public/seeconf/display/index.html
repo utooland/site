@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f4f1e8">
+    <meta name="description" content="Utoo · SEE Conf 2026：依赖管理、增量构建与浏览器开发，一套工具串起完整工作流。">
+    <title>Utoo · SEE Conf 2026</title>
+    <link rel="stylesheet" href="display.css">
+    <script src="display.js" defer></script>
+  </head>
+  <body>
+    <main class="viewport" aria-label="Utoo SEE Conf 2026 互动展屏">
+      <div class="stage" id="stage">
+        <header class="masthead">
+          <a class="brand" href="https://utoo.land/" target="_blank" rel="noopener noreferrer" aria-label="访问 Utoo 官网">
+            <img src="assets/utoo-logo.png" alt="" class="brand-mark">
+            <span class="brand-wordmark">Utoo<small>Rust 驱动的 Web 工具链</small></span>
+          </a>
+          <div class="event-mark"><span>SEE CONF <b>2026</b></span><i></i><small>2026.11.28 · 杭州 · 蚂蚁 A 空间</small></div>
+        </header>
+
+        <div class="scenes" id="scenes">
+          <section class="scene hero-scene active" data-scene="hero" aria-labelledby="hero-title">
+            <div class="hero-copy">
+              <div class="kicker reveal">一套工具，串起完整工作流</div>
+              <h1 id="hero-title" class="reveal">让 Web 开发，<br><span>轻快一点。</span></h1>
+              <p class="hero-description reveal">从依赖安装、增量构建，到浏览器内开发，<br>把想法更轻快地变成眼前的应用。</p>
+              <div class="product-pills reveal" aria-label="Utoo 三大产品"><span>utoo</span><span>@utoo/pack</span><span>@utoo/web</span></div>
+              <div class="qr-pair reveal">
+                <a class="qr-card" href="https://utoo.land/" target="_blank" rel="noopener noreferrer"><img src="assets/site-qr.svg" alt="Utoo 官网二维码"><span><small>认识 Utoo</small><strong>扫码逛官网</strong><em>utoo.land ↗</em></span></a>
+                <a class="qr-card" href="https://github.com/utooland/utoo" target="_blank" rel="noopener noreferrer"><img src="assets/github-qr.svg" alt="Utoo GitHub 开源仓库二维码"><span><small>一起参与开源</small><strong>扫码看 GitHub</strong><em>utooland / utoo ↗</em></span></a>
+              </div>
+            </div>
+            <div class="hero-visual reveal" aria-label="从依赖安装到应用预览的工作流示意">
+              <div class="window-top"><span class="traffic-lights"><i></i><i></i><i></i></span><span>一套工具，贯穿每一步</span><b>UTOO</b></div>
+              <div class="workflow-orbit" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="orbit-center"><span>U</span><small>完整工作流</small></div><span class="orbit-spark spark-one"></span><span class="orbit-spark spark-two"></span></div>
+              <div class="flow-step step-install"><span class="step-icon">↓</span><div><small>01 / 安装</small><strong>依赖就绪</strong><p>Rust 原生包管理器</p></div><b>✓</b></div>
+              <div class="flow-step step-pack"><span class="step-icon">ϟ</span><div><small>02 / 构建</small><strong>增量构建</strong><p>Turbopack 驱动</p></div><b>✓</b></div>
+              <div class="flow-step step-web"><span class="step-icon">⌘</span><div><small>03 / 浏览器</small><strong>浏览器里，继续创造</strong><p>WASM · 编译 · 实时预览</p></div><b>↗</b></div>
+              <div class="visual-caption"><span class="status-dot"></span> 依赖管理 · 增量构建 · 浏览器运行</div>
+            </div>
+          </section>
+
+          <section class="scene install-scene" data-scene="install" aria-labelledby="install-title" hidden>
+            <div class="scene-heading"><div class="kicker reveal">01 · Utoo 包管理器</div><h2 id="install-title" class="reveal">依赖安装，<br><span>少一点等待。</span></h2><p class="reveal">Rust 原生引擎，让下载与缓存协同工作。<br>项目在变，熟悉的工作流不必重来。</p></div>
+            <div class="install-visual reveal" aria-label="并行下载、全局缓存和项目复用示意">
+              <div class="diagram-header"><span>从一份依赖，到每个项目</span><small>工作流示意</small></div>
+              <div class="download-cloud"><div class="package-tile">react<small>依赖包</small></div><div class="package-tile">typescript<small>依赖包</small></div><div class="package-tile">你的创意<small>工作区</small></div></div>
+              <div class="download-lanes" aria-hidden="true"><i></i><i></i><i></i><b>并行下载</b></div>
+              <div class="cache-core"><span class="cache-disc"></span><span class="cache-disc"></span><span class="cache-disc"></span><div><small>UTOO</small><strong>全局缓存</strong><em>按包版本复用</em></div></div>
+              <div class="reuse-lanes" aria-hidden="true"><i></i><i></i><i></i></div>
+              <div class="workspace-stack"><div><span>◈</span><strong>网站项目</strong><small>项目 A</small></div><div><span>◈</span><strong>管理后台</strong><small>项目 B</small></div><div><span>◈</span><strong>共享包</strong><small>Monorepo</small></div></div>
+              <div class="diagram-bottom"><span>下载一次</span><b>→</b><span>缓存共享</span><b>→</b><span>多项目复用</span></div>
+            </div>
+            <div class="feature-row install-features reveal"><div><b>01</b><span><strong>原生 Rust</strong><small>面向高效依赖管理</small></span></div><div><b>02</b><span><strong>兼容 npm 工作流</strong><small>继续使用 package-lock.json</small></span></div><div><b>03</b><span><strong>支持 Monorepo</strong><small>连接多个应用与共享包</small></span></div></div>
+          </section>
+
+          <section class="scene pack-scene" data-scene="pack" aria-labelledby="pack-title" hidden>
+            <div class="pack-heading"><div class="kicker reveal">02 · @utoo/pack</div><h2 id="pack-title" class="reveal">改一点，<span>只更新相关部分。</span></h2><p class="reveal">基于 Turbopack 的增量构建，把反馈留在创作的节奏里。</p></div>
+            <div class="build-pipeline reveal" aria-label="源码通过增量构建生成应用产物的示意">
+              <div class="source-files"><span class="diagram-label">项目源码</span><div class="file-card changed"><b>TSX</b><span>App.tsx<small>本次变更</small></span><i>●</i></div><div class="file-card"><b>CSS</b><span>styles.css<small>样式资源</small></span><i>✓</i></div><div class="file-card"><b>TS</b><span>utils.ts<small>共享逻辑</small></span><i>✓</i></div></div>
+              <div class="build-connectors connector-left" aria-hidden="true"><i></i><i></i><i></i><span>变更沿依赖图传播</span></div>
+              <div class="pack-core"><div class="core-ring"></div><div class="core-ring second"></div><div class="core-ring third"></div><div class="core-body"><span>ϟ</span><strong>Utoo Pack</strong><small>Rust × Turbopack</small></div></div>
+              <div class="build-connectors connector-right" aria-hidden="true"><i></i><i></i><i></i><span>复用未变化的结果</span></div>
+              <div class="output-card"><div class="output-top"><span class="status-dot"></span><strong>应用产物</strong></div><div class="output-preview"><div></div><div></div><div></div><b>更快，看见你的修改。</b></div><div class="output-resources"><span><i class="blue-dot"></i>JavaScript</span><span><i class="cyan-dot"></i>CSS</span><span><i class="gray-dot"></i>静态资源</span></div></div>
+            </div>
+            <div class="feature-row pack-features reveal"><div><b>↻</b><span><strong>增量构建</strong><small>沿依赖关系处理变更</small></span></div><div><b>▣</b><span><strong>持久化缓存</strong><small>让已有工作继续被复用</small></span></div><div><b>ϟ</b><span><strong>热更新</strong><small>减少修改与反馈之间的等待</small></span></div></div>
+          </section>
+
+          <section class="scene web-scene" data-scene="web" aria-labelledby="web-title" hidden>
+            <div class="web-heading"><div class="kicker reveal">03 · @utoo/web</div><h2 id="web-title" class="reveal">把开发环境，<span>装进浏览器。</span></h2><p class="reveal">依赖安装、TypeScript 编译、打包与实时预览，<br>通过 WebAssembly 在浏览器内完成。</p></div>
+            <div class="browser-window reveal" aria-label="浏览器开发界面示意">
+              <div class="browser-chrome"><span class="traffic-lights"><i></i><i></i><i></i></span><div><span>⌁</span> Utoo Web · 浏览器内开发</div><b>工作流示意</b></div>
+              <div class="browser-body"><aside class="file-explorer"><small>项目文件</small><strong>▾ see-conf-demo</strong><span>▾ src</span><span class="selected-file">◈ App.tsx</span><span>◈ styles.css</span><span>◈ package.json</span><span>◈ utoopack.json</span><div class="wasm-badge"><span>W</span><b>WASM</b><small>浏览器原生运行</small></div></aside><div class="code-pane"><div class="editor-tab">◈ App.tsx <span>×</span></div><div class="code-source" aria-label="React 示例代码"><div><i>1</i><code><b>import</b> React <b>from</b> <em>"react"</em>;</code></div><div><i>2</i><code><b>import</b> <em>"./styles.css"</em>;</code></div><div><i>3</i><code>&nbsp;</code></div><div><i>4</i><code><b>export default function</b> App() {</code></div><div><i>5</i><code>  <b>return</b> (</code></div><div><i>6</i><code>    &lt;<span>main</span> className=<em>"hello"</em>&gt;</code></div><div><i>7</i><code>      &lt;<span>span</span>&gt;✦&lt;/<span>span</span>&gt;</code></div><div><i>8</i><code>      &lt;<span>h1</span>&gt;你好 SEE Conf&lt;/<span>h1</span>&gt;</code></div><div><i>9</i><code>      &lt;<span>p</span>&gt;随处构建。&lt;/<span>p</span>&gt;</code></div><div><i>10</i><code>    &lt;/<span>main</span>&gt;</code></div><div><i>11</i><code>  );</code></div><div><i>12</i><code>}</code></div></div><div class="editor-status"><span>TypeScript · JSX</span><strong>WASM · OPFS · 热更新</strong></div></div><div class="preview-pane"><div class="preview-top"><span class="status-dot"></span> 实时预览 <small>↻</small></div><div class="preview-content"><span class="preview-symbol">✦</span><h3>你好<br>SEE Conf</h3><p>随处构建。</p><span class="preview-chip">2026 · 杭州</span></div></div></div>
+            </div>
+            <div class="web-bottom reveal"><span><strong>打开浏览器，继续创造。</strong><small>从学习示例到在线工具，让开发环境跟着想法走。</small></span><a href="https://utoo-repl.vercel.app/" target="_blank" rel="noopener noreferrer">体验 Utoo REPL <b>↗</b></a></div>
+          </section>
+        </div>
+
+        <footer class="stamp-strip">
+          <div class="stamp-invitation"><span>✳</span><div><small>SEE CONF · Utoo 互动展位</small><strong>来一局，带走你的大会集章。</strong></div></div>
+          <div class="stamp-steps"><span><i>01</i>完成一局构建盘挑战</span><b>→</b><span><i>02</i>向工作人员出示</span><b>→</b><span><i>03</i>获得大会集章</span></div>
+          <a href="../game/index.html" class="game-link">开始挑战 <b>↗</b></a>
+        </footer>
+
+        <nav class="display-controls" aria-label="展屏控制">
+          <span class="keyboard-hint">← → 切屏 <i>·</i> 1–4 直达 <i>·</i> 空格 暂停 <i>·</i> F 全屏</span>
+          <div class="scene-navigation"><span class="scene-counter"><b id="scene-number">01</b> / 04</span><div class="scene-dots" id="scene-dots"><button type="button" data-target="hero" aria-label="前往首页" aria-current="true"><span></span></button><button type="button" data-target="install" aria-label="前往依赖安装"><span></span></button><button type="button" data-target="pack" aria-label="前往增量构建"><span></span></button><button type="button" data-target="web" aria-label="前往浏览器开发"><span></span></button></div><button type="button" id="play-toggle" class="control-button" aria-label="暂停自动播放" aria-pressed="false">Ⅱ <span>轮播中</span></button><button type="button" id="fullscreen-toggle" class="control-button" aria-label="进入全屏" aria-pressed="false">⛶ <span>全屏</span></button></div>
+        </nav>
+        <div class="scene-progress" aria-hidden="true"><i id="scene-progress"></i></div>
+        <span class="sr-only" aria-live="polite" id="scene-announcement">当前第 1 屏：首页</span>
+      </div>
+    </main>
+  </body>
+</html>
+
