@@ -1,0 +1,47 @@
+public/seeconf/page.css
+  s_4c3eaac04b41b4::t_6b3f5dcb27bb2c 1-6
+public/seeconf/display/assets/github-qr.svg
+  s_4c3eaac04b41b4::t_6b3f5dcb27bb2c 1-2
+public/seeconf/display/assets/repl-qr.svg
+  s_4c3eaac04b41b4::t_6b3f5dcb27bb2c 1-2
+public/seeconf/page.js
+  s_4c3eaac04b41b4::t_6b3f5dcb27bb2c 1-41
+public/seeconf/game/game.css
+  s_4c3eaac04b41b4::t_6b3f5dcb27bb2c 1-34
+public/seeconf/game/assets/repl-qr.svg
+  s_4c3eaac04b41b4::t_6b3f5dcb27bb2c 1-2
+public/seeconf/display/assets/site-qr.svg
+  s_4c3eaac04b41b4::t_6b3f5dcb27bb2c 1-2
+public/seeconf/display/display.js
+  s_4c3eaac04b41b4::t_6b3f5dcb27bb2c 1-123
+public/seeconf/game/index.html
+  s_4c3eaac04b41b4::t_6b3f5dcb27bb2c 1-97
+public/seeconf/index.html
+  s_4c3eaac04b41b4::t_6b3f5dcb27bb2c 1-70
+public/seeconf/game/assets/site-qr.svg
+  s_4c3eaac04b41b4::t_6b3f5dcb27bb2c 1-2
+public/seeconf/game/assets/github-qr.svg
+  s_4c3eaac04b41b4::t_6b3f5dcb27bb2c 1-2
+public/seeconf/game/game.js
+  s_4c3eaac04b41b4::t_6b3f5dcb27bb2c 1-451
+public/seeconf/display/display.css
+  s_4c3eaac04b41b4::t_6b3f5dcb27bb2c 1-8
+public/seeconf/display/index.html
+  s_4c3eaac04b41b4::t_6b3f5dcb27bb2c 1-97
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "90a0d3a77bea330a0b2527e201c29aea12aba11a",
+  "prompts": {},
+  "sessions": {
+    "s_4c3eaac04b41b4": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1e31f-0fcb-7fd2-8507-f2cba99f8174",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "zoomdong <zoomdong@U-0K627Y2C-2335.local>"
+    }
+  }
+}
